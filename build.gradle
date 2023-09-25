@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.4'
+    id 'io.spring.dependency-management' version '1.1.3'
+}
+
+group = 'me.honki12345'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+    // web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    // dev-tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // h2
+    runtimeOnly 'com.h2database:h2'
+    // mysql driver
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
