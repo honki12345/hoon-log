@@ -2,8 +2,8 @@ package me.honki12345.hoonlog.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.honki12345.hoonlog.dto.request.SignUpRequest;
-import me.honki12345.hoonlog.dto.response.SignUpResponse;
+import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
+import me.honki12345.hoonlog.dto.response.UserAccountAddResponse;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +19,13 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
 
     @PostMapping
-    public ResponseEntity<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
-        SignUpResponse resp = SignUpResponse.from(userAccountService.saveUserAccount(request));
+    public ResponseEntity<UserAccountAddResponse> userAccountAdd(@Valid @RequestBody UserAccountAddRequest request) {
+        UserAccountAddResponse resp = UserAccountAddResponse.from(userAccountService.saveUserAccount(request));
         return new ResponseEntity<>(resp, HttpStatus.CREATED);
     }
+
+/*
+    @GetMapping("/{userId}")
+    public ResponseEntity<>
+*/
 }

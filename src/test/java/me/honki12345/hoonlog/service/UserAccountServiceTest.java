@@ -2,7 +2,7 @@ package me.honki12345.hoonlog.service;
 
 import me.honki12345.hoonlog.config.error.exception.DuplicateUserAccountException;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
-import me.honki12345.hoonlog.dto.request.SignUpRequest;
+import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +32,7 @@ class UserAccountServiceTest {
     void givenSignUpRequest_whenSignUp_thenContainingIdAndEncodedPWDAndCreatedAt() {
         // given
         String userPassword = "12345678";
-        SignUpRequest request = new SignUpRequest("fpg123", userPassword, "fpg123@mail.com");
+        UserAccountAddRequest request = new UserAccountAddRequest("fpg123", userPassword, "fpg123@mail.com");
 
         // when
         UserAccountDTO actual = userAccountService.saveUserAccount(request);
@@ -48,7 +48,7 @@ class UserAccountServiceTest {
     @Test
     void givenSignUpRequestWithDuplicateUserId_whenSignUp_thenThrowingException() {
         // given
-        SignUpRequest request = new SignUpRequest("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountAddRequest request = new UserAccountAddRequest("fpg123", "12345678", "fpg123@mail.com");
         userAccountService.saveUserAccount(request);
 
         // when // then

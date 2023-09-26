@@ -6,7 +6,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import me.honki12345.hoonlog.dto.request.SignUpRequest;
+import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.junit.jupiter.api.AfterEach;
@@ -17,8 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -43,7 +41,7 @@ class UserAccountControllerTest {
     @Test
     void givenSignUpRequest_whenSignUp_thenReturnUserAccount() throws Exception {
         // given
-        SignUpRequest request = new SignUpRequest("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountAddRequest request = new UserAccountAddRequest("fpg123", "12345678", "fpg123@mail.com");
         RequestSpecification requestSpecification = RestAssured
                 .given().log().all()
                 .port(port)
@@ -68,7 +66,7 @@ class UserAccountControllerTest {
     @Test
     void givenNullUserId_whenSignUp_thenException() throws Exception {
         // given
-        SignUpRequest request = new SignUpRequest(null, "12345678", "fpg123@mail.com");
+        UserAccountAddRequest request = new UserAccountAddRequest(null, "12345678", "fpg123@mail.com");
         RequestSpecification requestSpecification = RestAssured
                 .given().log().all()
                 .port(port)
@@ -93,7 +91,7 @@ class UserAccountControllerTest {
     @Test
     void givenDuplicatedUserId_whenSignUp_thenException() throws Exception {
         // given
-        SignUpRequest request = new SignUpRequest("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountAddRequest request = new UserAccountAddRequest("fpg123", "12345678", "fpg123@mail.com");
         userAccountService.saveUserAccount(request);
         RequestSpecification requestSpecification = RestAssured
                 .given().log().all()

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import me.honki12345.hoonlog.domain.UserAccount;
 
-public record SignUpRequest(
+public record UserAccountAddRequest(
         @NotNull(message = "아이디를 입력해주세요")
         String userId,
 
