@@ -7,11 +7,10 @@ import java.time.LocalDateTime;
 public record UserAccountAddResponse(
         Long id,
         String userId,
-        String userPassword,
         String email,
         LocalDateTime createdAt
 ) {
     public static UserAccountAddResponse from(UserAccountDTO dto) {
-        return new UserAccountAddResponse(dto.id(), dto.userId(), dto.userPassword(), dto.email(), dto.createdAt());
+        return new UserAccountAddResponse(dto.id(), dto.userId(), dto.email(), dto.createdAt());
     }
 }
