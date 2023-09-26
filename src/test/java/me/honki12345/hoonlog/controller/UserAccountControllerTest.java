@@ -41,7 +41,9 @@ class UserAccountControllerTest {
     @Test
     void givenSignUpRequest_whenSignUp_thenReturnUserAccount() throws Exception {
         // given
-        UserAccountAddRequest request = new UserAccountAddRequest("fpg123", "12345678", "fpg123@mail.com");
+        String userId = "fpg123";
+        String email = "fpg123@mail.com";
+        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email);
         RequestSpecification requestSpecification = RestAssured
                 .given().log().all()
                 .port(port)
@@ -58,6 +60,8 @@ class UserAccountControllerTest {
         assertAll(
                 () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
                 () -> assertThat((Integer) extract.jsonPath().get("id")).isNotNull(),
+                () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
+                () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email),
                 () -> assertThat((String) extract.jsonPath().get("createdAt")).isNotNull()
         );
     }
@@ -110,6 +114,59 @@ class UserAccountControllerTest {
                 () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
                 () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER1"),
                 () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("중복된 값이 존재합니다")
+        );
+    }
+
+    @DisplayName("유저 아이디로, 유저 조회에 성공한다")
+    @Test
+    void givenUserId_whenSearchingUserDetails_thenReturnUserAccount() throws Exception {
+        // given
+        String userId = "fpg123";
+        String email = "fpg123@mail.com";
+        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email);
+        userAccountService.saveUserAccount(request);
+        RequestSpecification requestSpecification = RestAssured
+                .given().log().all()
+                .port(port)
+                .pathParam("userId", userId);
+
+        // when
+        ExtractableResponse<Response> extract = requestSpecification.when()
+                .get("/api/v1/users/{userId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
+                () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email)
+        );
+    }
+
+    @DisplayName("존재하지 않는 유저 아이디면, 유저 조회시, 실패한다")
+    @Test
+    void givenNotFoundUserId_whenSearchingUserDetails_thenThrowsException() throws Exception {
+        // given
+        String userId = "fpg123";
+        String email = "fpg123@mail.com";
+        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email);
+        RequestSpecification requestSpecification = RestAssured
+                .given().log().all()
+                .port(port)
+                .pathParam("userId", userId);
+
+        // when
+        ExtractableResponse<Response> extract = requestSpecification.when()
+                .get("/api/v1/users/{userId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value()),
+                () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER2"),
+                () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("존재하지 않는 값입니다")
         );
     }
 
