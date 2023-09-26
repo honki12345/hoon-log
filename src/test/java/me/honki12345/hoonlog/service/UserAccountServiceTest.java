@@ -1,6 +1,7 @@
 package me.honki12345.hoonlog.service;
 
 import me.honki12345.hoonlog.config.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.config.error.exception.UserAccountNotFoundException;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -55,4 +56,10 @@ class UserAccountServiceTest {
         assertThatThrownBy(() -> userAccountService.saveUserAccount(request)).isInstanceOf(DuplicateUserAccountException.class);
     }
 
+    @DisplayName("존재하지 않는 유저 아이디로, 회원조회 시, 예외를 발생한다.")
+    @Test
+    void givenNotFoundUserId_whenFindUserAccount_thenThrowingException() {
+        // given // when // then
+        assertThatThrownBy(() -> userAccountService.findUserAccount("fpg123")).isInstanceOf(UserAccountNotFoundException.class);
+    }
 }

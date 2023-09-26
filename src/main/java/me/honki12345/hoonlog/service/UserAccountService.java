@@ -3,6 +3,7 @@ package me.honki12345.hoonlog.service;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.config.error.ErrorCode;
 import me.honki12345.hoonlog.config.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.config.error.exception.UserAccountNotFoundException;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
@@ -34,5 +35,11 @@ public class UserAccountService {
         String encodedPwd = passwordEncoder.encode(request.userPassword());
         UserAccount savedUserAccount = userAccountRepository.save(request.toEntity(encodedPwd));
         return UserAccountDTO.from(savedUserAccount);
+    }
+
+    public UserAccountDTO findUserAccount(String userId) {
+        return userAccountRepository.findByUserId(userId)
+                .map(UserAccountDTO::from)
+                .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
     }
 }
