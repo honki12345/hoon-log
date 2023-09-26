@@ -1,6 +1,8 @@
 package me.honki12345.hoonlog.config.error;
 
+import me.honki12345.hoonlog.config.error.exception.CustomBaseException;
 import me.honki12345.hoonlog.config.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.config.error.exception.UserAccountNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -26,7 +28,12 @@ public class GlobalExceptionHandler {
         return createResponseEntityByException(ex);
     }
 
-    private static ResponseEntity<ErrorResponse> createResponseEntityByException(DuplicateUserAccountException ex) {
+    @ExceptionHandler(UserAccountNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserAccountNotFoundException(UserAccountNotFoundException ex) {
+        return createResponseEntityByException(ex);
+    }
+
+    private static ResponseEntity<ErrorResponse> createResponseEntityByException(CustomBaseException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         String message = ex.getMessage();
         ErrorResponse errorResponse = ErrorResponse.of(errorCode, message);
