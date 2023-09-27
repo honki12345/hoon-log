@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import me.honki12345.hoonlog.dto.ProfileDTO;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,5 +24,10 @@ public class Profile {
 
     public static Profile of(String blogName, String blogShortBio) {
         return new Profile(blogName, blogShortBio);
+    }
+
+    public void modify(ProfileDTO dto) {
+        this.blogName = dto.blogName();
+        this.blogShortBio = dto.blogShortBio();
     }
 }

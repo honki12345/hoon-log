@@ -6,7 +6,7 @@ import me.honki12345.hoonlog.dto.UserAccountDTO;
 
 import java.time.LocalDateTime;
 
-public record UserAccountDetailsResponse(
+public record UserAccountModifyResponse(
         Long id,
         String userId,
         String email,
@@ -14,7 +14,7 @@ public record UserAccountDetailsResponse(
         ProfileDTO profileDTO,
         LocalDateTime createdAt
 ) {
-    public static UserAccountDetailsResponse from(UserAccountDTO dto) {
-        return new UserAccountDetailsResponse(dto.id(), dto.userId(), dto.email(), dto.profileDTO(), dto.createdAt());
+    public static UserAccountModifyResponse from(UserAccountDTO dto) {
+        return new UserAccountModifyResponse(dto.id(), dto.userId(), dto.email(), dto.profileDTO(), dto.createdAt());
     }
 }
