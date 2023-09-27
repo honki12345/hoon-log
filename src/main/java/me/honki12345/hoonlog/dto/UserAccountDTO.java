@@ -9,6 +9,7 @@ public record UserAccountDTO(
         String userId,
         String userPassword,
         String email,
+        ProfileDTO profileDTO,
         LocalDateTime createdAt
 ) {
 
@@ -18,6 +19,7 @@ public record UserAccountDTO(
                 entity.getUserId(),
                 entity.getUserPassword(),
                 entity.getEmail(),
+                ProfileDTO.from(entity.getProfile()),
                 entity.getCreatedAt()
         );
     }

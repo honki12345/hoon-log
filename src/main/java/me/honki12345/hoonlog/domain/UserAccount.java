@@ -1,6 +1,7 @@
 package me.honki12345.hoonlog.domain;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +10,7 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import me.honki12345.hoonlog.domain.vo.Profile;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -34,21 +36,25 @@ public class UserAccount {
     @Column(length = 100, nullable = true, unique = true)
     private String email;   // email, nullable
 
+    @Embedded
+    private Profile profile;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;    // 가입일자
 
-    private UserAccount(Long id, String userId, String userPassword, String email, LocalDateTime createdAt) {
+    private UserAccount(Long id, String userId, String userPassword, String email, Profile profile, LocalDateTime createdAt) {
         this.id = id;
         this.userId = userId;
         this.userPassword = userPassword;
         this.email = email;
+        this.profile = profile;
         this.createdAt = createdAt;
     }
 
-    public static UserAccount of(String userId, String userPassword, String email) {
-        return new UserAccount(null, userId, userPassword, email, null);
+    public static UserAccount of(String userId, String userPassword, String email, Profile profile) {
+        return new UserAccount(null, userId, userPassword, email, profile, null);
     }
 
     @Override
