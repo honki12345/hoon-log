@@ -33,7 +33,8 @@ public class UserAccountService {
         }
 
         String encodedPwd = passwordEncoder.encode(request.userPassword());
-        UserAccount savedUserAccount = userAccountRepository.save(request.toEntity(encodedPwd));
+        UserAccount userAccount = request.toEntity(encodedPwd);
+        UserAccount savedUserAccount = userAccountRepository.save(userAccount);
         return UserAccountDTO.from(savedUserAccount);
     }
 
