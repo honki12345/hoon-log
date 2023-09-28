@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
-import me.honki12345.hoonlog.dto.response.UserAccountAddResponse;
-import me.honki12345.hoonlog.dto.response.UserAccountDetailsResponse;
-import me.honki12345.hoonlog.dto.response.UserAccountModifyResponse;
+import me.honki12345.hoonlog.dto.response.UserAccountResponse;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,25 +24,25 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
 
     @PostMapping
-    public ResponseEntity<UserAccountAddResponse> addUserAccount(@Valid @RequestBody UserAccountAddRequest request) {
+    public ResponseEntity<UserAccountResponse> addUserAccount(@Valid @RequestBody UserAccountAddRequest request) {
         UserAccountDTO dto = userAccountService.saveUserAccount(request);
-        UserAccountAddResponse response = UserAccountAddResponse.from(dto);
+        UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserAccountDetailsResponse> searchUserAccount(@PathVariable String userId) {
+    public ResponseEntity<UserAccountResponse> searchUserAccount(@PathVariable String userId) {
         UserAccountDTO dto = userAccountService.findUserAccount(userId);
-        UserAccountDetailsResponse response = UserAccountDetailsResponse.from(dto);
+        UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserAccountModifyResponse> modifyUserAccount(
+    public ResponseEntity<UserAccountResponse> modifyUserAccount(
             @PathVariable String userId,
             @Valid @RequestBody UserAccountModifyRequest request) {
         UserAccountDTO dto = userAccountService.modifyUserAccount(userId, request);
-        UserAccountModifyResponse response = UserAccountModifyResponse.from(dto);
+        UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
