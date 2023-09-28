@@ -28,15 +28,15 @@ public class UserAccountController {
     @PostMapping
     public ResponseEntity<UserAccountAddResponse> addUserAccount(@Valid @RequestBody UserAccountAddRequest request) {
         UserAccountDTO dto = userAccountService.saveUserAccount(request);
-        UserAccountAddResponse resp = UserAccountAddResponse.from(dto);
-        return new ResponseEntity<>(resp, HttpStatus.CREATED);
+        UserAccountAddResponse response = UserAccountAddResponse.from(dto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserAccountDetailsResponse> searchUserAccount(@PathVariable String userId) {
         UserAccountDTO dto = userAccountService.findUserAccount(userId);
-        UserAccountDetailsResponse resp = UserAccountDetailsResponse.from(dto);
-        return new ResponseEntity<>(resp, HttpStatus.OK);
+        UserAccountDetailsResponse response = UserAccountDetailsResponse.from(dto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
@@ -44,7 +44,7 @@ public class UserAccountController {
             @PathVariable String userId,
             @Valid @RequestBody UserAccountModifyRequest request) {
         UserAccountDTO dto = userAccountService.modifyUserAccount(userId, request);
-        UserAccountModifyResponse resp = UserAccountModifyResponse.from(dto);
-        return new ResponseEntity<>(resp, HttpStatus.OK);
+        UserAccountModifyResponse response = UserAccountModifyResponse.from(dto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
