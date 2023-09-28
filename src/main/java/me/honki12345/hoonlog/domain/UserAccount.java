@@ -25,16 +25,16 @@ import java.util.Objects;
 public class UserAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;    // id, 대리키
+    private Long id;
 
     @Column(length = 100, nullable = false, unique = true)
-    private String userId;    // username, unique
+    private String userId;
 
     @Column(length = 100, nullable = false)
     private String userPassword;
 
-    @Column(length = 100, nullable = true, unique = true)
-    private String email;   // email, nullable
+    @Column(length = 100, unique = true)
+    private String email;
 
     @Embedded
     private Profile profile;
@@ -42,7 +42,7 @@ public class UserAccount {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;    // 가입일자
+    private LocalDateTime createdAt;
 
     private UserAccount(Long id, String userId, String userPassword, String email, Profile profile, LocalDateTime createdAt) {
         this.id = id;
