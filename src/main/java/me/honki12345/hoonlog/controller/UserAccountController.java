@@ -26,21 +26,21 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
 
     @PostMapping
-    public ResponseEntity<UserAccountAddResponse> userAccountAdd(@Valid @RequestBody UserAccountAddRequest request) {
+    public ResponseEntity<UserAccountAddResponse> addUserAccount(@Valid @RequestBody UserAccountAddRequest request) {
         UserAccountDTO dto = userAccountService.saveUserAccount(request);
         UserAccountAddResponse resp = UserAccountAddResponse.from(dto);
         return new ResponseEntity<>(resp, HttpStatus.CREATED);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserAccountDetailsResponse> userAccountDetails(@PathVariable String userId) {
+    public ResponseEntity<UserAccountDetailsResponse> searchUserAccount(@PathVariable String userId) {
         UserAccountDTO dto = userAccountService.findUserAccount(userId);
         UserAccountDetailsResponse resp = UserAccountDetailsResponse.from(dto);
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserAccountModifyResponse> userAccountModify(
+    public ResponseEntity<UserAccountModifyResponse> modifyUserAccount(
             @PathVariable String userId,
             @Valid @RequestBody UserAccountModifyRequest request) {
         UserAccountDTO dto = userAccountService.modifyUserAccount(userId, request);
