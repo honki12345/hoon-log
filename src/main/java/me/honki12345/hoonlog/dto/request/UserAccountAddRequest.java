@@ -8,18 +8,18 @@ import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 
 public record UserAccountAddRequest(
-        @NotNull(message = "아이디를 입력해주세요")
-        String userId,
+    @NotNull(message = "아이디를 입력해주세요")
+    String userId,
 
-        @Size(min = 8, max = 20, message = "비밀번호 형식이 올바르지 않습니다")
-        String userPassword,
+    @Size(min = 8, max = 20, message = "비밀번호 형식이 올바르지 않습니다")
+    String userPassword,
 
-        @Pattern(regexp = ".+@.+", message = "이메일 형식이 올바르지 않습니다")
-        String email,
+    @Pattern(regexp = ".+@.+", message = "이메일 형식이 올바르지 않습니다")
+    String email,
 
-        @Valid
-        @NotNull(message = "블로그 제목을 입력해주세요")
-        ProfileDTO profile
+    @Valid
+    @NotNull(message = "블로그 제목을 입력해주세요")
+    ProfileDTO profile
 ) {
 
     public UserAccount toEntity(String encodedPwd) {

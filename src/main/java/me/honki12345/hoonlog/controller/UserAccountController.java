@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class UserAccountController {
+
     private final UserAccountService userAccountService;
 
     @PostMapping
-    public ResponseEntity<UserAccountResponse> addUserAccount(@Valid @RequestBody UserAccountAddRequest request) {
+    public ResponseEntity<UserAccountResponse> addUserAccount(
+        @Valid @RequestBody UserAccountAddRequest request) {
         UserAccountDTO dto = userAccountService.saveUserAccount(request);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -39,8 +41,8 @@ public class UserAccountController {
 
     @PutMapping("/{userId}")
     public ResponseEntity<UserAccountResponse> modifyUserAccount(
-            @PathVariable String userId,
-            @Valid @RequestBody UserAccountModifyRequest request) {
+        @PathVariable String userId,
+        @Valid @RequestBody UserAccountModifyRequest request) {
         UserAccountDTO dto = userAccountService.modifyUserAccount(userId, request);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);

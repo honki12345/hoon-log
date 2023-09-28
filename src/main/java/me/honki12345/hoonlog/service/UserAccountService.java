@@ -20,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class UserAccountService {
+
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -37,13 +38,13 @@ public class UserAccountService {
     @Transactional(readOnly = true)
     public UserAccountDTO findUserAccount(String userId) {
         return userAccountRepository.findByUserId(userId)
-                .map(UserAccountDTO::from)
-                .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
+            .map(UserAccountDTO::from)
+            .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
     }
 
     public UserAccountDTO modifyUserAccount(String userId, UserAccountModifyRequest request) {
         UserAccount userAccount = userAccountRepository.findByUserId(userId)
-                .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
+            .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
         Profile profile = userAccount.getProfile();
         profile.modify(request.profile());
         return UserAccountDTO.from(userAccount);

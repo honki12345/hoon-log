@@ -21,9 +21,13 @@ import static org.assertj.core.api.Assertions.*;
 @ActiveProfiles("test")
 @SpringBootTest
 class UserAccountServiceTest {
-    @Autowired private UserAccountService userAccountService;
-    @Autowired private UserAccountRepository userAccountRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserAccountService userAccountService;
+    @Autowired
+    private UserAccountRepository userAccountRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @AfterEach
     void tearDown() {
@@ -37,15 +41,15 @@ class UserAccountServiceTest {
         String userPassword = "12345678";
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
-                "fpg123", userPassword, "fpg123@mail.com", profileDTO);
+            "fpg123", userPassword, "fpg123@mail.com", profileDTO);
 
         // when
         UserAccountDTO actual = userAccountService.saveUserAccount(request);
 
         // then
         assertThat(actual)
-                .hasFieldOrProperty("id")
-                .hasFieldOrProperty("createdAt");
+            .hasFieldOrProperty("id")
+            .hasFieldOrProperty("createdAt");
         assertThat(passwordEncoder.matches(userPassword, actual.userPassword()));
     }
 
@@ -55,18 +59,20 @@ class UserAccountServiceTest {
         // given
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
-                "fpg123", "12345678", "fpg123@mail.com", profileDTO);
+            "fpg123", "12345678", "fpg123@mail.com", profileDTO);
         userAccountService.saveUserAccount(request);
 
         // when // then
-        assertThatThrownBy(() -> userAccountService.saveUserAccount(request)).isInstanceOf(DuplicateUserAccountException.class);
+        assertThatThrownBy(() -> userAccountService.saveUserAccount(request)).isInstanceOf(
+            DuplicateUserAccountException.class);
     }
 
     @DisplayName("[조회/실패]존재하지 않는 유저 아이디로, 회원조회 시, 예외를 발생한다.")
     @Test
     void givenNotFoundUserId_whenFindUserAccount_thenThrowingException() {
         // given // when // then
-        assertThatThrownBy(() -> userAccountService.findUserAccount("fpg123")).isInstanceOf(UserAccountNotFoundException.class);
+        assertThatThrownBy(() -> userAccountService.findUserAccount("fpg123")).isInstanceOf(
+            UserAccountNotFoundException.class);
     }
 
     @DisplayName("[수정/성공]수정정보를 입력하면, 회원수정 시, 수정된 회원객체 DTO를 반환한다")
@@ -75,23 +81,24 @@ class UserAccountServiceTest {
         // given
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
-                "fpg123", "12345678", "fpg123@mail.com", profileDTO);
+            "fpg123", "12345678", "fpg123@mail.com", profileDTO);
         userAccountService.saveUserAccount(request);
 
         String changedBlogName = "changedBlogName";
         String changedBlogBio = "changedBlogBio";
         UserAccountModifyRequest modifyRequest = new UserAccountModifyRequest(
-                new ProfileDTO(changedBlogName, changedBlogBio)
+            new ProfileDTO(changedBlogName, changedBlogBio)
         );
 
         // when
-        UserAccountDTO userAccountDTO = userAccountService.modifyUserAccount("fpg123", modifyRequest);
+        UserAccountDTO userAccountDTO = userAccountService.modifyUserAccount("fpg123",
+            modifyRequest);
         ProfileDTO changedProfileDTO = userAccountDTO.profileDTO();
 
         // then
         assertThat(changedProfileDTO)
-                .hasFieldOrPropertyWithValue("blogName", changedBlogName)
-                .hasFieldOrPropertyWithValue("blogShortBio", changedBlogBio);
+            .hasFieldOrPropertyWithValue("blogName", changedBlogName)
+            .hasFieldOrPropertyWithValue("blogShortBio", changedBlogBio);
     }
 
     @DisplayName("[수정/실패]존재하지 않는 userId를 입력하면, 회원수정 시, 예외를 발생한다")
@@ -99,12 +106,12 @@ class UserAccountServiceTest {
     void givenModifyingInfoWithWrongUserId_whenModifyingUserAccount_thenThrowsException() {
         // given
         UserAccountModifyRequest modifyRequest = new UserAccountModifyRequest(
-                new ProfileDTO("changedBlogName", "changedBlogBio")
+            new ProfileDTO("changedBlogName", "changedBlogBio")
         );
 
         // when // then
         assertThatThrownBy(() -> userAccountService.modifyUserAccount("wrongUserId", modifyRequest))
-                .isInstanceOf(UserAccountNotFoundException.class);
+            .isInstanceOf(UserAccountNotFoundException.class);
     }
 
 }

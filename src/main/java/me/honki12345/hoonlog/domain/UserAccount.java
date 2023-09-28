@@ -23,6 +23,7 @@ import java.util.Objects;
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 public class UserAccount {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,7 +45,8 @@ public class UserAccount {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    private UserAccount(Long id, String userId, String userPassword, String email, Profile profile, LocalDateTime createdAt) {
+    private UserAccount(Long id, String userId, String userPassword, String email, Profile profile,
+        LocalDateTime createdAt) {
         this.id = id;
         this.userId = userId;
         this.userPassword = userPassword;
@@ -53,14 +55,19 @@ public class UserAccount {
         this.createdAt = createdAt;
     }
 
-    public static UserAccount of(String userId, String userPassword, String email, Profile profile) {
+    public static UserAccount of(String userId, String userPassword, String email,
+        Profile profile) {
         return new UserAccount(null, userId, userPassword, email, profile, null);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserAccount that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UserAccount that)) {
+            return false;
+        }
         return Objects.equals(id, that.id);
     }
 

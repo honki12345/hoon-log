@@ -29,12 +29,18 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserAccountControllerTest {
-    @Autowired UserAccountController userAccountController;
-    @Autowired UserAccountService userAccountService;
-    @Autowired UserAccountRepository userAccountRepository;
-    @Autowired ObjectMapper objectMapper;
 
-    @LocalServerPort private int port;
+    @Autowired
+    UserAccountController userAccountController;
+    @Autowired
+    UserAccountService userAccountService;
+    @Autowired
+    UserAccountRepository userAccountRepository;
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @LocalServerPort
+    private int port;
 
     @AfterEach
     void tearDown() {
@@ -48,26 +54,27 @@ class UserAccountControllerTest {
         String userId = "fpg123";
         String email = "fpg123@mail.com";
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email, profileDTO);
+        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email,
+            profileDTO);
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .body(objectMapper.writeValueAsString(request))
-                .contentType(ContentType.JSON);
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(request))
+            .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .post("/api/v1/users")
-                .then().log().all()
-                .extract();
+            .post("/api/v1/users")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
-                () -> assertThat((Integer) extract.jsonPath().get("id")).isNotNull(),
-                () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
-                () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email),
-                () -> assertThat((String) extract.jsonPath().get("createdAt")).isNotNull()
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
+            () -> assertThat((Integer) extract.jsonPath().get("id")).isNotNull(),
+            () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
+            () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email),
+            () -> assertThat((String) extract.jsonPath().get("createdAt")).isNotNull()
         );
     }
 
@@ -77,24 +84,24 @@ class UserAccountControllerTest {
         // given
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
-                null, "12345678", "fpg123@mail.com", profileDTO);
+            null, "12345678", "fpg123@mail.com", profileDTO);
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .body(objectMapper.writeValueAsString(request))
-                .contentType(ContentType.JSON);
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(request))
+            .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .post("/api/v1/users")
-                .then().log().all()
-                .extract();
+            .post("/api/v1/users")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
-                () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("COMMON1"),
-                () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("아이디를 입력해주세요")
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+            () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("COMMON1"),
+            () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("아이디를 입력해주세요")
         );
     }
 
@@ -104,25 +111,25 @@ class UserAccountControllerTest {
         // given
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
-                "fpg123", "12345678", "fpg123@mail.com", profileDTO);
+            "fpg123", "12345678", "fpg123@mail.com", profileDTO);
         userAccountService.saveUserAccount(request);
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .body(objectMapper.writeValueAsString(request))
-                .contentType(ContentType.JSON);
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(request))
+            .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .post("/api/v1/users")
-                .then().log().all()
-                .extract();
+            .post("/api/v1/users")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
-                () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER1"),
-                () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("중복된 값이 존재합니다")
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+            () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER1"),
+            () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("중복된 값이 존재합니다")
         );
     }
 
@@ -131,24 +138,24 @@ class UserAccountControllerTest {
     void givenNoBlogName_whenSignUp_thenException() throws Exception {
         // given
         UserAccountAddRequest request = new UserAccountAddRequest(
-                "fpg123", "12345678", "fpg123@mail.com", null);
+            "fpg123", "12345678", "fpg123@mail.com", null);
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .body(objectMapper.writeValueAsString(request))
-                .contentType(ContentType.JSON);
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(request))
+            .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .post("/api/v1/users")
-                .then().log().all()
-                .extract();
+            .post("/api/v1/users")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
-                () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("COMMON1"),
-                () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("블로그 제목을 입력해주세요")
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+            () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("COMMON1"),
+            () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("블로그 제목을 입력해주세요")
         );
     }
 
@@ -162,21 +169,21 @@ class UserAccountControllerTest {
         saveOneUserAccount(userId, email, profileDTO);
 
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .pathParam("userId", userId);
+            .given().log().all()
+            .port(port)
+            .pathParam("userId", userId);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .get("/api/v1/users/{userId}")
-                .then().log().all()
-                .extract();
+            .get("/api/v1/users/{userId}")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
-                () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
-                () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email)
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
+            () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email)
         );
     }
 
@@ -187,27 +194,28 @@ class UserAccountControllerTest {
         String userId = "fpg123";
         String email = "fpg123@mail.com";
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .pathParam("userId", userId);
+            .given().log().all()
+            .port(port)
+            .pathParam("userId", userId);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .get("/api/v1/users/{userId}")
-                .then().log().all()
-                .extract();
+            .get("/api/v1/users/{userId}")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value()),
-                () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER2"),
-                () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("존재하지 않는 값입니다")
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value()),
+            () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER2"),
+            () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("존재하지 않는 값입니다")
         );
     }
 
     @DisplayName("[수정/성공]유저 프로필 수정에 성공한다")
     @Test
-    void givenModifyingInfo_whenModifyingUserProfile_thenReturnModifiedUserAccount() throws JsonProcessingException {
+    void givenModifyingInfo_whenModifyingUserProfile_thenReturnModifiedUserAccount()
+        throws JsonProcessingException {
         // given
         String userId = "fpg123";
         String email = "fpg123@mail.com";
@@ -216,32 +224,36 @@ class UserAccountControllerTest {
 
         String modifiedBlogName = "blogName2";
         String modifiedBlogShortBio = "bio2";
-        UserAccountModifyRequest request = new UserAccountModifyRequest(new ProfileDTO(modifiedBlogName, modifiedBlogShortBio));
+        UserAccountModifyRequest request = new UserAccountModifyRequest(
+            new ProfileDTO(modifiedBlogName, modifiedBlogShortBio));
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .pathParam("userId", userId)
-                .body(objectMapper.writeValueAsString(request))
-                .contentType(ContentType.JSON);
+            .given().log().all()
+            .port(port)
+            .pathParam("userId", userId)
+            .body(objectMapper.writeValueAsString(request))
+            .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .put("/api/v1/users/{userId}")
-                .then().log().all()
-                .extract();
+            .put("/api/v1/users/{userId}")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
-                () -> assertThat((String) extract.jsonPath().get("profile.blogName")).isEqualTo(modifiedBlogName),
-                () -> assertThat((String) extract.jsonPath().get("profile.blogShortBio")).isEqualTo(modifiedBlogShortBio)
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat((String) extract.jsonPath().get("profile.blogName")).isEqualTo(
+                modifiedBlogName),
+            () -> assertThat((String) extract.jsonPath().get("profile.blogShortBio")).isEqualTo(
+                modifiedBlogShortBio)
         );
     }
 
 
     @DisplayName("[수정/실패]블로그제목을 미입력시, 유저 프로필 수정에 실패한다")
     @Test
-    void givenModifyingInfoWithoutBlogName_whenModifyingUserProfile_thenReturnsErrorMessage() throws JsonProcessingException {
+    void givenModifyingInfoWithoutBlogName_whenModifyingUserProfile_thenReturnsErrorMessage()
+        throws JsonProcessingException {
         // given
         String userId = "fpg123";
         String email = "fpg123@mail.com";
@@ -250,31 +262,33 @@ class UserAccountControllerTest {
 
         String modifiedBlogName = null;
         String modifiedBlogShortBio = "bio2";
-        UserAccountModifyRequest request = new UserAccountModifyRequest(new ProfileDTO(modifiedBlogName, modifiedBlogShortBio));
+        UserAccountModifyRequest request = new UserAccountModifyRequest(
+            new ProfileDTO(modifiedBlogName, modifiedBlogShortBio));
         RequestSpecification requestSpecification = RestAssured
-                .given().log().all()
-                .port(port)
-                .pathParam("userId", userId)
-                .body(objectMapper.writeValueAsString(request))
-                .contentType(ContentType.JSON);
+            .given().log().all()
+            .port(port)
+            .pathParam("userId", userId)
+            .body(objectMapper.writeValueAsString(request))
+            .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-                .put("/api/v1/users/{userId}")
-                .then().log().all()
-                .extract();
+            .put("/api/v1/users/{userId}")
+            .then().log().all()
+            .extract();
 
         // then
         assertAll(
-                () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
-                () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("COMMON1"),
-                () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("블로그 제목을 입력해주세요")
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+            () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("COMMON1"),
+            () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("블로그 제목을 입력해주세요")
         );
     }
 
 
     private void saveOneUserAccount(String userId, String email, ProfileDTO profileDTO) {
-        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email, profileDTO);
+        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email,
+            profileDTO);
         userAccountService.saveUserAccount(request);
     }
 

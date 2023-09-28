@@ -24,11 +24,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(CsrfConfigurer::disable)
-                .httpBasic(HttpBasicConfigurer::disable)
-                .formLogin(FormLoginConfigurer::disable);
+            .httpBasic(HttpBasicConfigurer::disable)
+            .formLogin(FormLoginConfigurer::disable);
 
         http.authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll());
+            .anyRequest().permitAll());
 
         return http.build();
     }
@@ -36,9 +36,9 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(UserAccountService userAccountService) {
         return userId -> userAccountService
-                .searchUser(userId)
-                .map(UserAccountPrincipal::from)
-                .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다: " + userId));
+            .searchUser(userId)
+            .map(UserAccountPrincipal::from)
+            .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다: " + userId));
     }
 
     @Bean

@@ -14,30 +14,36 @@ import java.util.StringJoiner;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     public static final String DELIMITER = ", ";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationException(
+        MethodArgumentNotValidException ex) {
         String message = createValidationExceptionMessage(ex);
         ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, message);
         return new ResponseEntity<>(errorResponse, ErrorCode.INVALID_INPUT_VALUE.getStatus());
     }
 
     @ExceptionHandler(DuplicateUserAccountException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicationException(DuplicateUserAccountException ex) {
+    public ResponseEntity<ErrorResponse> handleDuplicationException(
+        DuplicateUserAccountException ex) {
         return createResponseEntityByException(ex);
     }
 
     @ExceptionHandler(UserAccountNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserAccountNotFoundException(UserAccountNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleUserAccountNotFoundException(
+        UserAccountNotFoundException ex) {
         return createResponseEntityByException(ex);
     }
 
-    private static ResponseEntity<ErrorResponse> createResponseEntityByException(CustomBaseException ex) {
+    private static ResponseEntity<ErrorResponse> createResponseEntityByException(
+        CustomBaseException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         String message = ex.getMessage();
         ErrorResponse errorResponse = ErrorResponse.of(errorCode, message);
-        ResponseEntity<ErrorResponse> responseEntity = new ResponseEntity<>(errorResponse, errorCode.getStatus());
+        ResponseEntity<ErrorResponse> responseEntity = new ResponseEntity<>(errorResponse,
+            errorCode.getStatus());
         return responseEntity;
     }
 

@@ -11,6 +11,7 @@ import me.honki12345.hoonlog.dto.ProfileDTO;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Embeddable
 public class Profile {
+
     @Column(length = 100, nullable = false)
     private String blogName;
 

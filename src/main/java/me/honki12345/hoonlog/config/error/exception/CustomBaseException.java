@@ -2,7 +2,8 @@ package me.honki12345.hoonlog.config.error.exception;
 
 import me.honki12345.hoonlog.config.error.ErrorCode;
 
-public class CustomBaseException extends RuntimeException{
+public class CustomBaseException extends RuntimeException {
+
     private final ErrorCode errorCode;
 
     public CustomBaseException(ErrorCode errorCode) {
