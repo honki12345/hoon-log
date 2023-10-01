@@ -1,8 +1,9 @@
 package me.honki12345.hoonlog.dto;
 
-import me.honki12345.hoonlog.domain.UserAccount;
-
 import java.time.LocalDateTime;
+import java.util.Set;
+import me.honki12345.hoonlog.domain.Role;
+import me.honki12345.hoonlog.domain.UserAccount;
 
 public record UserAccountDTO(
     Long id,
@@ -10,7 +11,8 @@ public record UserAccountDTO(
     String userPassword,
     String email,
     ProfileDTO profileDTO,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    Set<Role> roles
 ) {
 
     public static UserAccountDTO from(UserAccount entity) {
@@ -20,7 +22,9 @@ public record UserAccountDTO(
             entity.getUserPassword(),
             entity.getEmail(),
             ProfileDTO.from(entity.getProfile()),
-            entity.getCreatedAt()
+            entity.getCreatedAt(),
+            entity.getRoles()
         );
     }
+
 }
