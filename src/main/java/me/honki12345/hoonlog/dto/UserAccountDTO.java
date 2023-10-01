@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public record UserAccountDTO(
     Long id,
-    String userId,
+    String username,
     String userPassword,
     String email,
     ProfileDTO profileDTO,
@@ -16,7 +16,7 @@ public record UserAccountDTO(
     public static UserAccountDTO from(UserAccount entity) {
         return new UserAccountDTO(
             entity.getId(),
-            entity.getUserId(),
+            entity.getUsername(),
             entity.getUserPassword(),
             entity.getEmail(),
             ProfileDTO.from(entity.getProfile()),

@@ -14,8 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Transactional
 @RequiredArgsConstructor
 @Service
@@ -25,7 +23,7 @@ public class UserAccountService {
     private final PasswordEncoder passwordEncoder;
 
     public UserAccountDTO saveUserAccount(UserAccountAddRequest request) {
-        if (userAccountRepository.existsByUserId(request.userId())) {
+        if (userAccountRepository.existsByUsername(request.username())) {
             throw new DuplicateUserAccountException(ErrorCode.DUPLICATE_USER_ACCOUNT);
         }
 
@@ -36,14 +34,14 @@ public class UserAccountService {
     }
 
     @Transactional(readOnly = true)
-    public UserAccountDTO findUserAccount(String userId) {
-        return userAccountRepository.findByUserId(userId)
+    public UserAccountDTO findUserAccount(String username) {
+        return userAccountRepository.findByUsername(username)
             .map(UserAccountDTO::from)
             .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
     }
 
-    public UserAccountDTO modifyUserAccount(String userId, UserAccountModifyRequest request) {
-        UserAccount userAccount = userAccountRepository.findByUserId(userId)
+    public UserAccountDTO modifyUserAccount(String username, UserAccountModifyRequest request) {
+        UserAccount userAccount = userAccountRepository.findByUsername(username)
             .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
         Profile profile = userAccount.getProfile();
         profile.modify(request.profile());

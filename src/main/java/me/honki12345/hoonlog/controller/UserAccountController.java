@@ -32,18 +32,18 @@ public class UserAccountController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserAccountResponse> searchUserAccount(@PathVariable String userId) {
-        UserAccountDTO dto = userAccountService.findUserAccount(userId);
+    @GetMapping("/{username}")
+    public ResponseEntity<UserAccountResponse> searchUserAccount(@PathVariable String username) {
+        UserAccountDTO dto = userAccountService.findUserAccount(username);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping("/{username}")
     public ResponseEntity<UserAccountResponse> modifyUserAccount(
-        @PathVariable String userId,
+        @PathVariable String username,
         @Valid @RequestBody UserAccountModifyRequest request) {
-        UserAccountDTO dto = userAccountService.modifyUserAccount(userId, request);
+        UserAccountDTO dto = userAccountService.modifyUserAccount(username, request);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

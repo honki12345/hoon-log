@@ -29,7 +29,7 @@ public class UserAccount {
     private Long id;
 
     @Column(length = 100, nullable = false, unique = true)
-    private String userId;
+    private String username;
 
     @Column(length = 100, nullable = false)
     private String userPassword;
@@ -45,19 +45,19 @@ public class UserAccount {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    private UserAccount(Long id, String userId, String userPassword, String email, Profile profile,
+    private UserAccount(Long id, String username, String userPassword, String email, Profile profile,
         LocalDateTime createdAt) {
         this.id = id;
-        this.userId = userId;
+        this.username = username;
         this.userPassword = userPassword;
         this.email = email;
         this.profile = profile;
         this.createdAt = createdAt;
     }
 
-    public static UserAccount of(String userId, String userPassword, String email,
+    public static UserAccount of(String username, String userPassword, String email,
         Profile profile) {
-        return new UserAccount(null, userId, userPassword, email, profile, null);
+        return new UserAccount(null, username, userPassword, email, profile, null);
     }
 
     @Override

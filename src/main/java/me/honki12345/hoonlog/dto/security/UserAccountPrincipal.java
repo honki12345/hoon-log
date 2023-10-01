@@ -1,6 +1,6 @@
 package me.honki12345.hoonlog.dto.security;
 
-import me.honki12345.hoonlog.dto.UserAccountDTO;
+import me.honki12345.hoonlog.domain.UserAccount;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,10 +14,10 @@ public record UserAccountPrincipal(
     Collection<? extends GrantedAuthority> authorities
 ) implements UserDetails {
 
-    public static UserAccountPrincipal from(UserAccountDTO dto) {
+    public static UserAccountPrincipal from(UserAccount entity) {
         return new UserAccountPrincipal(
-            dto.userId(),
-            dto.userPassword(),
+            entity.getUsername(),
+            entity.getUserPassword(),
             List.of(new SimpleGrantedAuthority("USER"))
         );
 

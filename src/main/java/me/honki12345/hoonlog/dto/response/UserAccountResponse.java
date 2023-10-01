@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public record UserAccountResponse(
     Long id,
-    String userId,
+    String username,
     String email,
     @JsonProperty("profile")
     ProfileDTO profileDTO,
@@ -16,7 +16,7 @@ public record UserAccountResponse(
 ) {
 
     public static UserAccountResponse from(UserAccountDTO dto) {
-        return new UserAccountResponse(dto.id(), dto.userId(), dto.email(), dto.profileDTO(),
+        return new UserAccountResponse(dto.id(), dto.username(), dto.email(), dto.profileDTO(),
             dto.createdAt());
     }
 }
