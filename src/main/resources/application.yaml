@@ -18,6 +18,7 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
+        dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
   h2.console.enabled: true
   sql.init.mode: always
@@ -39,3 +40,4 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
