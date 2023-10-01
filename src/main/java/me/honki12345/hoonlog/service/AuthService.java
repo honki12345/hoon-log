@@ -1,6 +1,5 @@
 package me.honki12345.hoonlog.service;
 
-import io.jsonwebtoken.Claims;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -47,18 +46,14 @@ public class AuthService {
         TokenDTO tokenDTO = refreshTokenRepository.findByToken(refreshToken)
             .map(TokenDTO::from)
             .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
+        Long userIdFromRefreshToken = jwtTokenProvider.getUserIdFromRefreshToken(
+            tokenDTO.refreshToken());
+        if (!userAccountRepository.existsById(userIdFromRefreshToken)) {
+            throw new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND);
+        }
 
-        Claims claims = jwtTokenProvider.parseRefreshToken(tokenDTO.refreshToken());
-        Long userId = Long.valueOf((Integer) claims.get("id"));
-        userAccountRepository.findById(userId)
-            .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
-        List<String> roles = (List<String>) claims.get("roles");
-        String username = (String) claims.get("name");
-
-        String newAccessToken = jwtTokenProvider.createAccessToken(userId, username, roles);
-
+        String newAccessToken = jwtTokenProvider.createNewAccessToken(refreshToken);
         return TokenDTO.of(newAccessToken, refreshToken);
-
     }
 
     public Long FindUserIdByRefreshToken(String refreshToken) {

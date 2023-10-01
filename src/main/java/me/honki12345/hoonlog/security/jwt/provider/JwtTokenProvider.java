@@ -31,6 +31,14 @@ public class JwtTokenProvider {
         return createToken(id, username, roles, ACCESS_TOKEN_EXPIRE_COUNT, accessSecret);
     }
 
+    public String createNewAccessToken(String refreshToken) {
+        Claims claims = parseRefreshToken(refreshToken);
+        Long userId = Long.valueOf((Integer) claims.get("id"));
+        String username = (String) claims.get("name");
+        List<String> roles = (List<String>) claims.get("roles");
+        return createAccessToken(userId, username, roles);
+    }
+
     public String createRefreshToken(Long id, String username, List<String> roles) {
         return createToken(id, username, roles, REFRESH_TOKEN_EXPIRE_COUNT, refreshSecret);
     }

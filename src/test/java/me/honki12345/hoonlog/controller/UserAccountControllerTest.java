@@ -168,8 +168,7 @@ class UserAccountControllerTest {
         // given
         String username = "fpg123";
         String email = "fpg123@mail.com";
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        saveOneUserAccount(username, email, profileDTO);
+        saveOneUserAccount(username, "12345678", email);
 
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
@@ -220,9 +219,7 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        String email = "fpg123@mail.com";
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        saveOneUserAccount(username, email, profileDTO);
+        saveOneUserAccount(username, "12345678");
 
         String modifiedBlogName = "blogName2";
         String modifiedBlogShortBio = "bio2";
@@ -258,9 +255,7 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        String email = "fpg123@mail.com";
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        saveOneUserAccount(username, email, profileDTO);
+        saveOneUserAccount(username, "12345678");
 
         String modifiedBlogName = null;
         String modifiedBlogShortBio = "bio2";
@@ -288,11 +283,22 @@ class UserAccountControllerTest {
         );
     }
 
+    private UserAccountDTO saveOneUserAccount(String username, String password) {
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        return saveOneUserAccount(username, password, "fpg123@mail.com", profileDTO);
+    }
 
-    private UserAccountDTO saveOneUserAccount(String username, String email, ProfileDTO profileDTO) {
-        UserAccountAddRequest request = new UserAccountAddRequest(username, "12345678", email,
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email) {
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        return saveOneUserAccount(username, password, email, profileDTO);
+    }
+
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email,
+        ProfileDTO profileDTO) {
+        UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
             profileDTO);
-        UserAccountDTO userAccountDTO = userAccountService.saveUserAccount(request);
-        return userAccountDTO;
+        return userAccountService.saveUserAccount(request);
     }
 }

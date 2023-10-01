@@ -11,11 +11,14 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import me.honki12345.hoonlog.dto.ProfileDTO;
+import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.LoginRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
+import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.provider.JwtTokenProvider;
+import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,13 +35,17 @@ import org.springframework.test.context.ActiveProfiles;
 class AuthControllerTest {
 
     @Autowired
-    UserAccountService userAccountService;
-    @Autowired
     ObjectMapper objectMapper;
     @Autowired
     JwtTokenProvider jwtTokenProvider;
     @Autowired
+    UserAccountService userAccountService;
+    @Autowired
+    AuthService authService;
+    @Autowired
     UserAccountRepository userAccountRepository;
+    @Autowired
+    RefreshTokenRepository refreshTokenRepository;
 
     @LocalServerPort
     private int port;
@@ -48,15 +55,14 @@ class AuthControllerTest {
         userAccountRepository.deleteAllInBatch();
     }
 
-    @DisplayName("로그인에 성공한다")
+    @DisplayName("[로그인/성공]로그인에 성공한다")
     @Test
     void givenLoginInfo_whenLogin_thenReturnsTokens() throws JsonProcessingException {
         // given
         String username = "fpg123";
         String password = "12345678";
         String email = "fpg123@mail.com";
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        UserAccountDTO userAccountDTO = saveOneUserAccount(username, email, profileDTO);
+        UserAccountDTO userAccountDTO = saveOneUserAccount(username, password, email);
 
         LoginRequest loginRequest = new LoginRequest(username, password);
         RequestSpecification requestSpecification = RestAssured
@@ -85,7 +91,7 @@ class AuthControllerTest {
         );
     }
 
-    @DisplayName("잘못된 정보를 입력하여, 로그인 시, 에러메세지를 반환한다")
+@DisplayName("[로그인/실패]잘못된 정보를 입력하여, 로그인 시, 에러메세지를 반환한다")
     @Test
     void givenWrongLoginInfo_whenLogin_thenReturnsErrorMessage() throws JsonProcessingException {
         LoginRequest loginRequest = new LoginRequest("fpg123", "12345678");
@@ -109,10 +115,123 @@ class AuthControllerTest {
         );
     }
 
+    @DisplayName("[로그아웃/성공]로그아웃에 성공한다")
+    @Test
+    void givenLogoutInfo_whenLogout_thenReturns200Ok() throws JsonProcessingException {
+        // given
+        UserAccountDTO userAccountDTO = saveOneUserAccount("fpg123", "12345678", "fpg123@mail.com");
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
-    private UserAccountDTO saveOneUserAccount(String username, String email,
+        RequestSpecification requestSpecification = RestAssured
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(tokenDTO))
+            .contentType(ContentType.JSON);
+
+        // when
+        ExtractableResponse<Response> extract = requestSpecification.when()
+            .delete("/api/v1/auth/token")
+            .then().log().all()
+            .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(
+                refreshTokenRepository.existsByToken(tokenDTO.refreshToken())).isFalse()
+        );
+    }
+
+    @DisplayName("[로그아웃/실패]유효하지 않은 리프레쉬 토큰 값일 경우, 로그아웃 시, 에러메시지를 보낸다")
+    @Test
+    void givenWrongLogoutInfo_whenLogout_thenReturnsErrorMessage() throws JsonProcessingException {
+        // given
+        TokenDTO tokenDTO = TokenDTO.of("WrongAccessToken", "WrongRefreshToken");
+
+        RequestSpecification requestSpecification = RestAssured
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(tokenDTO))
+            .contentType(ContentType.JSON);
+
+        // when
+        ExtractableResponse<Response> extract = requestSpecification.when()
+            .delete("/api/v1/auth/token")
+            .then().log().all()
+            .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+            () -> assertThat(extract.jsonPath().getString("code")).isEqualTo("LOGOUT1"),
+            () -> assertThat(extract.jsonPath().getString("message")).isEqualTo("로그아웃에 실패하였습니다")
+        );
+    }
+
+    @DisplayName("[재발급/성공]엑세스토큰 재발급을 성공한다")
+    @Test
+    void givenTokenInfo_whenRefreshingToken_thenReturnsNewAccessToken()
+        throws JsonProcessingException {
+        // given
+        UserAccountDTO userAccountDTO = saveOneUserAccount("fpg123", "12345678", "fpg123@mail.com");
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
+
+        RequestSpecification requestSpecification = RestAssured
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(tokenDTO))
+            .contentType(ContentType.JSON);
+
+        // when
+        ExtractableResponse<Response> extract = requestSpecification.when()
+            .post("/api/v1/auth/refreshToken")
+            .then().log().all()
+            .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
+            () -> assertThat(jwtTokenProvider.getUserIdFromAccessToken(
+                extract.jsonPath().getString("accessToken"))).isEqualTo(userAccountDTO.id())
+        );
+    }
+
+    @DisplayName("[재발급/실패]유효하지 않은 리프레쉬 토큰 입력으로, 토큰 재발급시, 에러 메세지를 반환한다")
+    @Test
+    void givenWrongTokenInfo_whenRefreshingToken_thenReturnsErrorMessage()
+        throws JsonProcessingException {
+        // given
+        TokenDTO tokenDTO = TokenDTO.of("WrongAccessToken", "WrongRefreshToken");
+
+        RequestSpecification requestSpecification = RestAssured
+            .given().log().all()
+            .port(port)
+            .body(objectMapper.writeValueAsString(tokenDTO))
+            .contentType(ContentType.JSON);
+
+        // when
+        ExtractableResponse<Response> extract = requestSpecification.when()
+            .post("/api/v1/auth/refreshToken")
+            .then().log().all()
+            .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value()),
+            () -> assertThat(extract.jsonPath().getString("code")).isEqualTo("COMMON4"),
+            () -> assertThat(extract.jsonPath().getString("message")).isEqualTo("존재하지 않는 값입니다")
+        );
+    }
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email) {
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        return saveOneUserAccount(username, password, email, profileDTO);
+    }
+
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email,
         ProfileDTO profileDTO) {
-        UserAccountAddRequest request = new UserAccountAddRequest(username, "12345678", email,
+        UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
             profileDTO);
         return userAccountService.saveUserAccount(request);
     }

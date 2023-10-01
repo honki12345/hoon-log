@@ -1,6 +1,8 @@
 package me.honki12345.hoonlog.service;
 
+import me.honki12345.hoonlog.dto.request.LoginRequest;
 import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.LoginErrorException;
 import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -17,7 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.*;
 
-@DisplayName("애플리케이션 통합테스트")
+@DisplayName("UserAccountService 애플리케이션 통합테스트")
 @ActiveProfiles("test")
 @SpringBootTest
 class UserAccountServiceTest {
@@ -71,8 +73,55 @@ class UserAccountServiceTest {
     @Test
     void givenNotFoundUserId_whenFindUserAccount_thenThrowingException() {
         // given // when // then
-        assertThatThrownBy(() -> userAccountService.findUserAccountByUsername("fpg123")).isInstanceOf(
+        assertThatThrownBy(
+            () -> userAccountService.findUserAccountByUsername("fpg123")).isInstanceOf(
             UserAccountNotFoundException.class);
+    }
+
+    @DisplayName("[조회/성공]주어진 아이디와 비밀번호가, 저장된 값과 일치하면, 유저엔티티를 반환한다")
+    @Test
+    void givenLoginInfo_whenFindEntityCheckingPassword_thenReturnsEntity() {
+        // given
+        String password = "12345678";
+        UserAccountDTO userAccountDTO = saveOneUserAccount("fpg123", password);
+        LoginRequest loginRequest = new LoginRequest(userAccountDTO.username(), password);
+
+        // when
+        UserAccountDTO findUserAccountDTO = userAccountService.findUserAccountAfterCheckingPassword(
+            loginRequest);
+
+        // then
+        assertThat(findUserAccountDTO).hasFieldOrPropertyWithValue("id", userAccountDTO.id())
+            .hasFieldOrPropertyWithValue("username", userAccountDTO.username())
+            .hasFieldOrPropertyWithValue("userPassword", userAccountDTO.userPassword());
+    }
+
+    @DisplayName("[조회/실패]주어진 아이디가, 저장된 값과 일치하면, 예외를 반환한다")
+    @Test
+    void givenWrongUsername_whenFindEntityCheckingPassword_thenReturnsEntity() {
+        // given
+        String password = "12345678";
+        saveOneUserAccount("fpg123", password);
+        LoginRequest loginRequest = new LoginRequest("wrongUserId", password);
+
+        // when
+        assertThatThrownBy(
+            () -> userAccountService.findUserAccountAfterCheckingPassword(loginRequest))
+            .isInstanceOf(LoginErrorException.class);
+    }
+
+    @DisplayName("[조회/실패]주어진 비밀번호가, 저장된 값과 일치하면, 예외를 반환한다")
+    @Test
+    void givenWrongPassword_whenFindEntityCheckingPassword_thenReturnsEntity() {
+        // given
+        String username = "fpg123";
+        saveOneUserAccount(username, "12345678");
+        LoginRequest loginRequest = new LoginRequest(username, "wrongPassword");
+
+        // when
+        assertThatThrownBy(
+            () -> userAccountService.findUserAccountAfterCheckingPassword(loginRequest))
+            .isInstanceOf(LoginErrorException.class);
     }
 
     @DisplayName("[수정/성공]수정정보를 입력하면, 회원수정 시, 수정된 회원객체 DTO를 반환한다")
@@ -112,6 +161,25 @@ class UserAccountServiceTest {
         // when // then
         assertThatThrownBy(() -> userAccountService.modifyUserAccount("wrongUserId", modifyRequest))
             .isInstanceOf(UserAccountNotFoundException.class);
+    }
+
+    private UserAccountDTO saveOneUserAccount(String username, String password) {
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        return saveOneUserAccount(username, password, "fpg123@mail.com", profileDTO);
+    }
+
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email) {
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        return saveOneUserAccount(username, password, email, profileDTO);
+    }
+
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email,
+        ProfileDTO profileDTO) {
+        UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
+            profileDTO);
+        return userAccountService.saveUserAccount(request);
     }
 
 }
