@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
 import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
 import me.honki12345.hoonlog.error.exception.LoginErrorException;
+import me.honki12345.hoonlog.error.exception.LogoutErrorException;
+import me.honki12345.hoonlog.error.exception.NotFoundException;
 import me.honki12345.hoonlog.error.exception.RoleNotFoundException;
 import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -49,6 +51,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(LoginErrorException.class)
     public ResponseEntity<ErrorResponse> loginErrorException(LoginErrorException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(LogoutErrorException.class)
+    public ResponseEntity<ErrorResponse> logoutErrorException(LogoutErrorException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> notFoundException(NotFoundException exception) {
         return createResponseEntityByException(exception);
     }
 

@@ -15,7 +15,8 @@ public enum ErrorCode {
 
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROLE1", "유저에게 줄 권한이 존재하지 않습니다"),
 
-    LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "LOGIN1", "로그인에 실패하였습니다");
+    LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "LOGIN1", "로그인에 실패하였습니다"),
+    LOGOUT_ERROR(HttpStatus.BAD_REQUEST, "LOGOUT1", "로그아웃에 실패하였습니다");
 
     private final String message;
     private final String code;

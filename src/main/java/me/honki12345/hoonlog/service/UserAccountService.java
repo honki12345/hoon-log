@@ -51,6 +51,13 @@ public class UserAccountService {
     }
 
     @Transactional(readOnly = true)
+    public UserAccountDTO findUserAccountByUserId(Long userId) {
+        return userAccountRepository.findById(userId)
+            .map(UserAccountDTO::from)
+            .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
     public UserAccountDTO findUserAccountAfterCheckingPassword(LoginRequest request) {
         UserAccount entity = userAccountRepository.findByUsername(request.username())
             .orElseThrow(() -> new LoginErrorException(ErrorCode.LOGIN_ERROR));
