@@ -1,8 +1,12 @@
-package me.honki12345.hoonlog.config.error;
+package me.honki12345.hoonlog.error;
 
-import me.honki12345.hoonlog.config.error.exception.CustomBaseException;
-import me.honki12345.hoonlog.config.error.exception.DuplicateUserAccountException;
-import me.honki12345.hoonlog.config.error.exception.UserAccountNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import me.honki12345.hoonlog.error.exception.CustomBaseException;
+import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.LoginErrorException;
+import me.honki12345.hoonlog.error.exception.RoleNotFoundException;
+import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.StringJoiner;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -19,22 +24,38 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
-        MethodArgumentNotValidException ex) {
-        String message = createValidationExceptionMessage(ex);
+        MethodArgumentNotValidException exception) {
+        String message = createValidationExceptionMessage(exception);
         ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, message);
         return new ResponseEntity<>(errorResponse, ErrorCode.INVALID_INPUT_VALUE.getStatus());
     }
 
     @ExceptionHandler(DuplicateUserAccountException.class)
     public ResponseEntity<ErrorResponse> handleDuplicationException(
-        DuplicateUserAccountException ex) {
-        return createResponseEntityByException(ex);
+        DuplicateUserAccountException exception) {
+        return createResponseEntityByException(exception);
     }
 
     @ExceptionHandler(UserAccountNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserAccountNotFoundException(
-        UserAccountNotFoundException ex) {
-        return createResponseEntityByException(ex);
+        UserAccountNotFoundException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ErrorResponse> roleNotFoundException(RoleNotFoundException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(LoginErrorException.class)
+    public ResponseEntity<ErrorResponse> loginErrorException(LoginErrorException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity exceptionHandler(Exception exception) {
+        log.warn("Exception 발생: {}, {}", exception, exception.getMessage());
+        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private static ResponseEntity<ErrorResponse> createResponseEntityByException(
@@ -42,9 +63,8 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ex.getErrorCode();
         String message = ex.getMessage();
         ErrorResponse errorResponse = ErrorResponse.of(errorCode, message);
-        ResponseEntity<ErrorResponse> responseEntity = new ResponseEntity<>(errorResponse,
+        return new ResponseEntity<>(errorResponse,
             errorCode.getStatus());
-        return responseEntity;
     }
 
     private String createValidationExceptionMessage(MethodArgumentNotValidException ex) {

@@ -1,4 +1,4 @@
-package me.honki12345.hoonlog.config.error;
+package me.honki12345.hoonlog.error;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,11 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON4", "존재하지 않는 값입니다"),
 
     DUPLICATE_USER_ACCOUNT(HttpStatus.BAD_REQUEST, "USER1", "중복된 값이 존재합니다"),
-    USER_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "USER2", "존재하지 않는 값입니다");
+    USER_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "USER2", "존재하지 않는 값입니다"),
+
+    ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROLE1", "유저에게 줄 권한이 존재하지 않습니다"),
+
+    LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "LOGIN1", "로그인에 실패하였습니다");
 
     private final String message;
     private final String code;
