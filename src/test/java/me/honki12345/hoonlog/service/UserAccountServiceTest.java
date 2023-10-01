@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.service;
 
-import me.honki12345.hoonlog.config.error.exception.DuplicateUserAccountException;
-import me.honki12345.hoonlog.config.error.exception.UserAccountNotFoundException;
+import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
@@ -71,7 +71,7 @@ class UserAccountServiceTest {
     @Test
     void givenNotFoundUserId_whenFindUserAccount_thenThrowingException() {
         // given // when // then
-        assertThatThrownBy(() -> userAccountService.findUserAccount("fpg123")).isInstanceOf(
+        assertThatThrownBy(() -> userAccountService.findUserAccountByUsername("fpg123")).isInstanceOf(
             UserAccountNotFoundException.class);
     }
 

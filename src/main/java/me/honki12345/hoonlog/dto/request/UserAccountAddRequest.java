@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 

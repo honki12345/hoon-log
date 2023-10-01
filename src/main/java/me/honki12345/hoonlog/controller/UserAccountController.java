@@ -34,7 +34,7 @@ public class UserAccountController {
 
     @GetMapping("/{username}")
     public ResponseEntity<UserAccountResponse> searchUserAccount(@PathVariable String username) {
-        UserAccountDTO dto = userAccountService.findUserAccount(username);
+        UserAccountDTO dto = userAccountService.findUserAccountByUsername(username);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

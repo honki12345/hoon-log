@@ -8,12 +8,12 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import me.honki12345.hoonlog.dto.ProfileDTO;
+import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@DisplayName("E2E 컨트롤러 테스트")
+@DisplayName("E2E UserAccount 컨트롤러 테스트")
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserAccountControllerTest {
@@ -56,6 +56,7 @@ class UserAccountControllerTest {
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(username, "12345678", email,
             profileDTO);
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -85,6 +86,7 @@ class UserAccountControllerTest {
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
             null, "12345678", "fpg123@mail.com", profileDTO);
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -113,6 +115,7 @@ class UserAccountControllerTest {
         UserAccountAddRequest request = new UserAccountAddRequest(
             "fpg123", "12345678", "fpg123@mail.com", profileDTO);
         userAccountService.saveUserAccount(request);
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -192,7 +195,6 @@ class UserAccountControllerTest {
     void givenNotFoundUserId_whenSearchingUserDetails_thenThrowsException() {
         // given
         String username = "fpg123";
-        String email = "fpg123@mail.com";
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -264,6 +266,7 @@ class UserAccountControllerTest {
         String modifiedBlogShortBio = "bio2";
         UserAccountModifyRequest request = new UserAccountModifyRequest(
             new ProfileDTO(modifiedBlogName, modifiedBlogShortBio));
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -286,10 +289,10 @@ class UserAccountControllerTest {
     }
 
 
-    private void saveOneUserAccount(String username, String email, ProfileDTO profileDTO) {
+    private UserAccountDTO saveOneUserAccount(String username, String email, ProfileDTO profileDTO) {
         UserAccountAddRequest request = new UserAccountAddRequest(username, "12345678", email,
             profileDTO);
-        userAccountService.saveUserAccount(request);
+        UserAccountDTO userAccountDTO = userAccountService.saveUserAccount(request);
+        return userAccountDTO;
     }
-
 }

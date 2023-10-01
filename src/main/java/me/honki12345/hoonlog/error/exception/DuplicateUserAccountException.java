@@ -1,6 +1,6 @@
-package me.honki12345.hoonlog.config.error.exception;
+package me.honki12345.hoonlog.error.exception;
 
-import me.honki12345.hoonlog.config.error.ErrorCode;
+import me.honki12345.hoonlog.error.ErrorCode;
 
 public class DuplicateUserAccountException extends CustomBaseException {
 
