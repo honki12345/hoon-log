@@ -3,7 +3,9 @@ logging:
   level:
     me.honki12345.hoonlog: debug
     org.springframework.web.server: debug
+    org.springframework.security: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.orm.jdbc.bind: trace
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/hoonlog
@@ -22,6 +24,10 @@ spring:
     open-in-view: false
   h2.console.enabled: true
   sql.init.mode: always
+
+jwt:
+  secretKey: 098766543211hoon-log-secretKey-2023-10-0101234567890
+  refreshKey: 2098766543211hoon023_10-01-hoon-log-refreshKey01234567890
 
 ---
 spring:
