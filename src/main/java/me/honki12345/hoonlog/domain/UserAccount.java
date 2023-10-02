@@ -4,9 +4,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,11 +31,12 @@ import java.util.Objects;
 public class UserAccount {
 
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false, unique = true)
-    private String userId;
+    @Column(length = 20, nullable = false, unique = true)
+    private String username;
 
     @Column(length = 100, nullable = false)
     private String userPassword;
@@ -40,24 +47,36 @@ public class UserAccount {
     @Embedded
     private Profile profile;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    private UserAccount(Long id, String userId, String userPassword, String email, Profile profile,
+    private UserAccount(Long id, String username, String userPassword, String email,
+        Profile profile,
         LocalDateTime createdAt) {
         this.id = id;
-        this.userId = userId;
+        this.username = username;
         this.userPassword = userPassword;
         this.email = email;
         this.profile = profile;
         this.createdAt = createdAt;
     }
 
-    public static UserAccount of(String userId, String userPassword, String email,
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
+    public static UserAccount of(String username, String userPassword, String email,
         Profile profile) {
-        return new UserAccount(null, userId, userPassword, email, profile, null);
+        return new UserAccount(null, username, userPassword, email, profile, null);
     }
 
     @Override

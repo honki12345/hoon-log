@@ -1,4 +1,4 @@
-package me.honki12345.hoonlog.config.error;
+package me.honki12345.hoonlog.error;
 
 public record ErrorResponse(
     String message,

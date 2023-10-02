@@ -6,6 +6,10 @@ import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.dto.response.UserAccountResponse;
+import me.honki12345.hoonlog.dto.security.LoginUserDTO;
+import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.security.jwt.util.IfLogin;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,18 +36,26 @@ public class UserAccountController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserAccountResponse> searchUserAccount(@PathVariable String userId) {
-        UserAccountDTO dto = userAccountService.findUserAccount(userId);
+    @GetMapping("/{username}")
+    public ResponseEntity<UserAccountResponse> searchUserAccount(@IfLogin LoginUserDTO loginUserDTO,
+        @PathVariable String username) {
+        if (loginUserDTO == null || !loginUserDTO.username().equals(username)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+        UserAccountDTO dto = userAccountService.findUserAccountByUsername(username);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping("/{username}")
     public ResponseEntity<UserAccountResponse> modifyUserAccount(
-        @PathVariable String userId,
+        @IfLogin LoginUserDTO loginUserDTO,
+        @PathVariable String username,
         @Valid @RequestBody UserAccountModifyRequest request) {
-        UserAccountDTO dto = userAccountService.modifyUserAccount(userId, request);
+        if (loginUserDTO == null || !loginUserDTO.username().equals(username)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+        UserAccountDTO dto = userAccountService.modifyUserAccount(username, request);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

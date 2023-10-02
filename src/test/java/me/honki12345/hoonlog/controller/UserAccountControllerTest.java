@@ -8,12 +8,14 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import me.honki12345.hoonlog.dto.ProfileDTO;
+import me.honki12345.hoonlog.dto.TokenDTO;
+import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@DisplayName("E2E 컨트롤러 테스트")
+@DisplayName("E2E UserAccount 컨트롤러 테스트")
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserAccountControllerTest {
@@ -34,6 +36,8 @@ class UserAccountControllerTest {
     UserAccountController userAccountController;
     @Autowired
     UserAccountService userAccountService;
+    @Autowired
+    AuthService authService;
     @Autowired
     UserAccountRepository userAccountRepository;
     @Autowired
@@ -51,11 +55,12 @@ class UserAccountControllerTest {
     @Test
     void givenSignUpRequest_whenSignUp_thenReturnUserAccount() throws Exception {
         // given
-        String userId = "fpg123";
+        String username = "fpg123";
         String email = "fpg123@mail.com";
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email,
+        UserAccountAddRequest request = new UserAccountAddRequest(username, "12345678", email,
             profileDTO);
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -72,7 +77,7 @@ class UserAccountControllerTest {
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
             () -> assertThat((Integer) extract.jsonPath().get("id")).isNotNull(),
-            () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
+            () -> assertThat((String) extract.jsonPath().get("username")).isEqualTo(username),
             () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email),
             () -> assertThat((String) extract.jsonPath().get("createdAt")).isNotNull()
         );
@@ -85,6 +90,7 @@ class UserAccountControllerTest {
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
             null, "12345678", "fpg123@mail.com", profileDTO);
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -113,6 +119,7 @@ class UserAccountControllerTest {
         UserAccountAddRequest request = new UserAccountAddRequest(
             "fpg123", "12345678", "fpg123@mail.com", profileDTO);
         userAccountService.saveUserAccount(request);
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
@@ -163,52 +170,28 @@ class UserAccountControllerTest {
     @Test
     void givenUserId_whenSearchingUserDetails_thenReturnUserAccount() {
         // given
-        String userId = "fpg123";
+        String username = "fpg123";
         String email = "fpg123@mail.com";
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        saveOneUserAccount(userId, email, profileDTO);
+        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678", email);
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
-            .pathParam("userId", userId);
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
+            .pathParam("username", username);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-            .get("/api/v1/users/{userId}")
+            .get("/api/v1/users/{username}")
             .then().log().all()
             .extract();
 
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
-            () -> assertThat((String) extract.jsonPath().get("userId")).isEqualTo(userId),
+            () -> assertThat((String) extract.jsonPath().get("username")).isEqualTo(username),
             () -> assertThat((String) extract.jsonPath().get("email")).isEqualTo(email)
-        );
-    }
-
-    @DisplayName("[조회/실패]존재하지 않는 유저 아이디면, 유저 조회시, 실패한다")
-    @Test
-    void givenNotFoundUserId_whenSearchingUserDetails_thenThrowsException() {
-        // given
-        String userId = "fpg123";
-        String email = "fpg123@mail.com";
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .pathParam("userId", userId);
-
-        // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .get("/api/v1/users/{userId}")
-            .then().log().all()
-            .extract();
-
-        // then
-        assertAll(
-            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value()),
-            () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER2"),
-            () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("존재하지 않는 값입니다")
         );
     }
 
@@ -217,10 +200,9 @@ class UserAccountControllerTest {
     void givenModifyingInfo_whenModifyingUserProfile_thenReturnModifiedUserAccount()
         throws JsonProcessingException {
         // given
-        String userId = "fpg123";
-        String email = "fpg123@mail.com";
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        saveOneUserAccount(userId, email, profileDTO);
+        String username = "fpg123";
+        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678");
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = "blogName2";
         String modifiedBlogShortBio = "bio2";
@@ -229,13 +211,14 @@ class UserAccountControllerTest {
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
-            .pathParam("userId", userId)
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
+            .pathParam("username", username)
             .body(objectMapper.writeValueAsString(request))
             .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-            .put("/api/v1/users/{userId}")
+            .put("/api/v1/users/{username}")
             .then().log().all()
             .extract();
 
@@ -255,25 +238,26 @@ class UserAccountControllerTest {
     void givenModifyingInfoWithoutBlogName_whenModifyingUserProfile_thenReturnsErrorMessage()
         throws JsonProcessingException {
         // given
-        String userId = "fpg123";
-        String email = "fpg123@mail.com";
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        saveOneUserAccount(userId, email, profileDTO);
+        String username = "fpg123";
+        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678");
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = null;
         String modifiedBlogShortBio = "bio2";
         UserAccountModifyRequest request = new UserAccountModifyRequest(
             new ProfileDTO(modifiedBlogName, modifiedBlogShortBio));
+
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
-            .pathParam("userId", userId)
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
+            .pathParam("username", username)
             .body(objectMapper.writeValueAsString(request))
             .contentType(ContentType.JSON);
 
         // when
         ExtractableResponse<Response> extract = requestSpecification.when()
-            .put("/api/v1/users/{userId}")
+            .put("/api/v1/users/{username}")
             .then().log().all()
             .extract();
 
@@ -285,11 +269,22 @@ class UserAccountControllerTest {
         );
     }
 
-
-    private void saveOneUserAccount(String userId, String email, ProfileDTO profileDTO) {
-        UserAccountAddRequest request = new UserAccountAddRequest(userId, "12345678", email,
-            profileDTO);
-        userAccountService.saveUserAccount(request);
+    private UserAccountDTO saveOneUserAccount(String username, String password) {
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        return saveOneUserAccount(username, password, "fpg123@mail.com", profileDTO);
     }
 
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email) {
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        return saveOneUserAccount(username, password, email, profileDTO);
+    }
+
+
+    private UserAccountDTO saveOneUserAccount(String username, String password, String email,
+        ProfileDTO profileDTO) {
+        UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
+            profileDTO);
+        return userAccountService.saveUserAccount(request);
+    }
 }
