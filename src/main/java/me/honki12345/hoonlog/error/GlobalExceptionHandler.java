@@ -3,6 +3,7 @@ package me.honki12345.hoonlog.error;
 import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
 import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.ForbiddenException;
 import me.honki12345.hoonlog.error.exception.JwtException;
 import me.honki12345.hoonlog.error.exception.LoginErrorException;
 import me.honki12345.hoonlog.error.exception.LogoutErrorException;
@@ -67,6 +68,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorResponse> jwtException(JwtException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> forbiddenException(ForbiddenException exception) {
         return createResponseEntityByException(exception);
     }
 

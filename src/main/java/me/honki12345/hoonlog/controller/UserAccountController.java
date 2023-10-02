@@ -6,6 +6,10 @@ import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.dto.response.UserAccountResponse;
+import me.honki12345.hoonlog.dto.security.LoginUserDTO;
+import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.security.jwt.util.IfLogin;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,8 +45,12 @@ public class UserAccountController {
 
     @PutMapping("/{username}")
     public ResponseEntity<UserAccountResponse> modifyUserAccount(
+        @IfLogin LoginUserDTO loginUserDTO,
         @PathVariable String username,
         @Valid @RequestBody UserAccountModifyRequest request) {
+        if (loginUserDTO == null || !loginUserDTO.username().equals(username)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
         UserAccountDTO dto = userAccountService.modifyUserAccount(username, request);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);

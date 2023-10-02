@@ -9,6 +9,7 @@ public enum ErrorCode {
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "COMMON2", "잘못된 HTTP 메서드를 호출했습니다"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON3", "서버 에러가 발생했습니다"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON4", "존재하지 않는 값입니다"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON5", "권한이 없습니다"),
 
     DUPLICATE_USER_ACCOUNT(HttpStatus.BAD_REQUEST, "USER1", "중복된 값이 존재합니다"),
     USER_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "USER2", "존재하지 않는 값입니다"),
