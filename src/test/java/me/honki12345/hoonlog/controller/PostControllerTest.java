@@ -9,18 +9,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.util.Optional;
 import me.honki12345.hoonlog.config.JpaConfig;
+import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
-import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.repository.PostRepository;
+import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import me.honki12345.hoonlog.util.TestUtil;
 import me.honki12345.hoonlog.util.WithMockCustomUser;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostControllerTest {
 
+    public static final String TEST_USERNAME = "fpg123";
+    public static final String TEST_PASSWORD = "12345678";
+
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -48,6 +53,8 @@ class PostControllerTest {
     PostController postController;
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    UserAccountRepository userAccountRepository;
     @Autowired
     UserAccountService userAccountService;
     @Autowired
@@ -87,26 +94,21 @@ class PostControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
-            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(username),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo("test"),
             () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(title),
             () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(content)
         );
     }
 
-    @Disabled
     @DisplayName("[조회/성공]게시글 리스트 조회에 성공한다.")
     @Test
-    void givenNothing_whenSearchingPost_thenReturnsListOfPostInfo() throws JsonProcessingException {
+    void givenNothing_whenSearchingPost_thenReturnsListOfPostInfo() {
         // given // when
         create10Posts();
-        String title = "title";
-        String content = "content";
-        PostRequest postRequest = new PostRequest(title, content);
 
         ExtractableResponse<Response> extract =
             given().log().all()
                 .port(port)
-                .body(objectMapper.writeValueAsString(postRequest))
                 .contentType(ContentType.JSON)
                 .when()
                 .get("/api/v1/posts")
@@ -120,17 +122,78 @@ class PostControllerTest {
         );
     }
 
+    @DisplayName("[조회/성공]게시글 조회에 성공한다.")
+    @Test
+    void givenPostId_whenSearchingPost_thenReturnsFoundPostInfo() {
+        // given // when
+        String title = "title";
+        String content = "content";
+        Post createdPost = createPost(title, content);
+        assert createdPost != null;
+        
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .pathParam("postId", createdPost.getId())
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/api/v1/posts/{postId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo("test"),
+            () -> assertThat(extract.jsonPath().getLong("id")).isEqualTo(createdPost.getId()),
+            () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(title),
+            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(content)
+        );
+    }
+
+    @DisplayName("[조회/실패]존재하지 않는 게시글 번호 입력으로, 게시글 조회 시, 에러메세지를 반환한다.")
+    @Test
+    void givenWrongPostId_whenSearchingPost_thenReturnsErrorMessage() {
+        // given // when
+        long wrongPostId = 5L;
+
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .pathParam("postId", wrongPostId)
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/api/v1/posts/{postId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value()),
+            () -> assertThat(extract.jsonPath().getString("message")).isEqualTo("게시글을 찾을 수 없습니다"),
+            () -> assertThat(extract.jsonPath().getString("code")).isEqualTo("POST1")
+        );
+    }
+
+
+
     @WithMockCustomUser
     private void create10Posts() {
-        String username = "fpg123";
-        testUtil.createTokensAfterSaving(username, "12345678");
-        UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.of(1L, username);
+        testUtil.createTokensAfterSaving(TEST_USERNAME, TEST_PASSWORD);
         for (int i = 0; i < 10; i++) {
             PostRequest postRequest = new PostRequest("title" + i, "content" + i);
-            postService.addPost(postRequest, userAccountPrincipal);
-
+            userAccountRepository.findByUsername(TEST_USERNAME).ifPresent(userAccount ->
+                postRepository.save(postRequest.toEntityWithUserAccount(userAccount)));
         }
     }
 
+    @WithMockCustomUser
+    private Post createPost(String title, String content) {
+        testUtil.createTokensAfterSaving(TEST_USERNAME, TEST_PASSWORD);
+        PostRequest postRequest = new PostRequest(title, content);
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
+        return optionalUserAccount.map(userAccount -> postRepository.save(
+            postRequest.toEntityWithUserAccount(userAccount))).orElse(null);
+    }
 
 }

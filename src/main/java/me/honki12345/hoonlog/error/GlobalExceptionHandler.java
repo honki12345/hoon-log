@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
 import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.JwtException;
 import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
 import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
@@ -76,10 +77,16 @@ public class GlobalExceptionHandler {
         return createResponseEntityByException(exception);
     }
 
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ErrorResponse> postNotFoundException(PostNotFoundException exception) {
+        return createResponseEntityByException(exception);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity exceptionHandler(Exception exception) {
+    public ResponseEntity<Object> exceptionHandler(Exception exception) {
+
         log.warn("Exception 발생: {}, {}", exception, exception.getMessage());
-        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private static ResponseEntity<ErrorResponse> createResponseEntityByException(

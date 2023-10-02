@@ -8,6 +8,7 @@ import me.honki12345.hoonlog.dto.PostDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -36,5 +37,10 @@ public class PostService {
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
         Post post = request.toEntityWithUserAccount(userAccount);
         return PostDTO.from(postRepository.save(post));
+    }
+
+    public PostDTO searchPost(Long postId) {
+        return PostDTO.from(postRepository.findById(postId)
+            .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND)));
     }
 }

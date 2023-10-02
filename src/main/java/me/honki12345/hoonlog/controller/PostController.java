@@ -16,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,12 @@ public class PostController {
         Page<PostResponse> responses = postService.searchPosts(pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponse> searchPost(@PathVariable Long postId) {
+        PostResponse response = PostResponse.from(postService.searchPost(postId));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping
