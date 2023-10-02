@@ -3,8 +3,6 @@ package me.honki12345.hoonlog.config;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.*;
 
 import lombok.RequiredArgsConstructor;
-import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
-import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.CustomAuthenticationEntryPoint;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +14,6 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,15 +46,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-    @Bean
-    public UserDetailsService userDetailsService(UserAccountRepository userAccountRepository) {
-        return username -> userAccountRepository
-            .findByUsername(username)
-            .map(UserAccountPrincipal::from)
-            .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다: " + username));
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
