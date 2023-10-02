@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.config;
 
 import java.util.Optional;
-import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
+import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -20,7 +20,9 @@ public class JpaConfig {
             .map(SecurityContext::getAuthentication)
             .filter(Authentication::isAuthenticated)
             .map(Authentication::getPrincipal)
-            .map(JwtAuthenticationToken.class::cast)
-            .map(JwtAuthenticationToken::getName);
+            .filter(o -> o instanceof UserAccountPrincipal)
+            .map(UserAccountPrincipal.class::cast)
+            .map(UserAccountPrincipal::username);
+
     }
 }

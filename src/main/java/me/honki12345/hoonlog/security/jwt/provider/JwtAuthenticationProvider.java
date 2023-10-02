@@ -4,7 +4,7 @@ import io.jsonwebtoken.Claims;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import me.honki12345.hoonlog.dto.security.LoginInfoDTO;
+import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,8 +28,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         String username = claims.get("name", String.class);
         List<GrantedAuthority> authorities = getGrantedAuthorities(claims);
 
-        LoginInfoDTO loginInfoDTO = LoginInfoDTO.of(userId, username);
-        return new JwtAuthenticationToken(authorities, loginInfoDTO, null);
+        UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.of(userId, username);
+        return new JwtAuthenticationToken(authorities, userAccountPrincipal, null);
     }
 
     private List<GrantedAuthority> getGrantedAuthorities(Claims claims) {
