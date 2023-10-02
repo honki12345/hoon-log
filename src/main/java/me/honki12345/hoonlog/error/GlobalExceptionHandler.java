@@ -3,6 +3,7 @@ package me.honki12345.hoonlog.error;
 import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
 import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.JwtException;
 import me.honki12345.hoonlog.error.exception.LoginErrorException;
 import me.honki12345.hoonlog.error.exception.LogoutErrorException;
 import me.honki12345.hoonlog.error.exception.NotFoundException;
@@ -61,6 +62,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> notFoundException(NotFoundException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> jwtException(JwtException exception) {
         return createResponseEntityByException(exception);
     }
 

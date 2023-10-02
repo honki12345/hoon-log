@@ -9,7 +9,7 @@ import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.exception.LogoutErrorException;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
-import me.honki12345.hoonlog.security.jwt.provider.JwtTokenProvider;
+import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class AuthServiceTest {
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
     @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    JwtTokenizer jwtTokenizer;
 
     @AfterEach
     void tearDown() {
@@ -48,8 +48,8 @@ class AuthServiceTest {
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
         String accessToken = tokenDTO.accessToken();
         String refreshToken = tokenDTO.refreshToken();
-        Long userIdFromAccessToken = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
-        Long userIdFromRefreshToken = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
+        Long userIdFromAccessToken = jwtTokenizer.getUserIdFromAccessToken(accessToken);
+        Long userIdFromRefreshToken = jwtTokenizer.getUserIdFromRefreshToken(refreshToken);
 
         // then
         assertThat(refreshTokenRepository.existsByToken(refreshToken)).isTrue();
@@ -92,7 +92,7 @@ class AuthServiceTest {
         String accessToken = refreshTokenDTO.accessToken();
 
         // then
-        assertThat(jwtTokenProvider.getUserIdFromAccessToken(accessToken)).isEqualTo(
+        assertThat(jwtTokenizer.getUserIdFromAccessToken(accessToken)).isEqualTo(
             userAccount.getId());
     }
 

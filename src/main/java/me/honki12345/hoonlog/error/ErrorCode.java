@@ -16,7 +16,12 @@ public enum ErrorCode {
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROLE1", "유저에게 줄 권한이 존재하지 않습니다"),
 
     LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "LOGIN1", "로그인에 실패하였습니다"),
-    LOGOUT_ERROR(HttpStatus.BAD_REQUEST, "LOGOUT1", "로그아웃에 실패하였습니다");
+    LOGOUT_ERROR(HttpStatus.BAD_REQUEST, "LOGOUT1", "로그아웃에 실패하였습니다"),
+
+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "TOKEN1", "토큰을 찾을 수 없습니다"),
+    TOKEN_INVALID(HttpStatus.BAD_REQUEST, "TOKEN2", "올바르지 않은 토큰입니다"),
+    TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "TOKEN3", "토큰 유효기간이 지났습니다"),
+    TOKEN_UNSUPPORTED(HttpStatus.BAD_REQUEST, "TOKEN4", "지원하지 않는 토큰입니다");
 
     private final String message;
     private final String code;

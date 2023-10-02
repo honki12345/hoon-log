@@ -1,4 +1,4 @@
-package me.honki12345.hoonlog.security.jwt.provider;
+package me.honki12345.hoonlog.security.jwt.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class JwtTokenProvider {
+public class JwtTokenizer {
 
     private final byte[] accessSecret;
     private final byte[] refreshSecret;
@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     public final static Long ACCESS_TOKEN_EXPIRE_COUNT = 30 * 60 * 1000L; // 30 minutes
     public final static Long REFRESH_TOKEN_EXPIRE_COUNT = 7 * 24 * 60 * 60 * 1000L; // 7 days
 
-    public JwtTokenProvider(@Value("${jwt.secretKey}") String accessSecret,
+    public JwtTokenizer(@Value("${jwt.secretKey}") String accessSecret,
         @Value("${jwt.refreshKey}") String refreshSecret) {
         this.accessSecret = accessSecret.getBytes(StandardCharsets.UTF_8);
         this.refreshSecret = refreshSecret.getBytes(StandardCharsets.UTF_8);

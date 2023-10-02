@@ -17,7 +17,7 @@ import me.honki12345.hoonlog.dto.request.LoginRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
-import me.honki12345.hoonlog.security.jwt.provider.JwtTokenProvider;
+import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.junit.jupiter.api.AfterEach;
@@ -37,7 +37,7 @@ class AuthControllerTest {
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
-    JwtTokenProvider jwtTokenProvider;
+    JwtTokenizer jwtTokenizer;
     @Autowired
     UserAccountService userAccountService;
     @Autowired
@@ -84,9 +84,9 @@ class AuthControllerTest {
                 userAccountDTO.id()),
             () -> assertThat(extract.jsonPath().getString("username")).isEqualTo(
                 userAccountDTO.username()),
-            () -> assertThat(jwtTokenProvider.getUserIdFromAccessToken(
+            () -> assertThat(jwtTokenizer.getUserIdFromAccessToken(
                 extract.jsonPath().getString("accessToken"))).isEqualTo(userAccountDTO.id()),
-            () -> assertThat(jwtTokenProvider.getUserIdFromRefreshToken(
+            () -> assertThat(jwtTokenizer.getUserIdFromRefreshToken(
                 extract.jsonPath().getString("refreshToken"))).isEqualTo(userAccountDTO.id())
         );
     }
@@ -191,7 +191,7 @@ class AuthControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
-            () -> assertThat(jwtTokenProvider.getUserIdFromAccessToken(
+            () -> assertThat(jwtTokenizer.getUserIdFromAccessToken(
                 extract.jsonPath().getString("accessToken"))).isEqualTo(userAccountDTO.id())
         );
     }
