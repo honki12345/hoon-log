@@ -33,6 +33,22 @@ public class Post extends AuditingFields {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    private Post(Long id, UserAccount userAccount, String title, String content) {
+        this.id = id;
+        this.userAccount = userAccount;
+        this.title = title;
+        this.content = content;
+    }
+
+    public static Post of(UserAccount userAccount, String title, String content) {
+        return new Post(null, userAccount, title, content);
+    }
+
+    public void addUserAccount(UserAccount userAccount) {
+        this.userAccount = userAccount;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

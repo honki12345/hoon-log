@@ -1,7 +1,9 @@
 package me.honki12345.hoonlog.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 
@@ -27,4 +29,8 @@ public record UserAccountDTO(
         );
     }
 
+    public static UserAccountDTO of(Long userId, String username, List<String> roles) {
+        Set<Role> roleSet = roles.stream().map(Role::of).collect(Collectors.toSet());
+        return new UserAccountDTO(userId, username, null, null, null, null, roleSet);
+    }
 }
