@@ -13,7 +13,7 @@ import me.honki12345.hoonlog.error.exception.NotFoundException;
 import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
-import me.honki12345.hoonlog.security.jwt.provider.JwtTokenProvider;
+import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,14 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenizer jwtTokenizer;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserAccountRepository userAccountRepository;
 
     public TokenDTO createTokens(UserAccountDTO dto) {
         List<String> roles = dto.roles().stream().map(Role::getName).collect(Collectors.toList());
-        String accessToken = jwtTokenProvider.createAccessToken(dto.id(), dto.username(), roles);
-        String refreshToken = jwtTokenProvider.createRefreshToken(dto.id(), dto.username(), roles);
+        String accessToken = jwtTokenizer.createAccessToken(dto.id(), dto.username(), roles);
+        String refreshToken = jwtTokenizer.createRefreshToken(dto.id(), dto.username(), roles);
         RefreshToken refreshTokenEntity = RefreshToken.of(dto.id(), refreshToken);
         refreshTokenRepository.save(refreshTokenEntity);
         return TokenDTO.of(accessToken, refreshToken);
@@ -46,13 +46,13 @@ public class AuthService {
         TokenDTO tokenDTO = refreshTokenRepository.findByToken(refreshToken)
             .map(TokenDTO::from)
             .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
-        Long userIdFromRefreshToken = jwtTokenProvider.getUserIdFromRefreshToken(
+        Long userIdFromRefreshToken = jwtTokenizer.getUserIdFromRefreshToken(
             tokenDTO.refreshToken());
         if (!userAccountRepository.existsById(userIdFromRefreshToken)) {
             throw new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND);
         }
 
-        String newAccessToken = jwtTokenProvider.createNewAccessToken(refreshToken);
+        String newAccessToken = jwtTokenizer.createNewAccessToken(refreshToken);
         return TokenDTO.of(newAccessToken, refreshToken);
     }
 
