@@ -1,9 +1,9 @@
 package me.honki12345.hoonlog.service;
 
 import me.honki12345.hoonlog.dto.request.LoginRequest;
-import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
-import me.honki12345.hoonlog.error.exception.LoginErrorException;
-import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
+import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;

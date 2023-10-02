@@ -3,7 +3,7 @@ package me.honki12345.hoonlog.dto.security;
 import java.util.ArrayList;
 import java.util.List;
 
-public record LoginUserDTO(
+public record UserAccountPrincipal(
     Long userId,
     String username,
     List<String> roles
@@ -13,7 +13,7 @@ public record LoginUserDTO(
         roles.add(role);
     }
 
-    public static LoginUserDTO of(Long userId, String username) {
-        return new LoginUserDTO(userId, username, new ArrayList<>());
+    public static UserAccountPrincipal of(Long userId, String username) {
+        return new UserAccountPrincipal(userId, username, new ArrayList<>());
     }
 }

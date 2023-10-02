@@ -79,6 +79,7 @@ public class UserAccount {
         return new UserAccount(null, username, userPassword, email, profile, null);
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

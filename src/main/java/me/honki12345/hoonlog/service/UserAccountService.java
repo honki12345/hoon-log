@@ -2,10 +2,10 @@ package me.honki12345.hoonlog.service;
 
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.error.ErrorCode;
-import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
-import me.honki12345.hoonlog.error.exception.LoginErrorException;
-import me.honki12345.hoonlog.error.exception.RoleNotFoundException;
-import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
+import me.honki12345.hoonlog.error.exception.domain.RoleNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.domain.vo.Profile;

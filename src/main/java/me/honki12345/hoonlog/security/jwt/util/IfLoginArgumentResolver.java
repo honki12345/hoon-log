@@ -3,7 +3,7 @@ package me.honki12345.hoonlog.security.jwt.util;
 import java.util.Collection;
 import java.util.Iterator;
 import me.honki12345.hoonlog.dto.security.LoginInfoDTO;
-import me.honki12345.hoonlog.dto.security.LoginUserDTO;
+import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
@@ -19,7 +19,7 @@ public class IfLoginArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterAnnotation(IfLogin.class) != null
-            && parameter.getParameterType() == LoginUserDTO.class;
+            && parameter.getParameterType() == UserAccountPrincipal.class;
     }
 
     @Override
@@ -42,17 +42,16 @@ public class IfLoginArgumentResolver implements HandlerMethodArgumentResolver {
         if (principal == null) {
             return null;
         }
-        LoginInfoDTO loginInfoDTO = (LoginInfoDTO) principal;
-        LoginUserDTO loginUserDTO = LoginUserDTO.of(loginInfoDTO.userId(), loginInfoDTO.username());
+        UserAccountPrincipal userAccountPrincipal = (UserAccountPrincipal) principal;
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         while (iterator.hasNext()) {
             GrantedAuthority grantedAuthority = iterator.next();
             String role = grantedAuthority.getAuthority();
-            loginUserDTO.addRole(role);
+            userAccountPrincipal.addRole(role);
         }
 
-        return loginUserDTO;
+        return userAccountPrincipal;
     }
 }
