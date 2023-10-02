@@ -37,7 +37,11 @@ public class UserAccountController {
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserAccountResponse> searchUserAccount(@PathVariable String username) {
+    public ResponseEntity<UserAccountResponse> searchUserAccount(@IfLogin LoginUserDTO loginUserDTO,
+        @PathVariable String username) {
+        if (loginUserDTO == null || !loginUserDTO.username().equals(username)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
         UserAccountDTO dto = userAccountService.findUserAccountByUsername(username);
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
