@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -41,7 +40,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                .requestMatchers(antMatcher(HttpMethod.DELETE, "/api/v1/auth/token")).hasAnyRole("USER")
+                .requestMatchers(antMatcher(HttpMethod.DELETE, "/api/v1/auth/token")).authenticated()
                 .requestMatchers(antMatcher(HttpMethod.PUT, "/api/v1/users/{\\d+}")).authenticated()
                 .requestMatchers(antMatcher(HttpMethod.GET, "/api/v1/users/{\\d+}")).authenticated()
                 .anyRequest().permitAll())

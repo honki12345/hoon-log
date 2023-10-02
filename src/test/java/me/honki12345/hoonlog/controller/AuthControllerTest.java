@@ -91,7 +91,7 @@ class AuthControllerTest {
         );
     }
 
-@DisplayName("[로그인/실패]잘못된 정보를 입력하여, 로그인 시, 에러메세지를 반환한다")
+    @DisplayName("[로그인/실패]잘못된 정보를 입력하여, 로그인 시, 에러메세지를 반환한다")
     @Test
     void givenWrongLoginInfo_whenLogin_thenReturnsErrorMessage() throws JsonProcessingException {
         LoginRequest loginRequest = new LoginRequest("fpg123", "12345678");
@@ -126,6 +126,7 @@ class AuthControllerTest {
             .given().log().all()
             .port(port)
             .body(objectMapper.writeValueAsString(tokenDTO))
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
             .contentType(ContentType.JSON);
 
         // when
@@ -142,7 +143,8 @@ class AuthControllerTest {
         );
     }
 
-    @DisplayName("[로그아웃/실패]유효하지 않은 리프레쉬 토큰 값일 경우, 로그아웃 시, 에러메시지를 보낸다")
+
+    @DisplayName("[로그아웃/실패]유효하지 않은 액세스 토큰 값일 경우, 로그아웃 시, 에러메시지를 보낸다")
     @Test
     void givenWrongLogoutInfo_whenLogout_thenReturnsErrorMessage() throws JsonProcessingException {
         // given
@@ -152,6 +154,7 @@ class AuthControllerTest {
             .given().log().all()
             .port(port)
             .body(objectMapper.writeValueAsString(tokenDTO))
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
             .contentType(ContentType.JSON);
 
         // when
@@ -163,8 +166,8 @@ class AuthControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
-            () -> assertThat(extract.jsonPath().getString("code")).isEqualTo("LOGOUT1"),
-            () -> assertThat(extract.jsonPath().getString("message")).isEqualTo("로그아웃에 실패하였습니다")
+            () -> assertThat(extract.jsonPath().getString("code")).isEqualTo("TOKEN2"),
+            () -> assertThat(extract.jsonPath().getString("message")).isEqualTo("올바르지 않은 토큰입니다")
         );
     }
 

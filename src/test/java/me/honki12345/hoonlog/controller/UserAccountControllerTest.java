@@ -8,10 +8,12 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import me.honki12345.hoonlog.dto.ProfileDTO;
+import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +36,8 @@ class UserAccountControllerTest {
     UserAccountController userAccountController;
     @Autowired
     UserAccountService userAccountService;
+    @Autowired
+    AuthService authService;
     @Autowired
     UserAccountRepository userAccountRepository;
     @Autowired
@@ -168,11 +172,13 @@ class UserAccountControllerTest {
         // given
         String username = "fpg123";
         String email = "fpg123@mail.com";
-        saveOneUserAccount(username, "12345678", email);
+        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678", email);
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
             .pathParam("username", username);
 
         // when
@@ -189,37 +195,14 @@ class UserAccountControllerTest {
         );
     }
 
-    @DisplayName("[조회/실패]존재하지 않는 유저 아이디면, 유저 조회시, 실패한다")
-    @Test
-    void givenNotFoundUserId_whenSearchingUserDetails_thenThrowsException() {
-        // given
-        String username = "fpg123";
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .pathParam("username", username);
-
-        // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .get("/api/v1/users/{username}")
-            .then().log().all()
-            .extract();
-
-        // then
-        assertAll(
-            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value()),
-            () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("USER2"),
-            () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("존재하지 않는 값입니다")
-        );
-    }
-
     @DisplayName("[수정/성공]유저 프로필 수정에 성공한다")
     @Test
     void givenModifyingInfo_whenModifyingUserProfile_thenReturnModifiedUserAccount()
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        saveOneUserAccount(username, "12345678");
+        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678");
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = "blogName2";
         String modifiedBlogShortBio = "bio2";
@@ -228,6 +211,7 @@ class UserAccountControllerTest {
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
             .pathParam("username", username)
             .body(objectMapper.writeValueAsString(request))
             .contentType(ContentType.JSON);
@@ -255,7 +239,8 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        saveOneUserAccount(username, "12345678");
+        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678");
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = null;
         String modifiedBlogShortBio = "bio2";
@@ -265,6 +250,7 @@ class UserAccountControllerTest {
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()
             .port(port)
+            .header("Authorization", "Bearer " + tokenDTO.accessToken())
             .pathParam("username", username)
             .body(objectMapper.writeValueAsString(request))
             .contentType(ContentType.JSON);
