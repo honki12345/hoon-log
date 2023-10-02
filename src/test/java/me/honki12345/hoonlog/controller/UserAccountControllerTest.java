@@ -15,12 +15,14 @@ import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
+import me.honki12345.hoonlog.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -29,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("E2E UserAccount 컨트롤러 테스트")
 @ActiveProfiles("test")
+@Import({TestUtil.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserAccountControllerTest {
 
@@ -42,9 +45,13 @@ class UserAccountControllerTest {
     UserAccountRepository userAccountRepository;
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    TestUtil testUtil;
 
     @LocalServerPort
     private int port;
+
+
 
     @AfterEach
     void tearDown() {
@@ -172,7 +179,7 @@ class UserAccountControllerTest {
         // given
         String username = "fpg123";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678", email);
+        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount(username, "12345678", email);
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
@@ -201,7 +208,7 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678");
+        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = "blogName2";
@@ -232,14 +239,13 @@ class UserAccountControllerTest {
         );
     }
 
-
     @DisplayName("[수정/실패]블로그제목을 미입력시, 유저 프로필 수정에 실패한다")
     @Test
     void givenModifyingInfoWithoutBlogName_whenModifyingUserProfile_thenReturnsErrorMessage()
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = saveOneUserAccount(username, "12345678");
+        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = null;
@@ -267,24 +273,5 @@ class UserAccountControllerTest {
             () -> assertThat((String) extract.jsonPath().get("code")).isEqualTo("COMMON1"),
             () -> assertThat((String) extract.jsonPath().get("message")).isEqualTo("블로그 제목을 입력해주세요")
         );
-    }
-
-    private UserAccountDTO saveOneUserAccount(String username, String password) {
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        return saveOneUserAccount(username, password, "fpg123@mail.com", profileDTO);
-    }
-
-
-    private UserAccountDTO saveOneUserAccount(String username, String password, String email) {
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        return saveOneUserAccount(username, password, email, profileDTO);
-    }
-
-
-    private UserAccountDTO saveOneUserAccount(String username, String password, String email,
-        ProfileDTO profileDTO) {
-        UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
-            profileDTO);
-        return userAccountService.saveUserAccount(request);
     }
 }
