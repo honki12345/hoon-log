@@ -8,7 +8,6 @@ import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
-import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,12 +34,10 @@ class UserAccountServiceTest {
 
     @Autowired
     private UserAccountService userAccountService;
-    @Autowired
-    private UserAccountRepository userAccountRepository;
 
     @AfterEach
     void tearDown() {
-        userAccountRepository.deleteAllInBatch();
+        testUtil.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[가입/성공]유저 정보를 입력하면, 회원가입 시, id와 encoded 비밀번호와 가입일자 정보가 포함된 유저 객체를 생성한다.")

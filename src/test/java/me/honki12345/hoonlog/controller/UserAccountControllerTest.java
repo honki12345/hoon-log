@@ -55,7 +55,7 @@ class UserAccountControllerTest {
 
     @AfterEach
     void tearDown() {
-        userAccountRepository.deleteAllInBatch();
+        testUtil.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[생성/성공]회원가입을 성공한다")
