@@ -1,6 +1,7 @@
 package me.honki12345.hoonlog.controller;
 
 import static io.restassured.RestAssured.*;
+import static me.honki12345.hoonlog.util.TestUtil.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -10,7 +11,6 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import java.util.Optional;
-import me.honki12345.hoonlog.config.JpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.TokenDTO;
@@ -34,13 +34,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("E2E PostController 컨트롤러 테스트")
-@Import({TestUtil.class, JpaConfig.class})
+@Import({TestUtil.class})
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostControllerTest {
 
-    public static final String TEST_USERNAME = "fpg123";
-    public static final String TEST_PASSWORD = "12345678";
 
     @Autowired
     ObjectMapper objectMapper;
@@ -94,7 +92,7 @@ class PostControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
-            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo("test"),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
             () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(title),
             () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(content)
         );
@@ -104,7 +102,7 @@ class PostControllerTest {
     @Test
     void givenNothing_whenSearchingPost_thenReturnsListOfPostInfo() {
         // given // when
-        create10Posts();
+        createPostsWithMockCustomer();
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -128,9 +126,9 @@ class PostControllerTest {
         // given // when
         String title = "title";
         String content = "content";
-        Post createdPost = createPost(title, content);
+        Post createdPost = createPostWithMockCustomer(title, content);
         assert createdPost != null;
-        
+
         ExtractableResponse<Response> extract =
             given().log().all()
                 .port(port)
@@ -144,7 +142,7 @@ class PostControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
-            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo("test"),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME ),
             () -> assertThat(extract.jsonPath().getLong("id")).isEqualTo(createdPost.getId()),
             () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(title),
             () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(content)
@@ -175,10 +173,67 @@ class PostControllerTest {
         );
     }
 
+    @DisplayName("[수정/성공]게시글 수정에 성공한다.")
+    @Test
+    void givenUpdatingInfo_whenUpdatingPost_thenReturnsUpdatedPostInfo()
+        throws JsonProcessingException {
+        // given // when
+        TokenDTO tokenDTO = testUtil.createTokensAfterSaving();
+        Post createdPost = testUtil.createPostWithTestUser("title", "content");
+        String newTitle = "newTitle";
+        String newContent = "newContent";
+        PostRequest updateRequest = new PostRequest(newTitle, newContent);
+
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .pathParam("postId", createdPost.getId())
+                .body(objectMapper.writeValueAsString(updateRequest))
+                .contentType(ContentType.JSON)
+                .when()
+                .put("/api/v1/posts/{postId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME ),
+            () -> assertThat(extract.jsonPath().getLong("id")).isEqualTo(createdPost.getId()),
+            () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(newTitle),
+            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(newContent)
+        );
+    }
+
+    @DisplayName("[삭제/성공]게시글 삭제에 성공한다.")
+    @Test
+    void givenPostId_whenDeletingPost_thenReturnsOK()
+        throws JsonProcessingException {
+        // given // when
+        TokenDTO tokenDTO = testUtil.createTokensAfterSaving();
+        Post createdPost = testUtil.createPostWithTestUser("title", "content");
+
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .pathParam("postId", createdPost.getId())
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/api/v1/posts/{postId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value())
+        );
+    }
 
 
     @WithMockCustomUser
-    private void create10Posts() {
+    private void createPostsWithMockCustomer() {
         testUtil.createTokensAfterSaving(TEST_USERNAME, TEST_PASSWORD);
         for (int i = 0; i < 10; i++) {
             PostRequest postRequest = new PostRequest("title" + i, "content" + i);
@@ -188,12 +243,11 @@ class PostControllerTest {
     }
 
     @WithMockCustomUser
-    private Post createPost(String title, String content) {
+    private Post createPostWithMockCustomer(String title, String content) {
         testUtil.createTokensAfterSaving(TEST_USERNAME, TEST_PASSWORD);
         PostRequest postRequest = new PostRequest(title, content);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
             postRequest.toEntityWithUserAccount(userAccount))).orElse(null);
     }
-
 }

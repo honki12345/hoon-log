@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
+import me.honki12345.hoonlog.dto.request.PostRequest;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,11 +45,6 @@ public class Post extends AuditingFields {
         return new Post(null, userAccount, title, content);
     }
 
-    public void addUserAccount(UserAccount userAccount) {
-        this.userAccount = userAccount;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -63,5 +59,10 @@ public class Post extends AuditingFields {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void update(PostRequest postRequest) {
+        this.title = postRequest.title();
+        this.content = postRequest.content();
     }
 }

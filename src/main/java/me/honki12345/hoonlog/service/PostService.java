@@ -8,6 +8,7 @@ import me.honki12345.hoonlog.dto.PostDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.ForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostRepository;
@@ -39,8 +40,29 @@ public class PostService {
         return PostDTO.from(postRepository.save(post));
     }
 
+    @Transactional(readOnly = true)
     public PostDTO searchPost(Long postId) {
         return PostDTO.from(postRepository.findById(postId)
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND)));
+    }
+
+    public PostDTO updatePost(Long postId, UserAccountPrincipal userAccountPrincipal,
+        @Valid PostRequest postRequest) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
+            ErrorCode.POST_NOT_FOUND));
+        if (!post.getUserAccount().getUsername().equals(userAccountPrincipal.username())) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+        post.update(postRequest);
+        return PostDTO.from(post);
+    }
+
+    public void deletePost(Long postId, UserAccountPrincipal userAccountPrincipal) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
+            ErrorCode.POST_NOT_FOUND));
+        if (!post.getUserAccount().getUsername().equals(userAccountPrincipal.username())) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+        postRepository.deleteById(postId);
     }
 }
