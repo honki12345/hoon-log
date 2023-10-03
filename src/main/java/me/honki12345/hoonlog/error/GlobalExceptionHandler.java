@@ -2,14 +2,15 @@ package me.honki12345.hoonlog.error;
 
 import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
-import me.honki12345.hoonlog.error.exception.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
-import me.honki12345.hoonlog.error.exception.JwtException;
-import me.honki12345.hoonlog.error.exception.LoginErrorException;
-import me.honki12345.hoonlog.error.exception.LogoutErrorException;
+import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
+import me.honki12345.hoonlog.error.exception.security.JwtException;
+import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
+import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.error.exception.NotFoundException;
-import me.honki12345.hoonlog.error.exception.RoleNotFoundException;
-import me.honki12345.hoonlog.error.exception.UserAccountNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.RoleNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -76,10 +77,16 @@ public class GlobalExceptionHandler {
         return createResponseEntityByException(exception);
     }
 
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ErrorResponse> postNotFoundException(PostNotFoundException exception) {
+        return createResponseEntityByException(exception);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity exceptionHandler(Exception exception) {
+    public ResponseEntity<Object> exceptionHandler(Exception exception) {
+
         log.warn("Exception 발생: {}, {}", exception, exception.getMessage());
-        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private static ResponseEntity<ErrorResponse> createResponseEntityByException(

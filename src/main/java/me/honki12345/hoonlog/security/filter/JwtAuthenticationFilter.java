@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.honki12345.hoonlog.error.exception.JwtException;
+import me.honki12345.hoonlog.error.exception.security.JwtException;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -62,8 +62,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void getAuthentication(String token) {
         JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(token);
-        Authentication authenticate = authenticationManager.authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     private String getToken(HttpServletRequest request) {

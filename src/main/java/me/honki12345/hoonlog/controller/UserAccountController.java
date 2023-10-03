@@ -6,7 +6,7 @@ import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.dto.response.UserAccountResponse;
-import me.honki12345.hoonlog.dto.security.LoginUserDTO;
+import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
 import me.honki12345.hoonlog.security.jwt.util.IfLogin;
@@ -37,9 +37,9 @@ public class UserAccountController {
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserAccountResponse> searchUserAccount(@IfLogin LoginUserDTO loginUserDTO,
+    public ResponseEntity<UserAccountResponse> searchUserAccount(@IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable String username) {
-        if (loginUserDTO == null || !loginUserDTO.username().equals(username)) {
+        if (userAccountPrincipal == null || !userAccountPrincipal.username().equals(username)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
         UserAccountDTO dto = userAccountService.findUserAccountByUsername(username);
@@ -49,10 +49,10 @@ public class UserAccountController {
 
     @PutMapping("/{username}")
     public ResponseEntity<UserAccountResponse> modifyUserAccount(
-        @IfLogin LoginUserDTO loginUserDTO,
+        @IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable String username,
         @Valid @RequestBody UserAccountModifyRequest request) {
-        if (loginUserDTO == null || !loginUserDTO.username().equals(username)) {
+        if (userAccountPrincipal == null || !userAccountPrincipal.username().equals(username)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
         UserAccountDTO dto = userAccountService.modifyUserAccount(username, request);

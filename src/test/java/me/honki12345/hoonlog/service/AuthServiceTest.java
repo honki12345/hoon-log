@@ -6,7 +6,7 @@ import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.domain.vo.Profile;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
-import me.honki12345.hoonlog.error.exception.LogoutErrorException;
+import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
