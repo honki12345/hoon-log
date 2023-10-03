@@ -50,10 +50,10 @@ class PostServiceTest {
         // given
         PostRequest postRequest = new PostRequest(TEST_TITLE, TEST_CONTENT);
         UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
-        UserAccountPrincipal userAccountPrincipal = userAccountDTO.toPrincipal();
+        UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
 
         // when
-        PostDTO postDTO = postService.addPost(postRequest.toDTO(), UserAccountDTO.from(userAccountPrincipal));
+        PostDTO postDTO = postService.addPost(postRequest.toDTO(), userAccountPrincipal.toDTO());
 
         // then
         assertThat(postDTO.title()).isEqualTo(TEST_TITLE);
@@ -71,7 +71,7 @@ class PostServiceTest {
 
         // when // then
         assertThatThrownBy(() ->
-            postService.addPost(postRequest.toDTO(), UserAccountDTO.from(userAccountPrincipal))).isInstanceOf(
+            postService.addPost(postRequest.toDTO(), userAccountPrincipal.toDTO())).isInstanceOf(
             UserAccountNotFoundException.class);
     }
 
