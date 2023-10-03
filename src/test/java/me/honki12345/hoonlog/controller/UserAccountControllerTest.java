@@ -179,7 +179,7 @@ class UserAccountControllerTest {
         // given
         String username = "fpg123";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount(username, "12345678", email);
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, "12345678", email);
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
@@ -208,7 +208,7 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount(username, "12345678");
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = "blogName2";
@@ -245,7 +245,7 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount(username, "12345678");
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = null;

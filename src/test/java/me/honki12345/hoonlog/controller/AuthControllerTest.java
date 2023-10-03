@@ -65,7 +65,7 @@ class AuthControllerTest {
         String username = "fpg123";
         String password = "12345678";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount(username, password, email);
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, password, email);
 
         LoginRequest loginRequest = new LoginRequest(username, password);
         RequestSpecification requestSpecification = RestAssured
@@ -122,7 +122,7 @@ class AuthControllerTest {
     @Test
     void givenLogoutInfo_whenLogout_thenReturns200Ok() throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
@@ -179,7 +179,7 @@ class AuthControllerTest {
     void givenTokenInfo_whenRefreshingToken_thenReturnsNewAccessToken()
         throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveOneUserAccount("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
