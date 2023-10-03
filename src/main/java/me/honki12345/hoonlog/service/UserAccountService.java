@@ -10,9 +10,6 @@ import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.domain.vo.Profile;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
-import me.honki12345.hoonlog.dto.request.LoginRequest;
-import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
-import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.repository.RoleRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,18 +25,19 @@ public class UserAccountService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserAccountDTO saveUserAccount(UserAccountAddRequest request) {
-        if (userAccountRepository.existsByUsername(request.username())) {
+    public UserAccountDTO saveUserAccount(UserAccountDTO dto) {
+        if (userAccountRepository.existsByUsername(dto.username())) {
             throw new DuplicateUserAccountException(ErrorCode.DUPLICATE_USER_ACCOUNT);
         }
         Role userRole = roleRepository.findByName("ROLE_USER")
             .orElseThrow(() -> new RoleNotFoundException(
                 ErrorCode.ROLE_NOT_FOUND));
 
-        String encodedPwd = passwordEncoder.encode(request.userPassword());
-        UserAccount userAccount = request.toEntity(encodedPwd);
-        userAccount.addRole(userRole);
-        UserAccount savedUserAccount = userAccountRepository.save(userAccount);
+        String encodedPwd = passwordEncoder.encode(dto.userPassword());
+        UserAccountDTO userAccountDTO = dto
+            .changePassword(encodedPwd)
+            .addRole(userRole);
+        UserAccount savedUserAccount = userAccountRepository.save(userAccountDTO.toEntity());
         return UserAccountDTO.from(savedUserAccount);
     }
 
@@ -58,20 +56,20 @@ public class UserAccountService {
     }
 
     @Transactional(readOnly = true)
-    public UserAccountDTO findUserAccountAfterCheckingPassword(LoginRequest request) {
-        UserAccount entity = userAccountRepository.findByUsername(request.username())
+    public UserAccountDTO findUserAccountAfterCheckingPassword(UserAccountDTO dto) {
+        UserAccount entity = userAccountRepository.findByUsername(dto.username())
             .orElseThrow(() -> new LoginErrorException(ErrorCode.LOGIN_ERROR));
-        if (!passwordEncoder.matches(request.password(), entity.getUserPassword())) {
+        if (!passwordEncoder.matches(dto.userPassword(), entity.getUserPassword())) {
             throw new LoginErrorException(ErrorCode.LOGIN_ERROR);
         }
         return UserAccountDTO.from(entity);
     }
 
-    public UserAccountDTO modifyUserAccount(String username, UserAccountModifyRequest request) {
+    public UserAccountDTO modifyUserAccount(String username, UserAccountDTO dto) {
         UserAccount userAccount = userAccountRepository.findByUsername(username)
             .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
         Profile profile = userAccount.getProfile();
-        profile.modify(request.profile());
+        profile.modify(dto.profileDTO());
         return UserAccountDTO.from(userAccount);
     }
 }

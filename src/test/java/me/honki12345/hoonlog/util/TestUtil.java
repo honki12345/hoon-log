@@ -13,7 +13,6 @@ import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
-import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.springframework.boot.test.context.TestComponent;
 
@@ -22,14 +21,12 @@ import org.springframework.boot.test.context.TestComponent;
 public class TestUtil {
 
     public static final String TEST_USERNAME = "fpg123";
-    public static final String TEST_WRONG_USERNAME = "wrongFpg123";
     public static final String TEST_PASSWORD = "12345678";
     public static final String TEST_TITLE= "title";
     public static final String TEST_CONTENT= "content";
 
     private final AuthService authService;
     private final UserAccountService userAccountService;
-    private final PostService postService;
 
     private final PostRepository postRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -73,13 +70,13 @@ public class TestUtil {
         ProfileDTO profileDTO) {
         UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
             profileDTO);
-        return userAccountService.saveUserAccount(request);
+        return userAccountService.saveUserAccount(request.toDTO());
     }
 
     public Post createPostWithTestUser(String title, String content) {
         PostRequest postRequest = new PostRequest(title, content);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
-            postRequest.toEntityWithUserAccount(userAccount))).orElse(null);
+            postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 }

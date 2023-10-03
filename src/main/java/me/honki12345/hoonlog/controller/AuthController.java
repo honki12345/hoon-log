@@ -27,7 +27,7 @@ public class AuthController {
     @PostMapping("/token")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         UserAccountDTO userAccountDTO = userAccountService.findUserAccountAfterCheckingPassword(
-            request);
+            request.toDTO());
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
         LoginResponse loginResponse = LoginResponse.of(tokenDTO.accessToken(),
             tokenDTO.refreshToken(), userAccountDTO.id(), userAccountDTO.username());

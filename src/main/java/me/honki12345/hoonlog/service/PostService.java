@@ -1,12 +1,10 @@
 package me.honki12345.hoonlog.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostDTO;
-import me.honki12345.hoonlog.dto.request.PostRequest;
-import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
+import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
@@ -31,12 +29,13 @@ public class PostService {
         return postRepository.findAll(pageable).map(PostDTO::from);
     }
 
-    public PostDTO addPost(@Valid PostRequest request,
-        UserAccountPrincipal userAccountPrincipal) {
-        UserAccount userAccount = userAccountRepository.findById(userAccountPrincipal.userId())
+    public PostDTO addPost(PostDTO postDTO,
+        UserAccountDTO userAccountDTO) {
+        UserAccount userAccount = userAccountRepository.findById(userAccountDTO.id())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
-        Post post = request.toEntityWithUserAccount(userAccount);
+        Post post = postDTO.toEntity();
+        post.addUserAccount(userAccount);
         return PostDTO.from(postRepository.save(post));
     }
 
@@ -46,21 +45,21 @@ public class PostService {
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND)));
     }
 
-    public PostDTO updatePost(Long postId, UserAccountPrincipal userAccountPrincipal,
-        @Valid PostRequest postRequest) {
+    public PostDTO updatePost(Long postId, UserAccountDTO userAccountDTO,
+        PostDTO postDTO) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
             ErrorCode.POST_NOT_FOUND));
-        if (!post.getUserAccount().getUsername().equals(userAccountPrincipal.username())) {
+        if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
-        post.update(postRequest);
+        post.update(postDTO);
         return PostDTO.from(post);
     }
 
-    public void deletePost(Long postId, UserAccountPrincipal userAccountPrincipal) {
+    public void deletePost(Long postId, UserAccountDTO dto) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
             ErrorCode.POST_NOT_FOUND));
-        if (!post.getUserAccount().getUsername().equals(userAccountPrincipal.username())) {
+        if (!post.getUserAccount().getUsername().equals(dto.username())) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
         postRepository.deleteById(postId);

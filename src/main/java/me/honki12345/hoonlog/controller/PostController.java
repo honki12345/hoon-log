@@ -3,6 +3,7 @@ package me.honki12345.hoonlog.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.dto.PostDTO;
+import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.dto.response.PostResponse;
 import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
@@ -49,7 +50,8 @@ public class PostController {
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @Valid @RequestBody PostRequest postRequest) {
 
-        PostDTO postDTO = postService.addPost(postRequest, userAccountPrincipal);
+        PostDTO postDTO = postService.addPost(postRequest.toDTO(),
+            UserAccountDTO.from(userAccountPrincipal));
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.CREATED);
     }
 
@@ -58,7 +60,8 @@ public class PostController {
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable Long postId,
         @Valid @RequestBody PostRequest postRequest) {
-        PostDTO postDTO = postService.updatePost(postId, userAccountPrincipal, postRequest);
+        PostDTO postDTO = postService.updatePost(postId, UserAccountDTO.from(userAccountPrincipal),
+            postRequest.toDTO());
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.OK);
     }
 
@@ -66,7 +69,7 @@ public class PostController {
     public ResponseEntity<Object> deletePost(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable Long postId) {
-        postService.deletePost(postId, userAccountPrincipal);
+        postService.deletePost(postId, UserAccountDTO.from(userAccountPrincipal));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

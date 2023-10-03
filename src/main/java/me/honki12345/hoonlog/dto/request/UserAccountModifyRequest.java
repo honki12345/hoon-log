@@ -3,6 +3,7 @@ package me.honki12345.hoonlog.dto.request;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import me.honki12345.hoonlog.dto.ProfileDTO;
+import me.honki12345.hoonlog.dto.UserAccountDTO;
 
 public record UserAccountModifyRequest(
     @Valid
@@ -10,4 +11,7 @@ public record UserAccountModifyRequest(
     ProfileDTO profile
 ) {
 
+    public UserAccountDTO toDTO() {
+        return UserAccountDTO.of(profile);
+    }
 }

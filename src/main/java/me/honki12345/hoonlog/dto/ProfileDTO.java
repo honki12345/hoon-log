@@ -9,8 +9,8 @@ public record ProfileDTO(
     String blogShortBio
 ) {
 
-    public static Profile toVO(ProfileDTO dto) {
-        return Profile.of(dto.blogName(), dto.blogShortBio());
+    public Profile toVO() {
+        return Profile.of(blogName, blogShortBio);
     }
 
     public static ProfileDTO from(Profile profile) {

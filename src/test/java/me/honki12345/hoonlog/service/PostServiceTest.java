@@ -53,7 +53,7 @@ class PostServiceTest {
         UserAccountPrincipal userAccountPrincipal = userAccountDTO.toPrincipal();
 
         // when
-        PostDTO postDTO = postService.addPost(postRequest, userAccountPrincipal);
+        PostDTO postDTO = postService.addPost(postRequest.toDTO(), UserAccountDTO.from(userAccountPrincipal));
 
         // then
         assertThat(postDTO.title()).isEqualTo(TEST_TITLE);
@@ -65,13 +65,13 @@ class PostServiceTest {
     void givenPostInfoWithUnRegisteredUserInfo_whenAddingPost_thenThrowsException() {
         // given
         PostRequest postRequest = new PostRequest(TEST_TITLE, TEST_CONTENT);
-        long wrongUserId = 1L;
+        long wrongUserId = 3L;
         UserAccountPrincipal userAccountPrincipal = new UserAccountPrincipal(wrongUserId,
             TEST_USERNAME, List.of("USER_ROLE"));
 
         // when // then
         assertThatThrownBy(() ->
-            postService.addPost(postRequest, userAccountPrincipal)).isInstanceOf(
+            postService.addPost(postRequest.toDTO(), UserAccountDTO.from(userAccountPrincipal))).isInstanceOf(
             UserAccountNotFoundException.class);
     }
 
@@ -88,8 +88,8 @@ class PostServiceTest {
 
         // when
         PostDTO updatedPostDTO = postService.updatePost(savedPost.getId(),
-            userAccountDTO.toPrincipal(),
-            updateRequest);
+            userAccountDTO,
+            updateRequest.toDTO());
 
         // then
         assertThat(updatedPostDTO.id()).isEqualTo(savedPost.getId());
@@ -107,7 +107,7 @@ class PostServiceTest {
 
         // when // then
         assertThatNoException().isThrownBy(
-            () -> postService.deletePost(savedPost.getId(), userAccountDTO.toPrincipal()));
+            () -> postService.deletePost(savedPost.getId(), userAccountDTO));
     }
 
 

@@ -1,8 +1,7 @@
 package me.honki12345.hoonlog.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import me.honki12345.hoonlog.domain.Post;
-import me.honki12345.hoonlog.domain.UserAccount;
+import me.honki12345.hoonlog.dto.PostDTO;
 
 public record PostRequest(
     @NotNull(message = "제목을 입력해주세요")
@@ -10,7 +9,7 @@ public record PostRequest(
     String content
 ) {
 
-    public Post toEntityWithUserAccount(UserAccount userAccount) {
-        return Post.of(userAccount, title, content);
+    public PostDTO toDTO() {
+        return PostDTO.of(title, content);
     }
 }

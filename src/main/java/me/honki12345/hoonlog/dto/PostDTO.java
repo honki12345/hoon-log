@@ -27,8 +27,15 @@ public record PostDTO(
         );
     }
 
+    public static PostDTO of(String title, String content) {
+        return PostDTO.of(null, title, content);
+    }
+
     public static PostDTO of(UserAccountDTO userAccountDTO, String title, String content) {
         return new PostDTO(null, userAccountDTO, title, content, null, null, null, null);
     }
 
+    public Post toEntity() {
+        return Post.of(title, content);
+    }
 }

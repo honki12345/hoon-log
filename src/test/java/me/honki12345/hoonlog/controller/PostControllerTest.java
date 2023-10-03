@@ -238,7 +238,7 @@ class PostControllerTest {
         for (int i = 0; i < 10; i++) {
             PostRequest postRequest = new PostRequest("title" + i, "content" + i);
             userAccountRepository.findByUsername(TEST_USERNAME).ifPresent(userAccount ->
-                postRepository.save(postRequest.toEntityWithUserAccount(userAccount)));
+                postRepository.save(postRequest.toDTO().toEntity().addUserAccount(userAccount)));
         }
     }
 
@@ -248,6 +248,6 @@ class PostControllerTest {
         PostRequest postRequest = new PostRequest(title, content);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
-            postRequest.toEntityWithUserAccount(userAccount))).orElse(null);
+            postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 }

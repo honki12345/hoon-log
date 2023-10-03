@@ -125,7 +125,7 @@ class UserAccountControllerTest {
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
             "fpg123", "12345678", "fpg123@mail.com", profileDTO);
-        userAccountService.saveUserAccount(request);
+        userAccountService.saveUserAccount(request.toDTO());
 
         RequestSpecification requestSpecification = RestAssured
             .given().log().all()

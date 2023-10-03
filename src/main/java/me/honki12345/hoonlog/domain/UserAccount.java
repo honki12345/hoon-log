@@ -70,10 +70,6 @@ public class UserAccount {
         this.createdAt = createdAt;
     }
 
-    public void addRole(Role role) {
-        roles.add(role);
-    }
-
     public static UserAccount of(String username, String userPassword, String email,
         Profile profile) {
         return new UserAccount(null, username, userPassword, email, profile, null);
