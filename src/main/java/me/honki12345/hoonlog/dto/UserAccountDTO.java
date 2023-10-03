@@ -19,17 +19,6 @@ public record UserAccountDTO(
     Set<Role> roles
 ) {
 
-    public static UserAccountDTO from(UserAccount entity) {
-        return new UserAccountDTO(
-            entity.getId(),
-            entity.getUsername(),
-            entity.getUserPassword(),
-            entity.getEmail(),
-            ProfileDTO.from(entity.getProfile()),
-            entity.getCreatedAt(),
-            entity.getRoles()
-        );
-    }
 
     public UserAccountDTO changePassword(String newUserPassword) {
         return new UserAccountDTO(this.id, this.username, newUserPassword, this.email,
@@ -60,16 +49,16 @@ public record UserAccountDTO(
         return new UserAccountDTO(userId, username, null, null, null, null, roleSet);
     }
 
-    public static UserAccountDTO from(UserAccountPrincipal userAccountPrincipal) {
-        return UserAccountDTO.of(userAccountPrincipal.userId(), userAccountPrincipal.username(),
-            userAccountPrincipal.roles());
-    }
-
-    public UserAccountPrincipal toPrincipal() {
-        return new UserAccountPrincipal(
-            id(),
-            username(),
-            roles().stream().map(Role::getName).collect(Collectors.toList()));
+    public static UserAccountDTO from(UserAccount entity) {
+        return new UserAccountDTO(
+            entity.getId(),
+            entity.getUsername(),
+            entity.getUserPassword(),
+            entity.getEmail(),
+            ProfileDTO.from(entity.getProfile()),
+            entity.getCreatedAt(),
+            entity.getRoles()
+        );
     }
 
     public UserAccount toEntity() {

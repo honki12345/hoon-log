@@ -9,6 +9,7 @@ import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
+import me.honki12345.hoonlog.repository.PostCommentRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -22,8 +23,9 @@ public class TestUtil {
 
     public static final String TEST_USERNAME = "fpg123";
     public static final String TEST_PASSWORD = "12345678";
-    public static final String TEST_TITLE= "title";
-    public static final String TEST_CONTENT= "content";
+    public static final String TEST_POST_TITLE = "title";
+    public static final String TEST_POST_CONTENT = "content";
+    public static final String TEST_COMMENT_CONTENT = "commentContent";
 
     private final AuthService authService;
     private final UserAccountService userAccountService;
@@ -31,20 +33,22 @@ public class TestUtil {
     private final PostRepository postRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserAccountRepository userAccountRepository;
+    private final PostCommentRepository postCommentRepository;
 
 
     public void deleteAllInBatchInAllRepository() {
+        this.postCommentRepository.deleteAllInBatch();
         this.postRepository.deleteAllInBatch();
         this.refreshTokenRepository.deleteAllInBatch();
         this.userAccountRepository.deleteAllInBatch();
     }
 
-    public TokenDTO createTokensAfterSaving() {
+    public TokenDTO createTokensAfterSavingTestUser() {
         UserAccountDTO userAccountDTO = saveTestUser();
         return authService.createTokens(userAccountDTO);
     }
 
-    public TokenDTO createTokensAfterSaving(String username, String password) {
+    public TokenDTO createTokensAfterSavingTestUser(String username, String password) {
         UserAccountDTO userAccountDTO = saveTestUser(username, password);
         return authService.createTokens(userAccountDTO);
     }
@@ -71,6 +75,13 @@ public class TestUtil {
         UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
             profileDTO);
         return userAccountService.saveUserAccount(request.toDTO());
+    }
+
+    public Post createPostWithTestUser() {
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
+        return optionalUserAccount.map(userAccount -> postRepository.saveAndFlush(
+            postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 
     public Post createPostWithTestUser(String title, String content) {

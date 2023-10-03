@@ -22,7 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-@DisplayName("AuthService 애플리케이션 통합테스트")
+@DisplayName("PostService 애플리케이션 통합테스트")
 @Import({TestUtil.class})
 @ActiveProfiles("test")
 @SpringBootTest
@@ -32,6 +32,7 @@ class PostServiceTest {
     ObjectMapper objectMapper;
     @Autowired
     TestUtil testUtil;
+
     @Autowired
     PostRepository postRepository;
     @Autowired
@@ -48,7 +49,7 @@ class PostServiceTest {
     @Test
     void givenPostInfoAndUserInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_TITLE, TEST_CONTENT);
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
         UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
 
@@ -56,15 +57,15 @@ class PostServiceTest {
         PostDTO postDTO = postService.addPost(postRequest.toDTO(), userAccountPrincipal.toDTO());
 
         // then
-        assertThat(postDTO.title()).isEqualTo(TEST_TITLE);
-        assertThat(postDTO.content()).isEqualTo(TEST_CONTENT);
+        assertThat(postDTO.title()).isEqualTo(TEST_POST_TITLE);
+        assertThat(postDTO.content()).isEqualTo(TEST_POST_CONTENT);
     }
 
     @DisplayName("회원가입 되지 않은 회원정보로, 게시글 생성시, 예외를 던진다.")
     @Test
     void givenPostInfoWithUnRegisteredUserInfo_whenAddingPost_thenThrowsException() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_TITLE, TEST_CONTENT);
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
         long wrongUserId = 3L;
         UserAccountPrincipal userAccountPrincipal = new UserAccountPrincipal(wrongUserId,
             TEST_USERNAME, List.of("USER_ROLE"));

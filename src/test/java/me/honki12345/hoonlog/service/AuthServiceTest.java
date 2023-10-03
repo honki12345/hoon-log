@@ -10,6 +10,7 @@ import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
+import me.honki12345.hoonlog.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,12 +31,15 @@ class AuthServiceTest {
     UserAccountRepository userAccountRepository;
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
+
     @Autowired
     JwtTokenizer jwtTokenizer;
+    @Autowired
+    TestUtil testUtil;
 
     @AfterEach
     void tearDown() {
-        refreshTokenRepository.deleteAllInBatch();
+        testUtil.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[로그인/성공]유저 정보를 입력시, 토큰생성을 성공한다.")

@@ -58,6 +58,10 @@ public class Post extends AuditingFields {
         return new Post(null, userAccount, title, content);
     }
 
+    public static Post of(Long id, UserAccount userAccount, String title, String content) {
+        return new Post(id, userAccount, title, content);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
