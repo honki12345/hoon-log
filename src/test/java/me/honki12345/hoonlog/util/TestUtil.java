@@ -15,6 +15,7 @@ import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostCommentRepository;
+import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -39,9 +40,10 @@ public class TestUtil {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserAccountRepository userAccountRepository;
     private final PostCommentRepository postCommentRepository;
-
+    private final PostImageRepository postImageRepository;
 
     public void deleteAllInBatchInAllRepository() {
+        postImageRepository.deleteAllInBatch();
         this.postCommentRepository.deleteAllInBatch();
         this.postRepository.deleteAllInBatch();
         this.refreshTokenRepository.deleteAllInBatch();

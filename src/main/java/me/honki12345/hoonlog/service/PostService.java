@@ -1,7 +1,11 @@
 package me.honki12345.hoonlog.service;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Transactional
@@ -23,6 +28,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserAccountRepository userAccountRepository;
+    private final PostImageService postImageService;
 
     @Transactional(readOnly = true)
     public Page<PostDTO> searchPosts(Pageable pageable) {
@@ -30,12 +36,22 @@ public class PostService {
     }
 
     public PostDTO addPost(PostDTO postDTO,
+        List<MultipartFile> postImageFileList,
         UserAccountDTO userAccountDTO) {
         UserAccount userAccount = userAccountRepository.findById(userAccountDTO.id())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
         Post post = postDTO.toEntity();
         post.addUserAccount(userAccount);
+
+        if (postImageFileList != null) {
+            for (MultipartFile multipartFile : postImageFileList) {
+                PostImage postImage = new PostImage();
+                postImage.addPost(post);
+                postImageService.savePostImage(postImage, multipartFile);
+            }
+        }
+
         return PostDTO.from(postRepository.save(post));
     }
 

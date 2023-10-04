@@ -1,6 +1,7 @@
 package me.honki12345.hoonlog.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.dto.PostDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -47,9 +50,11 @@ public class PostController {
     @PostMapping
     public ResponseEntity<PostResponse> addPost(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
+        @RequestParam(name = "postImageFile", required = false) List<MultipartFile> postImageFileList,
         @Valid @RequestBody PostRequest postRequest) {
 
         PostDTO postDTO = postService.addPost(postRequest.toDTO(),
+            postImageFileList,
             userAccountPrincipal.toDTO());
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.CREATED);
     }
