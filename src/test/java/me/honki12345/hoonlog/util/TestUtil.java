@@ -3,12 +3,17 @@ package me.honki12345.hoonlog.util;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.PostComment;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
+import me.honki12345.hoonlog.dto.request.PostCommentRequest;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
+import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostCommentRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
@@ -79,15 +84,32 @@ public class TestUtil {
 
     public Post createPostWithTestUser() {
         PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
-        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
+            TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.saveAndFlush(
             postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 
     public Post createPostWithTestUser(String title, String content) {
         PostRequest postRequest = new PostRequest(title, content);
-        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
+            TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
             postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
+    }
+
+    public PostComment createCommentWithTestUser(Long postId) {
+        PostCommentRequest postCommentRequest = PostCommentRequest.of(
+            TestUtil.TEST_COMMENT_CONTENT);
+        PostComment postComment = postCommentRequest.toDTO().toEntity();
+
+        UserAccount userAccount = userAccountRepository.findByUsername(TEST_USERNAME)
+            .orElseThrow(() -> new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
+            ErrorCode.POST_NOT_FOUND));
+
+        postComment.addPost(post);
+        postComment.addUserAccount(userAccount);
+        return postCommentRepository.save(postComment);
     }
 }

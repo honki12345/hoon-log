@@ -7,6 +7,8 @@ import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostCommentDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.error.exception.domain.PostCommentNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostCommentRepository;
@@ -34,5 +36,17 @@ public class PostCommentService {
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
         postComment = postComment.addPost(post).addUserAccount(userAccount);
         return PostCommentDTO.from(postCommentRepository.save(postComment));
+    }
+
+    public PostCommentDTO modifyComment(PostCommentDTO postCommentDTO, Long commentId,
+        UserAccountDTO dto) {
+        PostComment postComment = postCommentRepository.findById(commentId)
+            .orElseThrow(() -> new PostCommentNotFoundException(
+                ErrorCode.COMMENT_NOT_FOUND));
+        if (!postComment.getUserAccount().getId().equals(dto.id())) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+        postComment.update(postCommentDTO.content());
+        return PostCommentDTO.from(postComment);
     }
 }

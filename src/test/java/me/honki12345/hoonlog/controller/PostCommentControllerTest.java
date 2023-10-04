@@ -12,6 +12,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.PostComment;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.request.PostCommentRequest;
 import me.honki12345.hoonlog.repository.PostRepository;
@@ -91,7 +92,40 @@ class PostCommentControllerTest {
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
             () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
-            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(TEST_COMMENT_CONTENT)
+            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(
+                TEST_COMMENT_CONTENT)
+        );
+    }
+
+    @DisplayName("댓글 수정에 성공한다.")
+    @Test
+    void givenPostCommentInfo_whenUpdatingPostComment_thenReturnsUpdatedPostCommentInfo()
+        throws JsonProcessingException {
+        // given
+        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
+        Post post = testUtil.createPostWithTestUser();
+        PostComment commentWithTestUser = testUtil.createCommentWithTestUser(post.getId());
+        PostCommentRequest updateRequest = new PostCommentRequest(post.getId(),
+            "newUpdatedComment");
+
+        // when
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .port(port)
+                .body(objectMapper.writeValueAsString(updateRequest))
+                .pathParam("commentId", commentWithTestUser.getId())
+                .contentType(ContentType.JSON)
+                .when()
+                .put("/api/v1/comments/{commentId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
+            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo("newUpdatedComment")
         );
 
     }

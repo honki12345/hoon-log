@@ -53,6 +53,12 @@ public class PostComment extends AuditingFields {
         return this;
     }
 
+    public void update(String content) {
+        if (content != null) {
+            this.content = content;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
