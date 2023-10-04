@@ -26,7 +26,9 @@ public enum ErrorCode {
 
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST1", "게시글을 찾을 수 없습니다"),
 
-    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT1", "댓글을 찾을 수 없습니다");
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT1", "댓글을 찾을 수 없습니다"),
+
+    IMAGE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "UPLOAD1", "파일 업로드에 실패하였습니다");
 
     private final String message;
     private final String code;
