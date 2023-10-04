@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers(antMatcher(HttpMethod.POST, "/api/v1/posts}")).authenticated()
                 .requestMatchers(antMatcher(HttpMethod.PUT, "/api/v1/posts/{\\d+}")).authenticated()
                 .requestMatchers(antMatcher(HttpMethod.DELETE, "/api/v1/posts/{\\d+}")).authenticated()
+                .requestMatchers(antMatcher(HttpMethod.POST, "/api/v1/comments}")).authenticated()
                 .anyRequest().permitAll())
             .exceptionHandling(
                 configurer -> configurer.authenticationEntryPoint(customAuthenticationEntryPoint))

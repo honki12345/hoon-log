@@ -8,32 +8,36 @@ import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
-import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
+import static me.honki12345.hoonlog.util.TestUtil.*;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("UserAccountService 애플리케이션 통합테스트")
 @ActiveProfiles("test")
+@Import({TestUtil.class})
 @SpringBootTest
 class UserAccountServiceTest {
 
     @Autowired
-    private UserAccountService userAccountService;
-    @Autowired
-    private UserAccountRepository userAccountRepository;
-    @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private TestUtil testUtil;
+
+    @Autowired
+    private UserAccountService userAccountService;
 
     @AfterEach
     void tearDown() {
-        userAccountRepository.deleteAllInBatch();
+        testUtil.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[가입/성공]유저 정보를 입력하면, 회원가입 시, id와 encoded 비밀번호와 가입일자 정보가 포함된 유저 객체를 생성한다.")
@@ -46,7 +50,7 @@ class UserAccountServiceTest {
             "fpg123", userPassword, "fpg123@mail.com", profileDTO);
 
         // when
-        UserAccountDTO actual = userAccountService.saveUserAccount(request);
+        UserAccountDTO actual = userAccountService.saveUserAccount(request.toDTO());
 
         // then
         assertThat(actual)
@@ -62,10 +66,10 @@ class UserAccountServiceTest {
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
             "fpg123", "12345678", "fpg123@mail.com", profileDTO);
-        userAccountService.saveUserAccount(request);
+        userAccountService.saveUserAccount(request.toDTO());
 
         // when // then
-        assertThatThrownBy(() -> userAccountService.saveUserAccount(request)).isInstanceOf(
+        assertThatThrownBy(() -> userAccountService.saveUserAccount(request.toDTO())).isInstanceOf(
             DuplicateUserAccountException.class);
     }
 
@@ -82,13 +86,12 @@ class UserAccountServiceTest {
     @Test
     void givenLoginInfo_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        String password = "12345678";
-        UserAccountDTO userAccountDTO = saveOneUserAccount("fpg123", password);
-        LoginRequest loginRequest = new LoginRequest(userAccountDTO.username(), password);
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
+        LoginRequest loginRequest = new LoginRequest(userAccountDTO.username(), TEST_PASSWORD);
 
         // when
         UserAccountDTO findUserAccountDTO = userAccountService.findUserAccountAfterCheckingPassword(
-            loginRequest);
+            loginRequest.toDTO());
 
         // then
         assertThat(findUserAccountDTO).hasFieldOrPropertyWithValue("id", userAccountDTO.id())
@@ -100,13 +103,12 @@ class UserAccountServiceTest {
     @Test
     void givenWrongUsername_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        String password = "12345678";
-        saveOneUserAccount("fpg123", password);
-        LoginRequest loginRequest = new LoginRequest("wrongUserId", password);
+        testUtil.saveTestUser();
+        LoginRequest loginRequest = new LoginRequest("wrongUserId", TEST_PASSWORD);
 
         // when
         assertThatThrownBy(
-            () -> userAccountService.findUserAccountAfterCheckingPassword(loginRequest))
+            () -> userAccountService.findUserAccountAfterCheckingPassword(loginRequest.toDTO()))
             .isInstanceOf(LoginErrorException.class);
     }
 
@@ -114,13 +116,12 @@ class UserAccountServiceTest {
     @Test
     void givenWrongPassword_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        String username = "fpg123";
-        saveOneUserAccount(username, "12345678");
-        LoginRequest loginRequest = new LoginRequest(username, "wrongPassword");
+        testUtil.saveTestUser();
+        LoginRequest loginRequest = new LoginRequest(TEST_USERNAME, "wrongPassword");
 
         // when
         assertThatThrownBy(
-            () -> userAccountService.findUserAccountAfterCheckingPassword(loginRequest))
+            () -> userAccountService.findUserAccountAfterCheckingPassword(loginRequest.toDTO()))
             .isInstanceOf(LoginErrorException.class);
     }
 
@@ -131,7 +132,7 @@ class UserAccountServiceTest {
         ProfileDTO profileDTO = new ProfileDTO("blogName", null);
         UserAccountAddRequest request = new UserAccountAddRequest(
             "fpg123", "12345678", "fpg123@mail.com", profileDTO);
-        userAccountService.saveUserAccount(request);
+        userAccountService.saveUserAccount(request.toDTO());
 
         String changedBlogName = "changedBlogName";
         String changedBlogBio = "changedBlogBio";
@@ -141,7 +142,7 @@ class UserAccountServiceTest {
 
         // when
         UserAccountDTO userAccountDTO = userAccountService.modifyUserAccount("fpg123",
-            modifyRequest);
+            modifyRequest.toDTO());
         ProfileDTO changedProfileDTO = userAccountDTO.profileDTO();
 
         // then
@@ -159,27 +160,8 @@ class UserAccountServiceTest {
         );
 
         // when // then
-        assertThatThrownBy(() -> userAccountService.modifyUserAccount("wrongUserId", modifyRequest))
+        assertThatThrownBy(
+            () -> userAccountService.modifyUserAccount("wrongUserId", modifyRequest.toDTO()))
             .isInstanceOf(UserAccountNotFoundException.class);
     }
-
-    private UserAccountDTO saveOneUserAccount(String username, String password) {
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        return saveOneUserAccount(username, password, "fpg123@mail.com", profileDTO);
-    }
-
-
-    private UserAccountDTO saveOneUserAccount(String username, String password, String email) {
-        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
-        return saveOneUserAccount(username, password, email, profileDTO);
-    }
-
-
-    private UserAccountDTO saveOneUserAccount(String username, String password, String email,
-        ProfileDTO profileDTO) {
-        UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
-            profileDTO);
-        return userAccountService.saveUserAccount(request);
-    }
-
 }

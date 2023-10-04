@@ -55,7 +55,7 @@ class AuthControllerTest {
 
     @AfterEach
     void tearDown() {
-        userAccountRepository.deleteAllInBatch();
+        testUtil.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[로그인/성공]로그인에 성공한다")

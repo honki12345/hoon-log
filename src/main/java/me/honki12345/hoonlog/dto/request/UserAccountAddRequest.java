@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.ProfileDTO;
+import me.honki12345.hoonlog.dto.UserAccountDTO;
 
 public record UserAccountAddRequest(
     @NotNull(message = "아이디를 입력해주세요")
@@ -23,7 +24,11 @@ public record UserAccountAddRequest(
     ProfileDTO profile
 ) {
 
+    public UserAccountDTO toDTO() {
+        return UserAccountDTO.of(null, username, userPassword, email, profile);
+    }
+
     public UserAccount toEntity(String encodedPwd) {
-        return UserAccount.of(username, encodedPwd, email, ProfileDTO.toVO(profile));
+        return UserAccount.of(username, encodedPwd, email, profile.toVO());
     }
 }

@@ -31,7 +31,7 @@ public class UserAccountController {
     @PostMapping
     public ResponseEntity<UserAccountResponse> addUserAccount(
         @Valid @RequestBody UserAccountAddRequest request) {
-        UserAccountDTO dto = userAccountService.saveUserAccount(request);
+        UserAccountDTO dto = userAccountService.saveUserAccount(request.toDTO());
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -55,7 +55,7 @@ public class UserAccountController {
         if (userAccountPrincipal == null || !userAccountPrincipal.username().equals(username)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
-        UserAccountDTO dto = userAccountService.modifyUserAccount(username, request);
+        UserAccountDTO dto = userAccountService.modifyUserAccount(username, request.toDTO());
         UserAccountResponse response = UserAccountResponse.from(dto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

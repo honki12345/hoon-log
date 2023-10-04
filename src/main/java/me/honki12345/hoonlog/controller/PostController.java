@@ -49,7 +49,8 @@ public class PostController {
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @Valid @RequestBody PostRequest postRequest) {
 
-        PostDTO postDTO = postService.addPost(postRequest, userAccountPrincipal);
+        PostDTO postDTO = postService.addPost(postRequest.toDTO(),
+            userAccountPrincipal.toDTO());
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.CREATED);
     }
 
@@ -58,7 +59,8 @@ public class PostController {
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable Long postId,
         @Valid @RequestBody PostRequest postRequest) {
-        PostDTO postDTO = postService.updatePost(postId, userAccountPrincipal, postRequest);
+        PostDTO postDTO = postService.updatePost(postId, userAccountPrincipal.toDTO(),
+            postRequest.toDTO());
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.OK);
     }
 
@@ -66,7 +68,7 @@ public class PostController {
     public ResponseEntity<Object> deletePost(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable Long postId) {
-        postService.deletePost(postId, userAccountPrincipal);
+        postService.deletePost(postId, userAccountPrincipal.toDTO());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

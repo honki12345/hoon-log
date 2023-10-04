@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
 import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.error.exception.domain.PostCommentNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.JwtException;
 import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
@@ -79,6 +80,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<ErrorResponse> postNotFoundException(PostNotFoundException exception) {
+        return createResponseEntityByException(exception);
+    }
+
+    @ExceptionHandler(PostCommentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> postCommentNotFoundException(
+        PostCommentNotFoundException exception) {
         return createResponseEntityByException(exception);
     }
 

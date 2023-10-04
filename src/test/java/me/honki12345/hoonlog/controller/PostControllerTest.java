@@ -75,7 +75,7 @@ class PostControllerTest {
         String username = "fpg123";
         String title = "title";
         String content = "content";
-        TokenDTO tokenDTO = testUtil.createTokensAfterSaving(username, "12345678");
+        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser(username, "12345678");
         PostRequest postRequest = new PostRequest(title, content);
 
         ExtractableResponse<Response> extract =
@@ -178,7 +178,7 @@ class PostControllerTest {
     void givenUpdatingInfo_whenUpdatingPost_thenReturnsUpdatedPostInfo()
         throws JsonProcessingException {
         // given // when
-        TokenDTO tokenDTO = testUtil.createTokensAfterSaving();
+        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
         Post createdPost = testUtil.createPostWithTestUser("title", "content");
         String newTitle = "newTitle";
         String newContent = "newContent";
@@ -211,7 +211,7 @@ class PostControllerTest {
     void givenPostId_whenDeletingPost_thenReturnsOK()
         throws JsonProcessingException {
         // given // when
-        TokenDTO tokenDTO = testUtil.createTokensAfterSaving();
+        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
         Post createdPost = testUtil.createPostWithTestUser("title", "content");
 
         ExtractableResponse<Response> extract =
@@ -234,20 +234,20 @@ class PostControllerTest {
 
     @WithMockCustomUser
     private void createPostsWithMockCustomer() {
-        testUtil.createTokensAfterSaving(TEST_USERNAME, TEST_PASSWORD);
+        testUtil.createTokensAfterSavingTestUser(TEST_USERNAME, TEST_PASSWORD);
         for (int i = 0; i < 10; i++) {
             PostRequest postRequest = new PostRequest("title" + i, "content" + i);
             userAccountRepository.findByUsername(TEST_USERNAME).ifPresent(userAccount ->
-                postRepository.save(postRequest.toEntityWithUserAccount(userAccount)));
+                postRepository.save(postRequest.toDTO().toEntity().addUserAccount(userAccount)));
         }
     }
 
     @WithMockCustomUser
     private Post createPostWithMockCustomer(String title, String content) {
-        testUtil.createTokensAfterSaving(TEST_USERNAME, TEST_PASSWORD);
+        testUtil.createTokensAfterSavingTestUser(TEST_USERNAME, TEST_PASSWORD);
         PostRequest postRequest = new PostRequest(title, content);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
-            postRequest.toEntityWithUserAccount(userAccount))).orElse(null);
+            postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 }
