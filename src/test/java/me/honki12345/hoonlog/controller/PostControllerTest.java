@@ -76,7 +76,7 @@ class PostControllerTest {
         String title = "title";
         String content = "content";
         TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser(username, "12345678");
-        PostRequest postRequest = new PostRequest(title, content);
+        PostRequest postRequest = new PostRequest(title, content, null);
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -142,7 +142,7 @@ class PostControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
-            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME ),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
             () -> assertThat(extract.jsonPath().getLong("id")).isEqualTo(createdPost.getId()),
             () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(title),
             () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(content)
@@ -182,7 +182,7 @@ class PostControllerTest {
         Post createdPost = testUtil.createPostWithTestUser("title", "content");
         String newTitle = "newTitle";
         String newContent = "newContent";
-        PostRequest updateRequest = new PostRequest(newTitle, newContent);
+        PostRequest updateRequest = new PostRequest(newTitle, newContent, null);
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -199,7 +199,7 @@ class PostControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
-            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME ),
+            () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
             () -> assertThat(extract.jsonPath().getLong("id")).isEqualTo(createdPost.getId()),
             () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(newTitle),
             () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(newContent)
@@ -208,8 +208,7 @@ class PostControllerTest {
 
     @DisplayName("[삭제/성공]게시글 삭제에 성공한다.")
     @Test
-    void givenPostId_whenDeletingPost_thenReturnsOK()
-        throws JsonProcessingException {
+    void givenPostId_whenDeletingPost_thenReturnsOK() {
         // given // when
         TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
         Post createdPost = testUtil.createPostWithTestUser("title", "content");
@@ -236,7 +235,7 @@ class PostControllerTest {
     private void createPostsWithMockCustomer() {
         testUtil.createTokensAfterSavingTestUser(TEST_USERNAME, TEST_PASSWORD);
         for (int i = 0; i < 10; i++) {
-            PostRequest postRequest = new PostRequest("title" + i, "content" + i);
+            PostRequest postRequest = new PostRequest("title" + i, "content" + i, null);
             userAccountRepository.findByUsername(TEST_USERNAME).ifPresent(userAccount ->
                 postRepository.save(postRequest.toDTO().toEntity().addUserAccount(userAccount)));
         }
@@ -245,8 +244,9 @@ class PostControllerTest {
     @WithMockCustomUser
     private Post createPostWithMockCustomer(String title, String content) {
         testUtil.createTokensAfterSavingTestUser(TEST_USERNAME, TEST_PASSWORD);
-        PostRequest postRequest = new PostRequest(title, content);
-        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(TEST_USERNAME);
+        PostRequest postRequest = new PostRequest(title, content, null);
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
+            TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
             postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }

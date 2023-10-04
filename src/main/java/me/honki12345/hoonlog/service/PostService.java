@@ -37,9 +37,9 @@ public class PostService {
             .map(postDTO -> postDTO.addPostImageDTOList(
                 PostImageDTO.from(postImageRepository.findAllByPostId(
                     postDTO.id()))));
-        
+
     }
-    
+
     public PostDTO addPost(PostDTO postDTO,
         List<MultipartFile> postImageFileList,
         UserAccountDTO userAccountDTO) {
@@ -75,15 +75,22 @@ public class PostService {
     }
 
     public PostDTO updatePost(Long postId, UserAccountDTO userAccountDTO,
-        PostDTO postDTO) {
+        PostDTO postDTO, List<MultipartFile> postImageFileList) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
             ErrorCode.POST_NOT_FOUND));
         if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
-        post.update(postDTO);
+        post.updateTitleAndContent(postDTO);
+
+        List<Long> postImageIds = postDTO.postImageIds();
+        for (int i = 0; i < postImageFileList.size(); i++) {
+            postImageService.updatePostImage(postImageIds.get(i), postImageFileList.get(i));
+        }
+
         return PostDTO.from(post);
     }
+
 
     public void deletePost(Long postId, UserAccountDTO dto) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(

@@ -8,10 +8,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Entity
 public class PostImage extends AuditingFields {
 
@@ -30,11 +33,9 @@ public class PostImage extends AuditingFields {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public PostImage() {
-    }
-
     public void addPost(Post post) {
         this.post = post;
+        post.getPostImages().add(this);
     }
 
     public void updatePostImage(String originalImgName, String imgName, String imgUrl) {

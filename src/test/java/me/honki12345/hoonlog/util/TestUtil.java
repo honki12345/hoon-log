@@ -85,7 +85,7 @@ public class TestUtil {
     }
 
     public Post createPostWithTestUser() {
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.saveAndFlush(
@@ -93,7 +93,7 @@ public class TestUtil {
     }
 
     public Post createPostWithTestUser(String title, String content) {
-        PostRequest postRequest = new PostRequest(title, content);
+        PostRequest postRequest = new PostRequest(title, content, null);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(

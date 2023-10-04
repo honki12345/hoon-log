@@ -11,6 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -42,6 +44,9 @@ public class Post extends AuditingFields {
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private final Set<PostComment> postComments = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private final List<PostImage> postImages = new LinkedList<>();
 
     private Post(Long id, UserAccount userAccount, String title, String content) {
         this.id = id;
@@ -78,13 +83,14 @@ public class Post extends AuditingFields {
         return Objects.hash(id);
     }
 
-    public void update(PostDTO dto) {
-        this.title = dto.title();
-        this.content = dto.content();
-    }
-
     public Post addUserAccount(UserAccount userAccount) {
         this.userAccount = userAccount;
         return this;
     }
+
+    public void updateTitleAndContent(PostDTO dto) {
+        this.title = dto.title();
+        this.content = dto.content();
+    }
+
 }

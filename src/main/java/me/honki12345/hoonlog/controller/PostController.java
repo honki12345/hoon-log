@@ -63,9 +63,10 @@ public class PostController {
     public ResponseEntity<PostResponse> updatePost(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable Long postId,
+        @RequestParam(name = "postImageFile", required = false) List<MultipartFile> postImageFileList,
         @Valid @RequestBody PostRequest postRequest) {
         PostDTO postDTO = postService.updatePost(postId, userAccountPrincipal.toDTO(),
-            postRequest.toDTO());
+            postRequest.toDTO(), postImageFileList);
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.OK);
     }
 

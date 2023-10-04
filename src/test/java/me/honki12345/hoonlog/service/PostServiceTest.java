@@ -58,7 +58,7 @@ class PostServiceTest {
     @Test
     void givenPostInfoAndUserInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
         UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
 
@@ -75,7 +75,7 @@ class PostServiceTest {
     @Test
     void givenPostInfoWithImageFile_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
         UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
         List<MultipartFile> multipartFiles = createMultipartFiles();
@@ -97,7 +97,7 @@ class PostServiceTest {
     @Test
     void givenPostInfoWithUnRegisteredUserInfo_whenAddingPost_thenThrowsException() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
         long wrongUserId = 3L;
         UserAccountPrincipal userAccountPrincipal = new UserAccountPrincipal(wrongUserId,
             TEST_USERNAME, List.of("USER_ROLE"));
@@ -118,12 +118,12 @@ class PostServiceTest {
         Post savedPost = testUtil.createPostWithTestUser("title", "content");
         String newTitle = "newTitle";
         String newContent = "newContent";
-        PostRequest updateRequest = new PostRequest(newTitle, newContent);
+        PostRequest updateRequest = new PostRequest(newTitle, newContent, null);
 
         // when
         PostDTO updatedPostDTO = postService.updatePost(savedPost.getId(),
             userAccountDTO,
-            updateRequest.toDTO());
+            updateRequest.toDTO(), null);
 
         // then
         assertThat(updatedPostDTO.id()).isEqualTo(savedPost.getId());

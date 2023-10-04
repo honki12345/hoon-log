@@ -1,10 +1,13 @@
 package me.honki12345.hoonlog.service;
 
+import static me.honki12345.hoonlog.config.WebConfig.*;
+
+import java.io.File;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import me.honki12345.hoonlog.config.WebConfig;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.domain.ImageNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.ImageUploadFailException;
 import me.honki12345.hoonlog.repository.PostImageRepository;
 import org.springframework.stereotype.Service;
@@ -26,10 +29,10 @@ public class PostImageService {
         String imageUrl = "";
 
         try {
-            if (!StringUtils.hasText(originalFilename)) {
-                imageName = fileService.uploadFile(WebConfig.IMAGE_LOCATION, originalFilename,
+            if (originalFilename != null && !StringUtils.hasText(originalFilename)) {
+                imageName = fileService.uploadFile(IMAGE_LOCATION, originalFilename,
                     postImageFile.getBytes());
-                imageUrl = WebConfig.UPLOAD_URL + imageName;
+                imageUrl = UPLOAD_URL + imageName;
             }
         } catch (IOException e) {
             throw new ImageUploadFailException(ErrorCode.IMAGE_UPLOAD_ERROR);
@@ -37,5 +40,27 @@ public class PostImageService {
 
         postImage.updatePostImage(originalFilename, imageName, imageUrl);
         postImageRepository.save(postImage);
+    }
+
+    public void updatePostImage(Long postImageId, MultipartFile postImageFile) {
+        if (postImageFile != null && !postImageFile.isEmpty()) {
+            PostImage savedImage = postImageRepository.findById(postImageId)
+                .orElseThrow(() -> new ImageNotFoundException(
+                    ErrorCode.IMAGE_NOT_FOUND));
+
+            if (!StringUtils.hasText(savedImage.getImgName())) {
+                fileService.deleteFile(IMAGE_LOCATION + File.separator + savedImage.getImgName());
+            }
+
+            try {
+                String originalFilename = postImageFile.getOriginalFilename();
+                String imageName = fileService.uploadFile(IMAGE_LOCATION, originalFilename,
+                    postImageFile.getBytes());
+                String imageUrl = UPLOAD_URL + imageName;
+                savedImage.updatePostImage(originalFilename, imageName, imageUrl);
+            } catch (IOException e) {
+                throw new ImageUploadFailException(ErrorCode.IMAGE_UPLOAD_ERROR);
+            }
+        }
     }
 }

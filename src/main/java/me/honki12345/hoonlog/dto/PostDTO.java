@@ -1,9 +1,7 @@
 package me.honki12345.hoonlog.dto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.UserAccount;
@@ -19,15 +17,10 @@ public record PostDTO(
     String modifiedBy,
     List<PostImageDTO> postImageDTOList,
     List<Long> postImageIds
+
 ) {
 
     public PostDTO {
-        if (Objects.isNull(postImageDTOList)) {
-            postImageDTOList = new ArrayList<>();
-        }
-        if (Objects.isNull(postImageIds)) {
-            postImageIds = new ArrayList<>();
-        }
     }
 
     public static PostDTO from(Post entity) {
@@ -40,22 +33,13 @@ public record PostDTO(
             entity.getCreatedBy(),
             entity.getModifiedAt(),
             entity.getModifiedBy(),
-            null,
+            PostImageDTO.from(entity.getPostImages()),
             null
         );
     }
 
-    public static PostDTO of(String title, String content) {
-        return PostDTO.of(null, title, content);
-    }
-
-    public static PostDTO of(UserAccountDTO userAccountDTO, String title, String content) {
-        return new PostDTO(null, userAccountDTO, title, content, null, null, null, null, null,
-            null);
-    }
-
-    public static PostDTO of(Long postId) {
-        return new PostDTO(postId, null, null, null, null, null, null, null, null, null);
+    public static PostDTO of(String title, String content, List<Long> postImageIds) {
+        return new PostDTO(null, null, title, content, null, null, null, null, null, postImageIds);
     }
 
     public Post toEntity() {
