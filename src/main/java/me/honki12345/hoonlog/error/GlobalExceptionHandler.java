@@ -43,17 +43,6 @@ public class GlobalExceptionHandler {
         return createResponseEntityByException(exception);
     }
 
-    @ExceptionHandler(UserAccountNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserAccountNotFoundException(
-        UserAccountNotFoundException exception) {
-        return createResponseEntityByException(exception);
-    }
-
-    @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<ErrorResponse> roleNotFoundException(RoleNotFoundException exception) {
-        return createResponseEntityByException(exception);
-    }
-
     @ExceptionHandler(LoginErrorException.class)
     public ResponseEntity<ErrorResponse> loginErrorException(LoginErrorException exception) {
         return createResponseEntityByException(exception);
@@ -76,17 +65,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponse> forbiddenException(ForbiddenException exception) {
-        return createResponseEntityByException(exception);
-    }
-
-    @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<ErrorResponse> postNotFoundException(PostNotFoundException exception) {
-        return createResponseEntityByException(exception);
-    }
-
-    @ExceptionHandler(PostCommentNotFoundException.class)
-    public ResponseEntity<ErrorResponse> postCommentNotFoundException(
-        PostCommentNotFoundException exception) {
         return createResponseEntityByException(exception);
     }
 
