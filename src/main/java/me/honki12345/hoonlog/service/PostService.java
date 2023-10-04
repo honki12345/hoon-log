@@ -84,8 +84,10 @@ public class PostService {
         post.updateTitleAndContent(postDTO);
 
         List<Long> postImageIds = postDTO.postImageIds();
-        for (int i = 0; i < postImageFileList.size(); i++) {
-            postImageService.updatePostImage(postImageIds.get(i), postImageFileList.get(i));
+        if (postImageFileList != null) {
+            for (int i = 0; i < postImageFileList.size(); i++) {
+                postImageService.updatePostImage(postImageIds.get(i), postImageFileList.get(i));
+            }
         }
 
         return PostDTO.from(post);
