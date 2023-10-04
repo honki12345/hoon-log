@@ -10,6 +10,7 @@ import me.honki12345.hoonlog.security.jwt.util.IfLogin;
 import me.honki12345.hoonlog.service.PostCommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,7 +29,8 @@ public class PostCommentController {
     public ResponseEntity<PostCommentResponse> addPostComment(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @Valid @RequestBody PostCommentRequest request) {
-        PostCommentDTO postCommentDTO = postCommentService.addPostComment(request.toDTO(), request.postId(),
+        PostCommentDTO postCommentDTO = postCommentService.addPostComment(request.toDTO(),
+            request.postId(),
             userAccountPrincipal.toDTO());
 
         return new ResponseEntity<>(PostCommentResponse.from(postCommentDTO), HttpStatus.CREATED);
@@ -44,5 +46,15 @@ public class PostCommentController {
             userAccountPrincipal.toDTO());
         return new ResponseEntity<>(PostCommentResponse.from(postCommentDTO), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Object> deletePostComment(
+        @IfLogin UserAccountPrincipal userAccountPrincipal,
+        @PathVariable Long commentId
+    ) {
+        postCommentService.deleteComment(commentId, userAccountPrincipal.toDTO());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 }

@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.PostComment;
 import me.honki12345.hoonlog.dto.PostCommentDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.PostCommentRequest;
+import me.honki12345.hoonlog.repository.PostCommentRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.util.TestUtil;
@@ -34,6 +36,8 @@ class PostCommentServiceTest {
     @Autowired
     UserAccountRepository userAccountRepository;
     @Autowired
+    PostCommentRepository postCommentRepository;
+    @Autowired
     PostCommentService postCommentService;
 
     @AfterEach
@@ -60,4 +64,39 @@ class PostCommentServiceTest {
         assertThat(postCommentDTO.content()).isEqualTo(TestUtil.TEST_COMMENT_CONTENT);
     }
 
+    @DisplayName("댓글 수정에 성공한다.")
+    @Test
+    void givenCommentInfoWithPostIdAndUserInfo_whenUpdatingComment_thenReturnsUpdatedPostComment() {
+        // given
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
+        Post post = testUtil.createPostWithTestUser();
+        PostComment savedPostComment = testUtil.createCommentWithTestUser(post.getId());
+        String updatedContent = "updatedContent";
+        PostCommentRequest updateRequest = new PostCommentRequest(post.getId(), updatedContent);
+
+        // when
+        PostCommentDTO savedPostCommentDTO = postCommentService.modifyComment(updateRequest.toDTO(),
+            savedPostComment.getId(),
+            userAccountDTO);
+
+        // then
+        assertThat(savedPostCommentDTO.postDTO().id()).isEqualTo(post.getId());
+        assertThat(savedPostCommentDTO.createdBy()).isEqualTo(userAccountDTO.username());
+        assertThat(savedPostCommentDTO.content()).isEqualTo(updatedContent);
+    }
+
+    @DisplayName("댓글 삭제에 성공한다.")
+    @Test
+    void givenCommentIdWithUserInfo_whenDeletingComment_thenReturnsNothing() {
+        // given
+        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
+        Post post = testUtil.createPostWithTestUser();
+        PostComment savedPostComment = testUtil.createCommentWithTestUser(post.getId());
+
+        // when
+        postCommentService.deleteComment(savedPostComment.getId(), userAccountDTO);
+
+        // then
+        assertThat(postCommentRepository.existsById(savedPostComment.getId())).isFalse();
+    }
 }

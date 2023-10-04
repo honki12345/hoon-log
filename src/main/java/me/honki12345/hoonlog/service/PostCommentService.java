@@ -49,4 +49,14 @@ public class PostCommentService {
         postComment.update(postCommentDTO.content());
         return PostCommentDTO.from(postComment);
     }
+
+    public void deleteComment(Long commentId, UserAccountDTO userAccountDTO) {
+        PostComment postComment = postCommentRepository.findById(commentId)
+            .orElseThrow(() -> new PostCommentNotFoundException(
+                ErrorCode.COMMENT_NOT_FOUND));
+        if (!postComment.getUserAccount().getId().equals(userAccountDTO.id())) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+        postCommentRepository.delete(postComment);
+    }
 }

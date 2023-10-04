@@ -15,6 +15,7 @@ import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostComment;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.request.PostCommentRequest;
+import me.honki12345.hoonlog.repository.PostCommentRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
@@ -51,6 +52,8 @@ class PostCommentControllerTest {
     PostRepository postRepository;
     @Autowired
     UserAccountRepository userAccountRepository;
+    @Autowired
+    PostCommentRepository postCommentRepository;
     @Autowired
     UserAccountService userAccountService;
     @Autowired
@@ -127,6 +130,34 @@ class PostCommentControllerTest {
             () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
             () -> assertThat(extract.jsonPath().getString("content")).isEqualTo("newUpdatedComment")
         );
-
     }
+
+    @DisplayName("댓글 삭제에 성공한다.")
+    @Test
+    void givenPostCommentIdWithUserInfo_whenDeletingPostComment_thenReturnsOK() {
+        // given
+        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
+        Post post = testUtil.createPostWithTestUser();
+        PostComment commentWithTestUser = testUtil.createCommentWithTestUser(post.getId());
+
+        // when
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .port(port)
+                .pathParam("commentId", commentWithTestUser.getId())
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/api/v1/comments/{commentId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(
+                postCommentRepository.existsById(commentWithTestUser.getId())).isFalse()
+        );
+    }
+
 }
