@@ -63,4 +63,9 @@ public record PostDTO(
             .orElse(null);
         return Post.of(id, userAccount, title, content);
     }
+
+    public PostDTO addPostImageDTOList(List<PostImageDTO> dtos) {
+        return new PostDTO(this.id, this.userAccountDTO, this.title, this.content, this.createdAt,
+            this.createdBy, this.modifiedAt, this.modifiedBy, dtos, this.postImageIds);
+    }
 }

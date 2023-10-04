@@ -1,18 +1,18 @@
 package me.honki12345.hoonlog.service;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostDTO;
+import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
+import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import org.springframework.data.domain.Page;
@@ -26,15 +26,20 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class PostService {
 
+    private final PostImageService postImageService;
     private final PostRepository postRepository;
     private final UserAccountRepository userAccountRepository;
-    private final PostImageService postImageService;
+    private final PostImageRepository postImageRepository;
 
     @Transactional(readOnly = true)
     public Page<PostDTO> searchPosts(Pageable pageable) {
-        return postRepository.findAll(pageable).map(PostDTO::from);
+        return postRepository.findAll(pageable).map(PostDTO::from)
+            .map(postDTO -> postDTO.addPostImageDTOList(
+                PostImageDTO.from(postImageRepository.findAllByPostId(
+                    postDTO.id()))));
+        
     }
-
+    
     public PostDTO addPost(PostDTO postDTO,
         List<MultipartFile> postImageFileList,
         UserAccountDTO userAccountDTO) {
@@ -57,8 +62,16 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostDTO searchPost(Long postId) {
-        return PostDTO.from(postRepository.findById(postId)
+        PostDTO postDTO = PostDTO.from(postRepository.findById(postId)
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND)));
+
+        List<PostImage> postImageList = postImageRepository.findAllByPostId(postId);
+
+        if (!postImageList.isEmpty()) {
+            postDTO.addPostImageDTOList(PostImageDTO.from(postImageList));
+        }
+
+        return postDTO;
     }
 
     public PostDTO updatePost(Long postId, UserAccountDTO userAccountDTO,
