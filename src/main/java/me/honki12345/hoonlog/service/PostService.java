@@ -81,7 +81,7 @@ public class PostService {
         if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
-        post.updateTitleAndContent(postDTO);
+        post.updateTitleAndContent(postDTO.title(), postDTO.content());
 
         List<Long> postImageIds = postDTO.postImageIds();
         if (postImageFileList != null) {

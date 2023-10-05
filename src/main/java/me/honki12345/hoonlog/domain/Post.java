@@ -19,7 +19,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
-import me.honki12345.hoonlog.dto.PostDTO;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -88,9 +87,9 @@ public class Post extends AuditingFields {
         return this;
     }
 
-    public void updateTitleAndContent(PostDTO dto) {
-        this.title = dto.title();
-        this.content = dto.content();
+    public void updateTitleAndContent(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 
 }
