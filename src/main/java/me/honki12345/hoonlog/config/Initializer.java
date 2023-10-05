@@ -1,5 +1,6 @@
 package me.honki12345.hoonlog.config;
 
+import static me.honki12345.hoonlog.config.WebConfig.IMAGE_LOCATION;
 import static me.honki12345.hoonlog.config.WebConfig.UPLOAD_LOCATION;
 
 import java.io.File;
@@ -24,9 +25,14 @@ public class Initializer {
 
             }
 
-            File folder = new File(UPLOAD_LOCATION);
-            if (!folder.exists()) {
-                folder.mkdir();
+            File uploadFolder = new File(UPLOAD_LOCATION);
+            if (!uploadFolder.exists()) {
+                uploadFolder.mkdir();
+            }
+
+            File imageFolder = new File(IMAGE_LOCATION);
+            if (!imageFolder.exists()) {
+                imageFolder.mkdir();
             }
         };
     }

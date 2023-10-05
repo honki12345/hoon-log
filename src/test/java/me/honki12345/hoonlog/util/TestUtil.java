@@ -31,6 +31,8 @@ public class TestUtil {
     public static final String TEST_PASSWORD = "12345678";
     public static final String TEST_POST_TITLE = "title";
     public static final String TEST_POST_CONTENT = "content";
+    public static final String TEST_UPDATED_POST_TITLE = "updatedTitle";
+    public static final String TEST_UPDATED_POST_CONTENT = "updatedContent";
     public static final String TEST_COMMENT_CONTENT = "commentContent";
 
     private final AuthService authService;

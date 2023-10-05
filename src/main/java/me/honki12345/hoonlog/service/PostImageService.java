@@ -29,7 +29,7 @@ public class PostImageService {
         String imageUrl = "";
 
         try {
-            if (originalFilename != null && !StringUtils.hasText(originalFilename)) {
+            if (originalFilename != null && StringUtils.hasText(originalFilename)) {
                 imageName = fileService.uploadFile(IMAGE_LOCATION, originalFilename,
                     postImageFile.getBytes());
                 imageUrl = UPLOAD_URL + imageName;

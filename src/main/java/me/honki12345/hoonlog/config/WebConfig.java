@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     public static final String UPLOAD_LOCATION =
         System.getProperty("user.home") + File.separator + "hoonlog";
-    public static final String UPLOAD_URL = "/images/post";
+    public static final String UPLOAD_URL = "/images/post/";
     public static final String IMAGE_LOCATION =
         System.getProperty("user.home") + File.separator + "hoonlog"
             + File.separator + "post";
