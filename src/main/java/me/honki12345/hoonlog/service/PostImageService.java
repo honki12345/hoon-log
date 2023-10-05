@@ -28,7 +28,7 @@ public class PostImageService {
         String imageUrl = "";
 
         try {
-            if (originalFilename != null && StringUtils.hasText(originalFilename)) {
+            if (StringUtils.hasText(originalFilename)) {
                 imageName = fileUtil.uploadFile(FileUtil.IMAGE_LOCATION, originalFilename,
                     postImageFile.getBytes());
                 imageUrl = FileUtil.UPLOAD_URL + imageName;
@@ -42,14 +42,16 @@ public class PostImageService {
     }
 
     public void updatePostImage(Long postImageId, MultipartFile postImageFile) {
-        if (postImageFile != null && !postImageFile.isEmpty()) {
-            PostImage savedImage = postImageRepository.findById(postImageId)
-                .orElseThrow(() -> new ImageNotFoundException(
-                    ErrorCode.IMAGE_NOT_FOUND));
+        if (postImageFile == null || postImageFile.isEmpty()) {
+            return;
+        }
 
-            if (!StringUtils.hasText(savedImage.getImgName())) {
-                fileUtil.deleteFile(FileUtil.IMAGE_LOCATION + File.separator + savedImage.getImgName());
-            }
+        PostImage savedImage = postImageRepository.findById(postImageId)
+            .orElseThrow(() -> new ImageNotFoundException(
+                ErrorCode.IMAGE_NOT_FOUND));
+
+        if (!StringUtils.hasText(savedImage.getImgName())) {
+            fileUtil.deleteFile(FileUtil.IMAGE_LOCATION + File.separator + savedImage.getImgName());
 
             try {
                 String originalFilename = postImageFile.getOriginalFilename();
