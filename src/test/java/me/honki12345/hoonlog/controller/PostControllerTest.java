@@ -10,9 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.io.File;
 import java.util.Optional;
+import java.util.StringJoiner;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.UserAccount;
+import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.repository.PostRepository;
@@ -73,17 +76,21 @@ class PostControllerTest {
     void givenPostInfo_whenAddingPost_thenReturnsSavedPostInfo() throws JsonProcessingException {
         // given // when
         String username = "fpg123";
-        String title = "title";
-        String content = "content";
         TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser(username, "12345678");
-        PostRequest postRequest = new PostRequest(title, content, null);
+
+        StringJoiner sj = new StringJoiner(File.separator);
+        String pathname = System.getProperty("user.dir") + File.separator + "src";
+        String fileOriginalName = "drawing.jpg";
+        String fullPathName = sj.add(pathname).add("test").add("data").add(fileOriginalName)
+            .toString();
 
         ExtractableResponse<Response> extract =
             given().log().all()
                 .header("Authorization", "Bearer " + tokenDTO.accessToken())
                 .port(port)
-                .body(objectMapper.writeValueAsString(postRequest))
-                .contentType(ContentType.JSON)
+                .multiPart("title", TEST_POST_TITLE)
+                .multiPart("content", TEST_POST_CONTENT)
+                .multiPart("postImageFile", new File(fullPathName))
                 .when()
                 .post("/api/v1/posts")
                 .then().log().all()
@@ -93,9 +100,13 @@ class PostControllerTest {
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.CREATED.value()),
             () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
-            () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(title),
-            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(content)
+            () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(TEST_POST_TITLE),
+            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(TEST_POST_CONTENT),
+            () -> assertThat(extract.jsonPath()
+                .getObject("postImageList[0]", PostImageDTO.class)).hasFieldOrPropertyWithValue(
+                "originalImgName", fileOriginalName)
         );
+
     }
 
     @DisplayName("[조회/성공]게시글 리스트 조회에 성공한다.")
@@ -180,17 +191,14 @@ class PostControllerTest {
         // given // when
         TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
         Post createdPost = testUtil.createPostWithTestUser("title", "content");
-        String newTitle = "newTitle";
-        String newContent = "newContent";
-        PostRequest updateRequest = new PostRequest(newTitle, newContent, null);
 
         ExtractableResponse<Response> extract =
             given().log().all()
                 .port(port)
                 .header("Authorization", "Bearer " + tokenDTO.accessToken())
                 .pathParam("postId", createdPost.getId())
-                .body(objectMapper.writeValueAsString(updateRequest))
-                .contentType(ContentType.JSON)
+                .multiPart("title", TEST_UPDATED_POST_TITLE)
+                .multiPart("content", TEST_UPDATED_POST_CONTENT)
                 .when()
                 .put("/api/v1/posts/{postId}")
                 .then().log().all()
@@ -201,8 +209,8 @@ class PostControllerTest {
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
             () -> assertThat(extract.jsonPath().getString("createdBy")).isEqualTo(TEST_USERNAME),
             () -> assertThat(extract.jsonPath().getLong("id")).isEqualTo(createdPost.getId()),
-            () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(newTitle),
-            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(newContent)
+            () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(TEST_UPDATED_POST_TITLE),
+            () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(TEST_UPDATED_POST_CONTENT)
         );
     }
 
