@@ -15,6 +15,7 @@ import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostCommentRepository;
+import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -30,6 +31,8 @@ public class TestUtil {
     public static final String TEST_PASSWORD = "12345678";
     public static final String TEST_POST_TITLE = "title";
     public static final String TEST_POST_CONTENT = "content";
+    public static final String TEST_UPDATED_POST_TITLE = "updatedTitle";
+    public static final String TEST_UPDATED_POST_CONTENT = "updatedContent";
     public static final String TEST_COMMENT_CONTENT = "commentContent";
 
     private final AuthService authService;
@@ -39,9 +42,10 @@ public class TestUtil {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserAccountRepository userAccountRepository;
     private final PostCommentRepository postCommentRepository;
-
+    private final PostImageRepository postImageRepository;
 
     public void deleteAllInBatchInAllRepository() {
+        postImageRepository.deleteAllInBatch();
         this.postCommentRepository.deleteAllInBatch();
         this.postRepository.deleteAllInBatch();
         this.refreshTokenRepository.deleteAllInBatch();
@@ -83,7 +87,7 @@ public class TestUtil {
     }
 
     public Post createPostWithTestUser() {
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT);
+        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.saveAndFlush(
@@ -91,7 +95,7 @@ public class TestUtil {
     }
 
     public Post createPostWithTestUser(String title, String content) {
-        PostRequest postRequest = new PostRequest(title, content);
+        PostRequest postRequest = new PostRequest(title, content, null);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(

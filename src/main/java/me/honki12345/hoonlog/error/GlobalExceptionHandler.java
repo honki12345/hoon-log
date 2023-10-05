@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
 import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.error.exception.domain.ImageUploadFailException;
 import me.honki12345.hoonlog.error.exception.domain.PostCommentNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.JwtException;
@@ -42,17 +43,6 @@ public class GlobalExceptionHandler {
         return createResponseEntityByException(exception);
     }
 
-    @ExceptionHandler(UserAccountNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserAccountNotFoundException(
-        UserAccountNotFoundException exception) {
-        return createResponseEntityByException(exception);
-    }
-
-    @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<ErrorResponse> roleNotFoundException(RoleNotFoundException exception) {
-        return createResponseEntityByException(exception);
-    }
-
     @ExceptionHandler(LoginErrorException.class)
     public ResponseEntity<ErrorResponse> loginErrorException(LoginErrorException exception) {
         return createResponseEntityByException(exception);
@@ -78,14 +68,9 @@ public class GlobalExceptionHandler {
         return createResponseEntityByException(exception);
     }
 
-    @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<ErrorResponse> postNotFoundException(PostNotFoundException exception) {
-        return createResponseEntityByException(exception);
-    }
-
-    @ExceptionHandler(PostCommentNotFoundException.class)
-    public ResponseEntity<ErrorResponse> postCommentNotFoundException(
-        PostCommentNotFoundException exception) {
+    @ExceptionHandler(ImageUploadFailException.class)
+    public ResponseEntity<ErrorResponse> imageUploadFailException(
+        ImageUploadFailException exception) {
         return createResponseEntityByException(exception);
     }
 
