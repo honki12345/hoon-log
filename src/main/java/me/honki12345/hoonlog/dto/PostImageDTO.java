@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.dto;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import me.honki12345.hoonlog.domain.PostImage;
 
 public record PostImageDTO(
@@ -17,12 +17,6 @@ public record PostImageDTO(
     }
 
     public static List<PostImageDTO> from(List<PostImage> postImages) {
-        List<PostImageDTO> postImageDTOs = new ArrayList<>();
-        for (PostImage postImage : postImages) {
-            PostImageDTO postImageDTO = PostImageDTO.from(postImage);
-            postImageDTOs.add(postImageDTO);
-        }
-
-        return postImageDTOs;
+        return postImages.stream().map(PostImageDTO::from).collect(Collectors.toList());
     }
 }
