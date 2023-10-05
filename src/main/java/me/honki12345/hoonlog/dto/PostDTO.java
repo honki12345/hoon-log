@@ -15,13 +15,10 @@ public record PostDTO(
     String createdBy,
     LocalDateTime modifiedAt,
     String modifiedBy,
-    List<PostImageDTO> postImageDTOList,
+    List<PostImageDTO> postImageDTOs,
     List<Long> postImageIds
 
 ) {
-
-    public PostDTO {
-    }
 
     public static PostDTO from(Post entity) {
         return new PostDTO(
@@ -48,7 +45,7 @@ public record PostDTO(
         return Post.of(id, userAccount, title, content);
     }
 
-    public PostDTO addPostImageDTOList(List<PostImageDTO> dtos) {
+    public PostDTO addPostImageDTOs(List<PostImageDTO> dtos) {
         return new PostDTO(this.id, this.userAccountDTO, this.title, this.content, this.createdAt,
             this.createdBy, this.modifiedAt, this.modifiedBy, dtos, this.postImageIds);
     }

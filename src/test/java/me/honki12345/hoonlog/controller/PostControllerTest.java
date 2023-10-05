@@ -90,7 +90,7 @@ class PostControllerTest {
                 .port(port)
                 .multiPart("title", TEST_POST_TITLE)
                 .multiPart("content", TEST_POST_CONTENT)
-                .multiPart("postImageFile", new File(fullPathName))
+                .multiPart("postImageFiles", new File(fullPathName))
                 .when()
                 .post("/api/v1/posts")
                 .then().log().all()
@@ -103,7 +103,7 @@ class PostControllerTest {
             () -> assertThat(extract.jsonPath().getString("title")).isEqualTo(TEST_POST_TITLE),
             () -> assertThat(extract.jsonPath().getString("content")).isEqualTo(TEST_POST_CONTENT),
             () -> assertThat(extract.jsonPath()
-                .getObject("postImageList[0]", PostImageDTO.class)).hasFieldOrPropertyWithValue(
+                .getObject("postImageDTOs[0]", PostImageDTO.class)).hasFieldOrPropertyWithValue(
                 "originalImgName", fileOriginalName)
         );
 

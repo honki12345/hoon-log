@@ -34,14 +34,14 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<PostDTO> searchPosts(Pageable pageable) {
         return postRepository.findAll(pageable).map(PostDTO::from)
-            .map(postDTO -> postDTO.addPostImageDTOList(
+            .map(postDTO -> postDTO.addPostImageDTOs(
                 PostImageDTO.from(postImageRepository.findAllByPostId(
                     postDTO.id()))));
 
     }
 
     public PostDTO addPost(PostDTO postDTO,
-        List<MultipartFile> postImageFileList,
+        List<MultipartFile> postImageFiles,
         UserAccountDTO userAccountDTO) {
         UserAccount userAccount = userAccountRepository.findById(userAccountDTO.id())
             .orElseThrow(() -> new UserAccountNotFoundException(
@@ -49,8 +49,8 @@ public class PostService {
         Post post = postDTO.toEntity();
         post.addUserAccount(userAccount);
 
-        if (postImageFileList != null) {
-            for (MultipartFile multipartFile : postImageFileList) {
+        if (postImageFiles != null) {
+            for (MultipartFile multipartFile : postImageFiles) {
                 PostImage postImage = new PostImage();
                 postImage.addPost(post);
                 postImageService.savePostImage(postImage, multipartFile);
@@ -65,17 +65,17 @@ public class PostService {
         PostDTO postDTO = PostDTO.from(postRepository.findById(postId)
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND)));
 
-        List<PostImage> postImageList = postImageRepository.findAllByPostId(postId);
+        List<PostImage> postImages = postImageRepository.findAllByPostId(postId);
 
-        if (!postImageList.isEmpty()) {
-            postDTO.addPostImageDTOList(PostImageDTO.from(postImageList));
+        if (!postImages.isEmpty()) {
+            postDTO.addPostImageDTOs(PostImageDTO.from(postImages));
         }
 
         return postDTO;
     }
 
     public PostDTO updatePost(Long postId, UserAccountDTO userAccountDTO,
-        PostDTO postDTO, List<MultipartFile> postImageFileList) {
+        PostDTO postDTO, List<MultipartFile> postImageFiles) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
             ErrorCode.POST_NOT_FOUND));
         if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
@@ -84,9 +84,9 @@ public class PostService {
         post.updateTitleAndContent(postDTO.title(), postDTO.content());
 
         List<Long> postImageIds = postDTO.postImageIds();
-        if (postImageFileList != null) {
-            for (int i = 0; i < postImageFileList.size(); i++) {
-                postImageService.updatePostImage(postImageIds.get(i), postImageFileList.get(i));
+        if (postImageFiles != null) {
+            for (int i = 0; i < postImageFiles.size(); i++) {
+                postImageService.updatePostImage(postImageIds.get(i), postImageFiles.get(i));
             }
         }
 

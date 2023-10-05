@@ -16,13 +16,13 @@ public record PostImageDTO(
             postImage.getOriginalImgName(), postImage.getImgUrl());
     }
 
-    public static List<PostImageDTO> from(List<PostImage> postImageList) {
-        List<PostImageDTO> postImageDTOList = new ArrayList<>();
-        for (PostImage postImage : postImageList) {
+    public static List<PostImageDTO> from(List<PostImage> postImages) {
+        List<PostImageDTO> postImageDTOs = new ArrayList<>();
+        for (PostImage postImage : postImages) {
             PostImageDTO postImageDTO = PostImageDTO.from(postImage);
-            postImageDTOList.add(postImageDTO);
+            postImageDTOs.add(postImageDTO);
         }
 
-        return postImageDTOList;
+        return postImageDTOs;
     }
 }

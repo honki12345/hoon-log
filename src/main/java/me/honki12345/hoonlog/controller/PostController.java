@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,11 +49,11 @@ public class PostController {
     @PostMapping
     public ResponseEntity<PostResponse> addPost(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
-        @RequestParam(name = "postImageFile", required = false) List<MultipartFile> postImageFileList,
+        @RequestParam(name = "postImageFiles", required = false) List<MultipartFile> postImageFiles,
         @Valid PostRequest postRequest) {
 
         PostDTO postDTO = postService.addPost(postRequest.toDTO(),
-            postImageFileList,
+            postImageFiles,
             userAccountPrincipal.toDTO());
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.CREATED);
     }
@@ -63,10 +62,10 @@ public class PostController {
     public ResponseEntity<PostResponse> updatePost(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @PathVariable Long postId,
-        @RequestParam(name = "postImageFile", required = false) List<MultipartFile> postImageFileList,
+        @RequestParam(name = "postImageFiles", required = false) List<MultipartFile> postImageFiles,
         @Valid PostRequest postRequest) {
         PostDTO postDTO = postService.updatePost(postId, userAccountPrincipal.toDTO(),
-            postRequest.toDTO(), postImageFileList);
+            postRequest.toDTO(), postImageFiles);
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.OK);
     }
 

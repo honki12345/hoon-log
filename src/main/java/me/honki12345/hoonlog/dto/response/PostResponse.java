@@ -11,7 +11,7 @@ public record PostResponse(
     String content,
     String createdBy,
     LocalDateTime createdAt,
-    List<PostImageDTO> postImageList
+    List<PostImageDTO> postImageDTOs
 ) {
 
     public static PostResponse from(PostDTO dto) {
@@ -21,7 +21,7 @@ public record PostResponse(
             dto.content(),
             dto.createdBy(),
             dto.createdAt(),
-            dto.postImageDTOList()
+            dto.postImageDTOs()
         );
     }
 

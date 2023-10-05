@@ -83,13 +83,13 @@ class PostServiceTest {
         // when
         PostDTO postDTO = postService.addPost(postRequest.toDTO(), multipartFiles,
             userAccountPrincipal.toDTO());
-        List<PostImage> postImageList = postImageRepository.findAllByPostId(postDTO.id());
+        List<PostImage> postImages = postImageRepository.findAllByPostId(postDTO.id());
 
         // then
         assertThat(postDTO.title()).isEqualTo(TEST_POST_TITLE);
         assertThat(postDTO.content()).isEqualTo(TEST_POST_CONTENT);
         assertThat(multipartFiles.get(0).getOriginalFilename()).isEqualTo(
-            postImageList.get(0).getOriginalImgName());
+            postImages.get(0).getOriginalImgName());
     }
 
 
