@@ -1,4 +1,4 @@
-package me.honki12345.hoonlog.util;
+package me.honki12345.hoonlog.domain.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
