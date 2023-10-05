@@ -17,7 +17,7 @@ import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException
 import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
-import me.honki12345.hoonlog.util.FileUtil;
+import me.honki12345.hoonlog.domain.util.FileUtil;
 import me.honki12345.hoonlog.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;

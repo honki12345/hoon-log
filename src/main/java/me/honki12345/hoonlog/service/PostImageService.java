@@ -8,7 +8,7 @@ import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.domain.ImageNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.ImageUploadFailException;
 import me.honki12345.hoonlog.repository.PostImageRepository;
-import me.honki12345.hoonlog.util.FileUtil;
+import me.honki12345.hoonlog.domain.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
