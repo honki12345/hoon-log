@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import me.honki12345.hoonlog.config.WebConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.dto.PostDTO;
@@ -18,6 +17,7 @@ import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException
 import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.util.FileUtil;
 import me.honki12345.hoonlog.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -148,7 +148,7 @@ class PostServiceTest {
         List<MultipartFile> multipartFileList = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
-            String path = WebConfig.UPLOAD_URL + File.separator;
+            String path = FileUtil.UPLOAD_URL + File.separator;
             String imageName = "image" + i + ".jpg";
             MockMultipartFile mockMultipartFile = new MockMultipartFile(path, imageName,
                 "image/jpg", new byte[]{1, 2, 3, 4});
