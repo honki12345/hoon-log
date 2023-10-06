@@ -32,6 +32,12 @@ public class PostController {
 
     private final PostService postService;
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponse> searchPost(@PathVariable Long postId) {
+        return new ResponseEntity<>(PostResponse.from(postService.searchPost(postId)),
+            HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
         @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
@@ -40,22 +46,20 @@ public class PostController {
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse> searchPost(@PathVariable Long postId) {
-        PostResponse response = PostResponse.from(postService.searchPost(postId));
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @PostMapping
     public ResponseEntity<PostResponse> addPost(
         @IfLogin UserAccountPrincipal userAccountPrincipal,
         @RequestParam(name = "postImageFiles", required = false) List<MultipartFile> postImageFiles,
         @Valid PostRequest postRequest) {
 
-        PostDTO postDTO = postService.addPost(postRequest.toDTO(),
-            postImageFiles,
-            userAccountPrincipal.toDTO());
-        return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.CREATED);
+        PostResponse response = PostResponse.from(
+            postService.addPost(postRequest.toDTO(),
+                postImageFiles,
+                postRequest.tagNames(),
+                userAccountPrincipal.toDTO()));
+
+        System.out.println(response);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{postId}")
@@ -64,8 +68,9 @@ public class PostController {
         @PathVariable Long postId,
         @RequestParam(name = "postImageFiles", required = false) List<MultipartFile> postImageFiles,
         @Valid PostRequest postRequest) {
-        PostDTO postDTO = postService.updatePost(postId, userAccountPrincipal.toDTO(),
-            postRequest.toDTO(), postImageFiles);
+        PostDTO postDTO = PostDTO.from(
+            postService.updatePost(postId, userAccountPrincipal.toDTO(),
+                postRequest.toDTO(), postImageFiles, postRequest.tagNames()));
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.OK);
     }
 
