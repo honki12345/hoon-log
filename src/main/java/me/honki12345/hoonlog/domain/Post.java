@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
@@ -18,8 +20,10 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
 
+@ToString(callSuper = true)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -40,12 +44,23 @@ public class Post extends AuditingFields {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @ToString.Exclude
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private final Set<PostComment> postComments = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private final List<PostImage> postImages = new LinkedList<>();
+    @ToString.Exclude
+    @OneToMany(mappedBy = "post")
+    private List<PostImage> postImages = new LinkedList<>();
+
+    @ToString.Exclude
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+        name = "post_tag",
+        joinColumns = @JoinColumn(name = "postId"),
+        inverseJoinColumns = @JoinColumn(name = "tagId")
+    )
+    private Set<Tag> tags = new LinkedHashSet<>();
 
     private Post(Long id, UserAccount userAccount, String title, String content) {
         this.id = id;
@@ -54,8 +69,26 @@ public class Post extends AuditingFields {
         this.content = content;
     }
 
+    private Post(Long id, UserAccount userAccount, String title, String content,
+        List<PostImage> postImages, Set<Tag> tags) {
+        this.id = id;
+        this.userAccount = userAccount;
+        this.title = title;
+        this.content = content;
+        this.postImages = postImages;
+        this.tags = tags;
+    }
+
+    public static Post of(Long id) {
+        return Post.of(id, null, null, null);
+    }
+
+    public static Post of(Long id, String title, String content) {
+        return Post.of(id, null, title, content);
+    }
+
     public static Post of(String title, String content) {
-        return Post.of(null, title, content);
+        return Post.of(null, null, title, content);
     }
 
     public static Post of(UserAccount userAccount, String title, String content) {
@@ -64,6 +97,11 @@ public class Post extends AuditingFields {
 
     public static Post of(Long id, UserAccount userAccount, String title, String content) {
         return new Post(id, userAccount, title, content);
+    }
+
+    public static Post of(Long id, UserAccount userAccount, String title, String content,
+        Set<Tag> tags) {
+        return new Post(id, userAccount, title, content, null, tags);
     }
 
     @Override
@@ -87,9 +125,20 @@ public class Post extends AuditingFields {
         return this;
     }
 
+    public Post addPostImage(PostImage postImage) {
+        this.postImages.add(postImage);
+        postImage.addPost(this);
+        return this;
+    }
+
     public void updateTitleAndContent(String title, String content) {
         this.title = title;
         this.content = content;
     }
 
+    public Post addTags(Set<Tag> tags) {
+        this.tags = tags;
+        tags.forEach(tag -> tag.addPost(this));
+        return this;
+    }
 }
