@@ -4,11 +4,13 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.dto.PostDTO;
+import me.honki12345.hoonlog.dto.TagDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.dto.response.PostResponse;
 import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.security.jwt.util.IfLogin;
 import me.honki12345.hoonlog.service.PostService;
+import me.honki12345.hoonlog.service.TagService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -31,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
 
     private final PostService postService;
+    private final TagService tagService;
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponse> searchPost(@PathVariable Long postId) {
@@ -41,10 +44,21 @@ public class PostController {
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
         @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
-        Page<PostResponse> responses = postService.searchPosts(pageable)
+        Page<PostResponse> responses = postService.searchPostsByTagName(pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
+
+    @GetMapping("/tag/{tagName}")
+    public ResponseEntity<Page<PostResponse>> searchPostsByTag(
+        @PathVariable String tagName,
+        @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+        TagDTO tagDTO = TagDTO.fromWithoutPostIds(tagService.searchTag(tagName));
+        Page<PostResponse> responses = postService.searchPostsByTagName(pageable, tagDTO)
+            .map(PostResponse::from);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
 
     @PostMapping
     public ResponseEntity<PostResponse> addPost(

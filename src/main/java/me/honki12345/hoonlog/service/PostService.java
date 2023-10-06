@@ -10,6 +10,7 @@ import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.Tag;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostDTO;
+import me.honki12345.hoonlog.dto.TagDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
@@ -28,9 +29,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class PostService {
 
-    private final PostImageService postImageService;
     private final PostRepository postRepository;
     private final UserAccountRepository userAccountRepository;
+    private final PostImageService postImageService;
+    private final TagService tagService;
 
     @Transactional(readOnly = true)
     public Post searchPost(Long postId) {
@@ -40,9 +42,15 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Post> searchPosts(Pageable pageable) {
+    public Page<Post> searchPostsByTagName(Pageable pageable) {
         return postRepository.findAllWithAll(pageable);
     }
+
+    @Transactional(readOnly = true)
+    public Page<Post> searchPostsByTagName(Pageable pageable, TagDTO tagDTO) {
+        return postRepository.findByTagName(tagDTO.tagName(), pageable);
+    }
+
 
     public Post addPost(PostDTO postDTO,
         List<MultipartFile> postImageFiles,
@@ -56,7 +64,7 @@ public class PostService {
         Optional.ofNullable(postImageFiles).ifPresent(
             multipartFiles -> postImageService.savePostImagesWithPost(postImageFiles, post));
         post.addTags(tagNames.isEmpty() ?
-            Collections.emptySet() : tagNames.stream().map(Tag::of).collect(
+            Collections.emptySet() : tagNames.stream().map(tagService::getTagIfPresent).collect(
             Collectors.toUnmodifiableSet()));
 
         return postRepository.save(post);
@@ -65,8 +73,9 @@ public class PostService {
     public Post updatePost(Long postId, UserAccountDTO userAccountDTO,
         PostDTO postDTO, List<MultipartFile> postImageFiles,
         Set<String> tagNames) {
-        Post post = postRepository.findByPostIdWithAll(postId).orElseThrow(() -> new PostNotFoundException(
-            ErrorCode.POST_NOT_FOUND));
+        Post post = postRepository.findByPostIdWithAll(postId)
+            .orElseThrow(() -> new PostNotFoundException(
+                ErrorCode.POST_NOT_FOUND));
         if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
