@@ -141,4 +141,12 @@ public class Post extends AuditingFields {
         tags.forEach(tag -> tag.addPost(this));
         return this;
     }
+
+    public Post updateTags(Set<Tag> newTags) {
+        this.tags.forEach(tag -> tag.deletePost(this));
+        this.tags = newTags;
+        newTags.forEach(tag -> tag.addPost(this));
+        return this;
+    }
+
 }

@@ -69,4 +69,8 @@ public class Tag extends AuditingFields {
         this.posts.add(post);
         return this;
     }
+
+    public void deletePost(Post post) {
+        this.posts.remove(post);
+    }
 }

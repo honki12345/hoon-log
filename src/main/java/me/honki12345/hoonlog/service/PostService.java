@@ -75,7 +75,7 @@ public class PostService {
         Set<Tag> tags =
             tagNames.isEmpty() ? Collections.emptySet() : tagNames.stream().map(Tag::of).collect(
                 Collectors.toUnmodifiableSet());
-        post.addTags(tags);
+        post.updateTags(tags);
 
         List<Long> postImageIds = postDTO.postImageIds();
         if (postImageFiles != null) {
