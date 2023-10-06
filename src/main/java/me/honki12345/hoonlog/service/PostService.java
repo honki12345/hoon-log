@@ -1,18 +1,21 @@
 package me.honki12345.hoonlog.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
-import me.honki12345.hoonlog.domain.PostImage;
+import me.honki12345.hoonlog.domain.Tag;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostDTO;
-import me.honki12345.hoonlog.dto.PostImageDTO;
+import me.honki12345.hoonlog.dto.TagDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
-import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import org.springframework.data.domain.Page;
@@ -26,62 +29,62 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class PostService {
 
-    private final PostImageService postImageService;
     private final PostRepository postRepository;
     private final UserAccountRepository userAccountRepository;
-    private final PostImageRepository postImageRepository;
+    private final PostImageService postImageService;
+    private final TagService tagService;
 
     @Transactional(readOnly = true)
-    public Page<PostDTO> searchPosts(Pageable pageable) {
-        return postRepository.findAll(pageable).map(PostDTO::from)
-            .map(postDTO -> postDTO.addPostImageDTOs(
-                PostImageDTO.from(postImageRepository.findAllByPostId(
-                    postDTO.id()))));
-
+    public Post searchPost(Long postId) {
+        return postRepository.findByPostIdWithAll(postId)
+            .orElseThrow(() -> new PostNotFoundException(
+                ErrorCode.POST_NOT_FOUND));
     }
 
-    public PostDTO addPost(PostDTO postDTO,
+    @Transactional(readOnly = true)
+    public Page<Post> searchPostsByTagName(Pageable pageable) {
+        return postRepository.findAllWithAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Post> searchPostsByTagName(Pageable pageable, TagDTO tagDTO) {
+        return postRepository.findByTagName(tagDTO.tagName(), pageable);
+    }
+
+
+    public Post addPost(PostDTO postDTO,
         List<MultipartFile> postImageFiles,
-        UserAccountDTO userAccountDTO) {
+        Set<String> tagNames, UserAccountDTO userAccountDTO) {
         UserAccount userAccount = userAccountRepository.findById(userAccountDTO.id())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
+
         Post post = postDTO.toEntity();
         post.addUserAccount(userAccount);
+        Optional.ofNullable(postImageFiles).ifPresent(
+            multipartFiles -> postImageService.savePostImagesWithPost(postImageFiles, post));
+        post.addTags(tagNames.isEmpty() ?
+            Collections.emptySet() : tagNames.stream().map(tagService::getTagIfPresent).collect(
+            Collectors.toUnmodifiableSet()));
 
-        if (postImageFiles != null) {
-            for (MultipartFile multipartFile : postImageFiles) {
-                PostImage postImage = new PostImage();
-                postImage.addPost(post);
-                postImageService.savePostImage(postImage, multipartFile);
-            }
-        }
-
-        return PostDTO.from(postRepository.save(post));
+        return postRepository.save(post);
     }
 
-    @Transactional(readOnly = true)
-    public PostDTO searchPost(Long postId) {
-        PostDTO postDTO = PostDTO.from(postRepository.findById(postId)
-            .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND)));
-
-        List<PostImage> postImages = postImageRepository.findAllByPostId(postId);
-
-        if (!postImages.isEmpty()) {
-            postDTO.addPostImageDTOs(PostImageDTO.from(postImages));
-        }
-
-        return postDTO;
-    }
-
-    public PostDTO updatePost(Long postId, UserAccountDTO userAccountDTO,
-        PostDTO postDTO, List<MultipartFile> postImageFiles) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
-            ErrorCode.POST_NOT_FOUND));
+    public Post updatePost(Long postId, UserAccountDTO userAccountDTO,
+        PostDTO postDTO, List<MultipartFile> postImageFiles,
+        Set<String> tagNames) {
+        Post post = postRepository.findByPostIdWithAll(postId)
+            .orElseThrow(() -> new PostNotFoundException(
+                ErrorCode.POST_NOT_FOUND));
         if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
         post.updateTitleAndContent(postDTO.title(), postDTO.content());
+
+        Set<Tag> tags =
+            tagNames.isEmpty() ? Collections.emptySet() : tagNames.stream().map(Tag::of).collect(
+                Collectors.toUnmodifiableSet());
+        post.updateTags(tags);
 
         List<Long> postImageIds = postDTO.postImageIds();
         if (postImageFiles != null) {
@@ -90,7 +93,7 @@ public class PostService {
             }
         }
 
-        return PostDTO.from(post);
+        return post;
     }
 
 

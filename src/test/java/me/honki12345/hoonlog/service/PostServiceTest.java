@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.dto.PostDTO;
@@ -58,36 +59,37 @@ class PostServiceTest {
     @Test
     void givenPostInfoAndUserInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
+        PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
         UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
 
         // when
-        PostDTO postDTO = postService.addPost(postRequest.toDTO(), null,
-            userAccountPrincipal.toDTO());
+        Post post = postService.addPost(postRequest.toDTO(), null,
+            postRequest.tagNames(), userAccountPrincipal.toDTO());
 
         // then
-        assertThat(postDTO.title()).isEqualTo(TEST_POST_TITLE);
-        assertThat(postDTO.content()).isEqualTo(TEST_POST_CONTENT);
+        assertThat(post.getTitle()).isEqualTo(TEST_POST_TITLE);
+        assertThat(post.getContent()).isEqualTo(TEST_POST_CONTENT);
     }
 
     @DisplayName("파일을 첨부하여 게시글 생성에 성공한다.")
     @Test
     void givenPostInfoWithImageFile_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
+        PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
         UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
         List<MultipartFile> multipartFiles = createMultipartFiles();
 
         // when
-        PostDTO postDTO = postService.addPost(postRequest.toDTO(), multipartFiles,
-            userAccountPrincipal.toDTO());
-        List<PostImage> postImages = postImageRepository.findAllByPostId(postDTO.id());
+        Post post = postService.addPost(postRequest.toDTO(), multipartFiles,
+            postRequest.tagNames(), userAccountPrincipal.toDTO());
+        List<PostImage> postImages = postImageRepository.findByPost_Id(post.getId());
+        Post searchedPost = postService.searchPost(post.getId());
 
         // then
-        assertThat(postDTO.title()).isEqualTo(TEST_POST_TITLE);
-        assertThat(postDTO.content()).isEqualTo(TEST_POST_CONTENT);
+        assertThat(searchedPost.getTitle()).isEqualTo(TEST_POST_TITLE);
+        assertThat(searchedPost.getContent()).isEqualTo(TEST_POST_CONTENT);
         assertThat(multipartFiles.get(0).getOriginalFilename()).isEqualTo(
             postImages.get(0).getOriginalImgName());
     }
@@ -97,7 +99,7 @@ class PostServiceTest {
     @Test
     void givenPostInfoWithUnRegisteredUserInfo_whenAddingPost_thenThrowsException() {
         // given
-        PostRequest postRequest = new PostRequest(TEST_POST_TITLE, TEST_POST_CONTENT, null);
+        PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
         long wrongUserId = 3L;
         UserAccountPrincipal userAccountPrincipal = new UserAccountPrincipal(wrongUserId,
             TEST_USERNAME, List.of("USER_ROLE"));
@@ -105,7 +107,7 @@ class PostServiceTest {
         // when // then
         assertThatThrownBy(() ->
             postService.addPost(postRequest.toDTO(), null,
-                userAccountPrincipal.toDTO())).isInstanceOf(
+                postRequest.tagNames(), userAccountPrincipal.toDTO())).isInstanceOf(
             UserAccountNotFoundException.class);
     }
 
@@ -118,18 +120,20 @@ class PostServiceTest {
         Post savedPost = testUtil.createPostWithTestUser("title", "content");
         String newTitle = "newTitle";
         String newContent = "newContent";
-        PostRequest updateRequest = new PostRequest(newTitle, newContent, null);
+        PostRequest updateRequest = PostRequest.of(newTitle, newContent, Set.of(TEST_TAG_NAME));
 
         // when
-        PostDTO updatedPostDTO = postService.updatePost(savedPost.getId(),
-            userAccountDTO,
-            updateRequest.toDTO(), null);
+        PostDTO updatedPostDTO = PostDTO.from(
+            postService.updatePost(savedPost.getId(),
+                userAccountDTO,
+                updateRequest.toDTO(), null, updateRequest.tagNames()));
 
         // then
         assertThat(updatedPostDTO.id()).isEqualTo(savedPost.getId());
         assertThat(updatedPostDTO.createdBy()).isEqualTo(savedPost.getCreatedBy());
         assertThat(updatedPostDTO.title()).isEqualTo(newTitle);
         assertThat(updatedPostDTO.content()).isEqualTo(newContent);
+        assertThat(updatedPostDTO.tagIds()).isEqualTo(Set.of(1L));
     }
 
     @DisplayName("게시글 삭제에 성공한다.")

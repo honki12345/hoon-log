@@ -2,51 +2,58 @@ package me.honki12345.hoonlog.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import me.honki12345.hoonlog.domain.Post;
-import me.honki12345.hoonlog.domain.UserAccount;
+import me.honki12345.hoonlog.domain.PostImage;
+import me.honki12345.hoonlog.domain.Tag;
 
 public record PostDTO(
     Long id,
-    UserAccountDTO userAccountDTO,
+    Long userId,
     String title,
     String content,
     LocalDateTime createdAt,
     String createdBy,
     LocalDateTime modifiedAt,
     String modifiedBy,
-    List<PostImageDTO> postImageDTOs,
-    List<Long> postImageIds
+    List<Long> postImageIds,
+    Set<Long> tagIds
 
 ) {
 
     public static PostDTO from(Post entity) {
         return new PostDTO(
             entity.getId(),
-            UserAccountDTO.from(entity.getUserAccount()),
+            entity.getUserAccount().getId(),
             entity.getTitle(),
             entity.getContent(),
             entity.getCreatedAt(),
             entity.getCreatedBy(),
             entity.getModifiedAt(),
             entity.getModifiedBy(),
-            PostImageDTO.from(entity.getPostImages()),
-            null
+            entity.getPostImages().stream().map(PostImage::getId).collect(Collectors.toList()),
+            entity.getTags().stream().map(Tag::getId).collect(Collectors.toUnmodifiableSet())
         );
     }
 
     public static PostDTO of(String title, String content, List<Long> postImageIds) {
-        return new PostDTO(null, null, title, content, null, null, null, null, null, postImageIds);
+        return PostDTO.of(title, content, postImageIds, null);
+    }
+
+    public static PostDTO of(String title, String content, List<Long> postImageIds,
+        Set<Long> tagIds) {
+        return new PostDTO(null, null, title, content, null, null, null, null,  postImageIds,
+            tagIds);
     }
 
     public Post toEntity() {
-        UserAccount userAccount = Optional.ofNullable(userAccountDTO).map(UserAccountDTO::toEntity)
-            .orElse(null);
-        return Post.of(id, userAccount, title, content);
+        return Post.of(id, title, content);
     }
 
     public PostDTO addPostImageDTOs(List<PostImageDTO> dtos) {
-        return new PostDTO(this.id, this.userAccountDTO, this.title, this.content, this.createdAt,
-            this.createdBy, this.modifiedAt, this.modifiedBy, dtos, this.postImageIds);
+        return new PostDTO(this.id, this.userId, this.title, this.content, this.createdAt,
+            this.createdBy, this.modifiedAt, this.modifiedBy, this.postImageIds,
+            this.tagIds);
     }
 }

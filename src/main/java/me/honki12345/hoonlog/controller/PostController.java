@@ -4,11 +4,13 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.dto.PostDTO;
+import me.honki12345.hoonlog.dto.TagDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.dto.response.PostResponse;
 import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.security.jwt.util.IfLogin;
 import me.honki12345.hoonlog.service.PostService;
+import me.honki12345.hoonlog.service.TagService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -31,20 +33,32 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
 
     private final PostService postService;
+    private final TagService tagService;
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponse> searchPost(@PathVariable Long postId) {
+        return new ResponseEntity<>(PostResponse.from(postService.searchPost(postId)),
+            HttpStatus.OK);
+    }
 
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
         @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
-        Page<PostResponse> responses = postService.searchPosts(pageable)
+        Page<PostResponse> responses = postService.searchPostsByTagName(pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse> searchPost(@PathVariable Long postId) {
-        PostResponse response = PostResponse.from(postService.searchPost(postId));
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    @GetMapping("/tag/{tagName}")
+    public ResponseEntity<Page<PostResponse>> searchPostsByTag(
+        @PathVariable String tagName,
+        @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+        TagDTO tagDTO = TagDTO.fromWithoutPostIds(tagService.searchTag(tagName));
+        Page<PostResponse> responses = postService.searchPostsByTagName(pageable, tagDTO)
+            .map(PostResponse::from);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
     }
+
 
     @PostMapping
     public ResponseEntity<PostResponse> addPost(
@@ -52,10 +66,14 @@ public class PostController {
         @RequestParam(name = "postImageFiles", required = false) List<MultipartFile> postImageFiles,
         @Valid PostRequest postRequest) {
 
-        PostDTO postDTO = postService.addPost(postRequest.toDTO(),
-            postImageFiles,
-            userAccountPrincipal.toDTO());
-        return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.CREATED);
+        PostResponse response = PostResponse.from(
+            postService.addPost(postRequest.toDTO(),
+                postImageFiles,
+                postRequest.tagNames(),
+                userAccountPrincipal.toDTO()));
+
+        System.out.println(response);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{postId}")
@@ -64,8 +82,9 @@ public class PostController {
         @PathVariable Long postId,
         @RequestParam(name = "postImageFiles", required = false) List<MultipartFile> postImageFiles,
         @Valid PostRequest postRequest) {
-        PostDTO postDTO = postService.updatePost(postId, userAccountPrincipal.toDTO(),
-            postRequest.toDTO(), postImageFiles);
+        PostDTO postDTO = PostDTO.from(
+            postService.updatePost(postId, userAccountPrincipal.toDTO(),
+                postRequest.toDTO(), postImageFiles, postRequest.tagNames()));
         return new ResponseEntity<>(PostResponse.from(postDTO), HttpStatus.OK);
     }
 

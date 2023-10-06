@@ -1,15 +1,14 @@
 package me.honki12345.hoonlog.dto;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-import me.honki12345.hoonlog.domain.Post;
+import java.util.Set;
+import java.util.stream.Collectors;
 import me.honki12345.hoonlog.domain.PostComment;
-import me.honki12345.hoonlog.domain.UserAccount;
 
 public record PostCommentDTO(
     Long id,
-    PostDTO postDTO,
-    UserAccountDTO userAccountDTO,
+    Long postId,
+    Long userId,
     String content,
     LocalDateTime createdAt,
     String createdBy,
@@ -21,16 +20,18 @@ public record PostCommentDTO(
     }
 
     public static PostCommentDTO from(PostComment entity) {
-        return new PostCommentDTO(entity.getId(), PostDTO.from(entity.getPost()),
-            UserAccountDTO.from(entity.getUserAccount()),
+        return new PostCommentDTO(entity.getId(), entity.getPost().getId(),
+            entity.getUserAccount().getId(),
             entity.getContent(), entity.getCreatedAt(), entity.getCreatedBy(),
             entity.getModifiedAt());
     }
 
+    public static Set<PostCommentDTO> from(Set<PostComment> postComments) {
+        return postComments.stream().map(PostCommentDTO::from)
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
     public PostComment toEntity() {
-        Post post = Optional.ofNullable(postDTO).map(PostDTO::toEntity).orElse(null);
-        UserAccount userAccount = Optional.ofNullable(userAccountDTO).map(UserAccountDTO::toEntity)
-            .orElse(null);
-        return PostComment.of(id, post, userAccount, content);
+        return PostComment.of(id, content);
     }
 }

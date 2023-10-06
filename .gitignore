@@ -119,3 +119,6 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,java,windows
+
+# Q클래스
+/src/main/generated/

@@ -39,6 +39,10 @@ public class PostComment extends AuditingFields {
         this.content = content;
     }
 
+    public static PostComment of(Long id, String content) {
+        return PostComment.of(id, null, null, content);
+    }
+
     public static PostComment of(Long id, Post post, UserAccount userAccount, String content) {
         return new PostComment(id, post, userAccount, content);
     }
