@@ -1,5 +1,7 @@
 package me.honki12345.hoonlog.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostComment;
@@ -25,6 +27,11 @@ public class PostCommentService {
     private final PostCommentRepository postCommentRepository;
     private final UserAccountRepository userAccountRepository;
     private final PostRepository postRepository;
+
+    public List<PostCommentDTO> searchPostCommentsByPostId(Long postId) {
+        return postCommentRepository.findAllByPost_id(postId).stream().map(PostCommentDTO::from)
+            .collect(Collectors.toList());
+    }
 
     public PostCommentDTO addPostComment(PostCommentDTO postCommentDTO,
         Long postId, UserAccountDTO userAccountDTO) {
