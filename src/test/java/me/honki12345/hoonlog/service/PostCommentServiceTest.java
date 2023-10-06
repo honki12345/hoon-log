@@ -59,7 +59,7 @@ class PostCommentServiceTest {
             postCommentRequest.toDTO(), post.getId(), userAccountDTO);
 
         // then
-        assertThat(postCommentDTO.postDTO().id()).isEqualTo(post.getId());
+        assertThat(postCommentDTO.id()).isEqualTo(post.getId());
         assertThat(postCommentDTO.createdBy()).isEqualTo(userAccountDTO.username());
         assertThat(postCommentDTO.content()).isEqualTo(TestUtil.TEST_COMMENT_CONTENT);
     }
@@ -80,7 +80,7 @@ class PostCommentServiceTest {
             userAccountDTO);
 
         // then
-        assertThat(savedPostCommentDTO.postDTO().id()).isEqualTo(post.getId());
+        assertThat(savedPostCommentDTO.id()).isEqualTo(post.getId());
         assertThat(savedPostCommentDTO.createdBy()).isEqualTo(userAccountDTO.username());
         assertThat(savedPostCommentDTO.content()).isEqualTo(updatedContent);
     }
