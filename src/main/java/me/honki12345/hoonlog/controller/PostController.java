@@ -45,8 +45,9 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
+        @RequestParam(required = false) String searchKeyword,
         @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
-        Page<PostResponse> responses = postService.searchPosts(pageable)
+        Page<PostResponse> responses = postService.searchPosts(searchKeyword, pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
@@ -65,7 +66,7 @@ public class PostController {
     public ResponseEntity<Page<PostResponse>> searchPostsOrderByTrending() {
         Pageable pageable = PageRequest.of(0, 10,
             Sort.by("likeCount", "createdAt").descending());
-        Page<PostResponse> responses = postService.searchPosts(pageable)
+        Page<PostResponse> responses = postService.searchPosts(null, pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }

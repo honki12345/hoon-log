@@ -10,13 +10,13 @@ import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import java.util.Optional;
 import me.honki12345.hoonlog.domain.Post;
-import me.honki12345.hoonlog.domain.QPostLike;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
-public class PostRepositoryCustomImpl extends QuerydslRepositorySupport implements PostRepositoryCustom {
+public class PostRepositoryCustomImpl extends QuerydslRepositorySupport implements
+    PostRepositoryCustom {
 
     public PostRepositoryCustomImpl() {
         super(Post.class);
@@ -56,6 +56,19 @@ public class PostRepositoryCustomImpl extends QuerydslRepositorySupport implemen
             .leftJoin(post.postComments, postComment).fetchJoin()
             .leftJoin(post.tags, tag).fetchJoin()
             .leftJoin(post.postLikes, postLike).fetchJoin();
+        List<Post> posts = getQuerydsl().applyPagination(pageable, query).fetch();
+        return new PageImpl<>(posts, pageable, query.fetchCount());
+    }
+
+    @Override
+    public Page<Post> findWithAllByTitleContainingOrContentContaining(String keyword,
+        Pageable pageable) {
+        JPQLQuery<Post> query = from(post)
+            .leftJoin(post.postImages, postImage).fetchJoin()
+            .leftJoin(post.postComments, postComment).fetchJoin()
+            .leftJoin(post.tags, tag).fetchJoin()
+            .leftJoin(post.postLikes, postLike).fetchJoin()
+            .where(post.title.contains(keyword).or(post.content.contains(keyword)));
         List<Post> posts = getQuerydsl().applyPagination(pageable, query).fetch();
         return new PageImpl<>(posts, pageable, query.fetchCount());
     }
