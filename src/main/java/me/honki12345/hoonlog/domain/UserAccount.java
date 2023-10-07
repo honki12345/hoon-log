@@ -11,7 +11,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -59,6 +61,9 @@ public class UserAccount {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "userAccount")
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
+
     private UserAccount(Long id, String username, String userPassword, String email,
         Profile profile,
         LocalDateTime createdAt) {
@@ -90,5 +95,9 @@ public class UserAccount {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void deletePostLike(PostLike postLike) {
+        this.postLikes.remove(postLike);
     }
 }

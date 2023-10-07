@@ -31,7 +31,10 @@ public enum ErrorCode {
     IMAGE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "IMAGE1", "파일 업로드에 실패하였습니다"),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMAGE2", "파일을 찾을 수 없습니다"),
 
-    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "TAG1", "태그를 찾을 수 없습니다");
+    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "TAG1", "태그를 찾을 수 없습니다"),
+
+    DUPLICATE_POST_LIKE(HttpStatus.BAD_REQUEST, "LIKE1", "이미 좋아요를 하셨습니다"),
+    POST_LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "LIKE2", "좋아요를 취소에 실패했습니다");
 
     private final String message;
     private final String code;

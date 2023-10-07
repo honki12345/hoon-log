@@ -11,7 +11,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
 
 @Getter

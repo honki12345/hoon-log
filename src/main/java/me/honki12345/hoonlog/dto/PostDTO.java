@@ -13,13 +13,13 @@ public record PostDTO(
     Long userId,
     String title,
     String content,
+    Long likeCount,
     LocalDateTime createdAt,
     String createdBy,
     LocalDateTime modifiedAt,
     String modifiedBy,
     List<Long> postImageIds,
     Set<Long> tagIds
-
 ) {
 
     public static PostDTO from(Post entity) {
@@ -28,6 +28,7 @@ public record PostDTO(
             entity.getUserAccount().getId(),
             entity.getTitle(),
             entity.getContent(),
+            (long) entity.getPostLikes().size(),
             entity.getCreatedAt(),
             entity.getCreatedBy(),
             entity.getModifiedAt(),
@@ -38,22 +39,11 @@ public record PostDTO(
     }
 
     public static PostDTO of(String title, String content, List<Long> postImageIds) {
-        return PostDTO.of(title, content, postImageIds, null);
-    }
-
-    public static PostDTO of(String title, String content, List<Long> postImageIds,
-        Set<Long> tagIds) {
-        return new PostDTO(null, null, title, content, null, null, null, null,  postImageIds,
-            tagIds);
+        return new PostDTO(null, null, title, content, null, null, null, null, null, postImageIds,
+            null);
     }
 
     public Post toEntity() {
         return Post.of(id, title, content);
-    }
-
-    public PostDTO addPostImageDTOs(List<PostImageDTO> dtos) {
-        return new PostDTO(this.id, this.userId, this.title, this.content, this.createdAt,
-            this.createdBy, this.modifiedAt, this.modifiedBy, this.postImageIds,
-            this.tagIds);
     }
 }
