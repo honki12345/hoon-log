@@ -20,10 +20,8 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
 
-@ToString(callSuper = true)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -44,16 +42,13 @@ public class Post extends AuditingFields {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ToString.Exclude
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private final Set<PostComment> postComments = new LinkedHashSet<>();
 
-    @ToString.Exclude
     @OneToMany(mappedBy = "post")
     private List<PostImage> postImages = new LinkedList<>();
 
-    @ToString.Exclude
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "post_tag",
@@ -61,6 +56,9 @@ public class Post extends AuditingFields {
         inverseJoinColumns = @JoinColumn(name = "tagId")
     )
     private Set<Tag> tags = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "post")
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
 
     private Post(Long id, UserAccount userAccount, String title, String content) {
         this.id = id;
@@ -149,4 +147,7 @@ public class Post extends AuditingFields {
         return this;
     }
 
+    public void deletePostLike(Post post) {
+        this.postLikes.remove(post);
+    }
 }

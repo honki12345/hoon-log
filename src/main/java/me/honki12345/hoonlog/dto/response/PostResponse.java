@@ -14,6 +14,7 @@ public record PostResponse(
     String title,
     String content,
     String createdBy,
+    Long likeCount,
     LocalDateTime createdAt,
     List<PostImageDTO> postImageDTOs,
     Set<PostCommentDTO> postCommentDTOs,
@@ -28,6 +29,7 @@ public record PostResponse(
             postDTO.title(),
             postDTO.content(),
             postDTO.createdBy(),
+            postDTO.likeCount(),
             postDTO.createdAt(),
             postImageDTOs,
             postCommentDTOs,
@@ -37,7 +39,7 @@ public record PostResponse(
 
     public static PostResponse from(PostDTO post) {
         return new PostResponse(post.id(), post.title(), post.content(), post.createdBy(),
-            post.createdAt(), null, null, null);
+            post.likeCount(), post.createdAt(), null, null, null);
     }
 
 
