@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/hoonlog
     username: fpg123
-    password: password
+    password: 12345678
   jpa:
     defer-datasource-initialization: true
     hibernate:
