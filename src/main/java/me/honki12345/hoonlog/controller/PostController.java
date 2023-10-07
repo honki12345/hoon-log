@@ -12,7 +12,9 @@ import me.honki12345.hoonlog.security.jwt.util.IfLogin;
 import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.TagService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -55,6 +57,15 @@ public class PostController {
         @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
         TagDTO tagDTO = TagDTO.fromWithoutPostIds(tagService.searchTag(tagName));
         Page<PostResponse> responses = postService.searchPostsByTagName(pageable, tagDTO)
+            .map(PostResponse::from);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<Page<PostResponse>> searchPostsOrderByTrending() {
+        Pageable pageable = PageRequest.of(0, 10,
+            Sort.by("likeCount", "createdAt").descending());
+        Page<PostResponse> responses = postService.searchPosts(pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
