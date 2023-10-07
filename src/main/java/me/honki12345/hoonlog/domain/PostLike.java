@@ -45,18 +45,6 @@ public class PostLike extends AuditingFields {
         return new PostLike(null, null);
     }
 
-    public PostLike addUserAccount(UserAccount userAccount) {
-        this.userAccount = userAccount;
-        userAccount.getPostLikes().add(this);
-        return this;
-    }
-
-    public PostLike addPost(Post post) {
-        this.post = post;
-        post.getPostLikes().add(this);
-        return this;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -71,5 +59,13 @@ public class PostLike extends AuditingFields {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void addPost(Post post) {
+        this.post = post;
+    }
+
+    public void addUserAccount(UserAccount userAccount) {
+        this.userAccount = userAccount;
     }
 }

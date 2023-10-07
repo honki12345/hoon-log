@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +43,8 @@ public class Post extends AuditingFields {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    private long likeCount;
+
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private final Set<PostComment> postComments = new LinkedHashSet<>();
@@ -58,7 +61,7 @@ public class Post extends AuditingFields {
     private Set<Tag> tags = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "post")
-    private Set<PostLike> postLikes = new LinkedHashSet<>();
+    private Set<PostLike> postLikes = new ConcurrentSkipListSet<>();
 
     private Post(Long id, UserAccount userAccount, String title, String content) {
         this.id = id;
@@ -147,7 +150,14 @@ public class Post extends AuditingFields {
         return this;
     }
 
-    public void deletePostLike(Post post) {
-        this.postLikes.remove(post);
+    public void addPostLike(PostLike postLike) {
+        this.postLikes.add(postLike);
+        postLike.addPost(this);
+        likeCount = this.postLikes.stream().count();
+    }
+
+    public void deletePostLike(PostLike postLike) {
+        this.postLikes.remove(postLike);
+        likeCount = this.postLikes.stream().count();
     }
 }

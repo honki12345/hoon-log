@@ -28,7 +28,7 @@ public record PostDTO(
             entity.getUserAccount().getId(),
             entity.getTitle(),
             entity.getContent(),
-            (long) entity.getPostLikes().size(),
+            entity.getLikeCount(),
             entity.getCreatedAt(),
             entity.getCreatedBy(),
             entity.getModifiedAt(),
