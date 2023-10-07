@@ -80,20 +80,8 @@ public class Post extends AuditingFields {
         this.tags = tags;
     }
 
-    public static Post of(Long id) {
-        return Post.of(id, null, null, null);
-    }
-
     public static Post of(Long id, String title, String content) {
         return Post.of(id, null, title, content);
-    }
-
-    public static Post of(String title, String content) {
-        return Post.of(null, null, title, content);
-    }
-
-    public static Post of(UserAccount userAccount, String title, String content) {
-        return new Post(null, userAccount, title, content);
     }
 
     public static Post of(Long id, UserAccount userAccount, String title, String content) {
