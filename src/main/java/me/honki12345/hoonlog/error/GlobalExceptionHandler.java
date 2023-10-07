@@ -2,17 +2,13 @@ package me.honki12345.hoonlog.error;
 
 import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.error.exception.CustomBaseException;
-import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.DuplicateException;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.ImageUploadFailException;
-import me.honki12345.hoonlog.error.exception.domain.PostCommentNotFoundException;
-import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.JwtException;
 import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
 import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.error.exception.NotFoundException;
-import me.honki12345.hoonlog.error.exception.domain.RoleNotFoundException;
-import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -37,9 +33,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, ErrorCode.INVALID_INPUT_VALUE.getStatus());
     }
 
-    @ExceptionHandler(DuplicateUserAccountException.class)
+    @ExceptionHandler(DuplicateException.class)
     public ResponseEntity<ErrorResponse> handleDuplicationException(
-        DuplicateUserAccountException exception) {
+        DuplicateException exception) {
         return createResponseEntityByException(exception);
     }
 
