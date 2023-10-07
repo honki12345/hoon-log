@@ -39,6 +39,8 @@ class PostCommentServiceTest {
     PostCommentRepository postCommentRepository;
     @Autowired
     PostCommentService postCommentService;
+    @Autowired
+    PostService postService;
 
     @AfterEach
     void tearDown() {
