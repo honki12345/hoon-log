@@ -32,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class PostController {
 
+    public static final int PAGEABLE_DEFAULT_SIZE = 10;
+    public static final String PAGEABLE_DEFAULT_SORT_COLUMN = "createdAt";
     private final PostService postService;
     private final TagService tagService;
 
@@ -43,8 +45,9 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
-        @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
-        Page<PostResponse> responses = postService.searchPosts(pageable)
+        @RequestParam(required = false) String searchKeyword,
+        @PageableDefault(size = PAGEABLE_DEFAULT_SIZE, sort = PAGEABLE_DEFAULT_SORT_COLUMN, direction = Direction.DESC) Pageable pageable) {
+        Page<PostResponse> responses = postService.searchPosts(searchKeyword, pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
@@ -52,13 +55,12 @@ public class PostController {
     @GetMapping("/tag")
     public ResponseEntity<Page<PostResponse>> searchPostsByTag(
         @RequestParam("tagName") String tagName,
-        @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+        @PageableDefault(size = PAGEABLE_DEFAULT_SIZE, sort = PAGEABLE_DEFAULT_SORT_COLUMN, direction = Direction.DESC) Pageable pageable) {
         TagDTO tagDTO = TagDTO.fromWithoutPostIds(tagService.searchTag(tagName));
         Page<PostResponse> responses = postService.searchPostsByTagName(pageable, tagDTO)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
-
 
     @PostMapping
     public ResponseEntity<PostResponse> addPost(

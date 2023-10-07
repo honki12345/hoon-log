@@ -37,7 +37,8 @@ public class PostLikeService {
         }
 
         PostLike postLike = PostLike.emptyPostLike();
-        postLike.addUserAccount(userAccount).addPost(post);
+        userAccount.addPostLike(postLike);
+        post.addPostLike(postLike);
         postLikeRepository.save(postLike);
     }
 
@@ -51,7 +52,7 @@ public class PostLikeService {
                 postLikeDTO.userId())
             .orElseThrow(() -> new PostLikeNotFoundException(ErrorCode.POST_LIKE_NOT_FOUND));
         userAccount.deletePostLike(postLike);
-        post.deletePostLike(post);
+        post.deletePostLike(postLike);
         postLikeRepository.delete(postLike);
     }
 }

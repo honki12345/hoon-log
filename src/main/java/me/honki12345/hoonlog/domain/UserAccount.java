@@ -97,6 +97,11 @@ public class UserAccount {
         return Objects.hash(id);
     }
 
+    public void addPostLike(PostLike postLike) {
+        this.postLikes.add(postLike);
+        postLike.addUserAccount(this);
+    }
+
     public void deletePostLike(PostLike postLike) {
         this.postLikes.remove(postLike);
     }
