@@ -42,7 +42,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Post> searchPostsByTagName(Pageable pageable) {
+    public Page<Post> searchPosts(Pageable pageable) {
         return postRepository.findAllWithAll(pageable);
     }
 
@@ -61,13 +61,14 @@ public class PostService {
 
         Post post = postDTO.toEntity();
         post.addUserAccount(userAccount);
+        postRepository.save(post);
         Optional.ofNullable(postImageFiles).ifPresent(
             multipartFiles -> postImageService.savePostImagesWithPost(postImageFiles, post));
         post.addTags(tagNames.isEmpty() ?
             Collections.emptySet() : tagNames.stream().map(tagService::getTagIfPresent).collect(
             Collectors.toUnmodifiableSet()));
 
-        return postRepository.save(post);
+        return post;
     }
 
     public Post updatePost(Long postId, UserAccountDTO userAccountDTO,

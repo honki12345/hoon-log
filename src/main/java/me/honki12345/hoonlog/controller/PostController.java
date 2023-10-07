@@ -44,14 +44,14 @@ public class PostController {
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
         @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
-        Page<PostResponse> responses = postService.searchPostsByTagName(pageable)
+        Page<PostResponse> responses = postService.searchPosts(pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
-    @GetMapping("/tag/{tagName}")
+    @GetMapping("/tag")
     public ResponseEntity<Page<PostResponse>> searchPostsByTag(
-        @PathVariable String tagName,
+        @RequestParam("tagName") String tagName,
         @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
         TagDTO tagDTO = TagDTO.fromWithoutPostIds(tagService.searchTag(tagName));
         Page<PostResponse> responses = postService.searchPostsByTagName(pageable, tagDTO)
@@ -72,7 +72,6 @@ public class PostController {
                 postRequest.tagNames(),
                 userAccountPrincipal.toDTO()));
 
-        System.out.println(response);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
