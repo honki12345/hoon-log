@@ -8,7 +8,7 @@ import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
-import me.honki12345.hoonlog.util.TestUtil;
+import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,26 +18,26 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
-import static me.honki12345.hoonlog.util.TestUtil.*;
+import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("UserAccountService 애플리케이션 통합테스트")
 @ActiveProfiles("test")
-@Import({TestUtil.class})
+@Import({TestUtils.class})
 @SpringBootTest
 class UserAccountServiceTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private TestUtil testUtil;
+    private TestUtils testUtils;
 
     @Autowired
     private UserAccountService userAccountService;
 
     @AfterEach
     void tearDown() {
-        testUtil.deleteAllInBatchInAllRepository();
+        testUtils.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[가입/성공]유저 정보를 입력하면, 회원가입 시, id와 encoded 비밀번호와 가입일자 정보가 포함된 유저 객체를 생성한다.")
@@ -86,7 +86,7 @@ class UserAccountServiceTest {
     @Test
     void givenLoginInfo_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
         LoginRequest loginRequest = new LoginRequest(userAccountDTO.username(), TEST_PASSWORD);
 
         // when
@@ -103,7 +103,7 @@ class UserAccountServiceTest {
     @Test
     void givenWrongUsername_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        testUtil.saveTestUser();
+        testUtils.saveTestUser();
         LoginRequest loginRequest = new LoginRequest("wrongUserId", TEST_PASSWORD);
 
         // when
@@ -116,7 +116,7 @@ class UserAccountServiceTest {
     @Test
     void givenWrongPassword_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        testUtil.saveTestUser();
+        testUtils.saveTestUser();
         LoginRequest loginRequest = new LoginRequest(TEST_USERNAME, "wrongPassword");
 
         // when

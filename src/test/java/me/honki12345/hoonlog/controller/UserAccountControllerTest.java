@@ -15,7 +15,7 @@ import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
-import me.honki12345.hoonlog.util.TestUtil;
+import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("E2E UserAccount 컨트롤러 테스트")
 @ActiveProfiles("test")
-@Import({TestUtil.class})
+@Import({TestUtils.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserAccountControllerTest {
 
@@ -46,7 +46,7 @@ class UserAccountControllerTest {
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
-    TestUtil testUtil;
+    TestUtils testUtils;
 
     @LocalServerPort
     private int port;
@@ -55,7 +55,7 @@ class UserAccountControllerTest {
 
     @AfterEach
     void tearDown() {
-        testUtil.deleteAllInBatchInAllRepository();
+        testUtils.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[생성/성공]회원가입을 성공한다")
@@ -179,7 +179,7 @@ class UserAccountControllerTest {
         // given
         String username = "fpg123";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, "12345678", email);
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678", email);
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
@@ -208,7 +208,7 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, "12345678");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = "blogName2";
@@ -245,7 +245,7 @@ class UserAccountControllerTest {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, "12345678");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = null;

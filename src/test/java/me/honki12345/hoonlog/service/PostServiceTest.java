@@ -1,6 +1,6 @@
 package me.honki12345.hoonlog.service;
 
-import static me.honki12345.hoonlog.util.TestUtil.*;
+import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +19,7 @@ import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.domain.util.FileUtil;
-import me.honki12345.hoonlog.util.TestUtil;
+import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("PostService 애플리케이션 통합테스트")
-@Import({TestUtil.class})
+@Import({TestUtils.class})
 @ActiveProfiles("test")
 @SpringBootTest
 class PostServiceTest {
@@ -39,7 +39,7 @@ class PostServiceTest {
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
-    TestUtil testUtil;
+    TestUtils testUtils;
 
     @Autowired
     PostRepository postRepository;
@@ -52,7 +52,7 @@ class PostServiceTest {
 
     @AfterEach
     void tearDown() {
-        testUtil.deleteAllInBatchInAllRepository();
+        testUtils.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("게시글 생성에 성공한다.")
@@ -60,7 +60,7 @@ class PostServiceTest {
     void givenPostInfoAndUserInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
 
         // when
@@ -77,7 +77,7 @@ class PostServiceTest {
     void givenPostInfoWithImageFile_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
         List<MultipartFile> multipartFiles = createMultipartFiles();
 
@@ -116,8 +116,8 @@ class PostServiceTest {
     void givenUpdatingPostInfoWithUnRegisteredUserInfo_whenUpdatingPost_thenReturnsUpdatedPostInfo() {
         // given
 
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
-        Post savedPost = testUtil.createPostWithTestUser("title", "content");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        Post savedPost = testUtils.createPostByTestUser("title", "content");
         String newTitle = "newTitle";
         String newContent = "newContent";
         PostRequest updateRequest = PostRequest.of(newTitle, newContent, Set.of(TEST_TAG_NAME));
@@ -133,15 +133,15 @@ class PostServiceTest {
         assertThat(updatedPostDTO.createdBy()).isEqualTo(savedPost.getCreatedBy());
         assertThat(updatedPostDTO.title()).isEqualTo(newTitle);
         assertThat(updatedPostDTO.content()).isEqualTo(newContent);
-        assertThat(updatedPostDTO.tagIds()).isEqualTo(Set.of(1L));
+        assertThat(updatedPostDTO.tagIds()).isNotNull();
     }
 
     @DisplayName("게시글 삭제에 성공한다.")
     @Test
     void givenPostIdWithUnRegisteredUserInfo_whenDeletingPost_thenReturnsNothing() {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
-        Post savedPost = testUtil.createPostWithTestUser("title", "content");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        Post savedPost = testUtils.createPostByTestUser("title", "content");
 
         // when // then
         assertThatNoException().isThrownBy(

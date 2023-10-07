@@ -20,6 +20,7 @@ import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostCommentRepository;
 import me.honki12345.hoonlog.repository.PostImageRepository;
+import me.honki12345.hoonlog.repository.PostLikeRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.TagRepository;
@@ -27,11 +28,10 @@ import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import org.springframework.boot.test.context.TestComponent;
-import org.springframework.transaction.annotation.Transactional;
 
 @TestComponent
 @RequiredArgsConstructor
-public class TestUtil {
+public class TestUtils {
 
     public static final String TEST_USERNAME = "fpg123";
     public static final String TEST_PASSWORD = "12345678";
@@ -52,8 +52,10 @@ public class TestUtil {
     private final PostCommentRepository postCommentRepository;
     private final PostImageRepository postImageRepository;
     private final TagRepository tagRepository;
+    private final PostLikeRepository postLikeRepository;
 
     public void deleteAllInBatchInAllRepository() {
+        this.postLikeRepository.deleteAllInBatch();
         this.postImageRepository.deleteAllInBatch();
         this.postCommentRepository.deleteAllInBatch();
         this.postRepository.deleteAllInBatch();
@@ -62,13 +64,12 @@ public class TestUtil {
         this.tagRepository.deleteAllInBatch();
     }
 
-    public TokenDTO createTokensAfterSavingTestUser() {
-        UserAccountDTO userAccountDTO = saveTestUser();
+    public TokenDTO createTokens(UserAccountDTO userAccountDTO) {
         return authService.createTokens(userAccountDTO);
     }
 
-    public TokenDTO createTokensAfterSavingTestUser(String username, String password) {
-        UserAccountDTO userAccountDTO = saveTestUser(username, password);
+    public TokenDTO createTokensAfterSavingTestUser() {
+        UserAccountDTO userAccountDTO = saveTestUser();
         return authService.createTokens(userAccountDTO);
     }
 
@@ -96,7 +97,7 @@ public class TestUtil {
         return userAccountService.saveUserAccount(request.toDTO());
     }
 
-    public Post createPostWithTestUser() {
+    public Post createPostByTestUser() {
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
@@ -104,7 +105,7 @@ public class TestUtil {
             postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 
-    public Post createPostWithTestUser(String title, String content) {
+    public Post createPostByTestUser(String title, String content) {
         PostRequest postRequest = PostRequest.of(title, content);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
@@ -112,9 +113,9 @@ public class TestUtil {
             postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 
-    public PostComment createCommentWithTestUser(Long postId) {
+    public PostComment createCommentByTestUser(Long postId) {
         PostCommentRequest postCommentRequest = PostCommentRequest.of(
-            TestUtil.TEST_COMMENT_CONTENT);
+            TestUtils.TEST_COMMENT_CONTENT);
         PostComment postComment = postCommentRequest.toDTO().toEntity();
 
         UserAccount userAccount = userAccountRepository.findByUsername(TEST_USERNAME)
@@ -127,8 +128,7 @@ public class TestUtil {
         return postCommentRepository.save(postComment);
     }
 
-    @Transactional
-    public Tag createTagWithTestUser(Post post) {
+    public Tag createTagByTestUser(Post post) {
         Post findPost = postRepository.findById(post.getId())
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
         Tag tag = Tag.of(TEST_TAG_NAME);

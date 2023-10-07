@@ -18,7 +18,7 @@ import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
-import me.honki12345.hoonlog.util.TestUtil;
+import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("E2E AuthController 컨트롤러 테스트")
-@Import({TestUtil.class})
+@Import({TestUtils.class})
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthControllerTest {
@@ -40,7 +40,7 @@ class AuthControllerTest {
     @Autowired
     JwtTokenizer jwtTokenizer;
     @Autowired
-    TestUtil testUtil;
+    TestUtils testUtils;
     @Autowired
     UserAccountService userAccountService;
     @Autowired
@@ -55,7 +55,7 @@ class AuthControllerTest {
 
     @AfterEach
     void tearDown() {
-        testUtil.deleteAllInBatchInAllRepository();
+        testUtils.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[로그인/성공]로그인에 성공한다")
@@ -65,7 +65,7 @@ class AuthControllerTest {
         String username = "fpg123";
         String password = "12345678";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, password, email);
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, password, email);
 
         LoginRequest loginRequest = new LoginRequest(username, password);
         RequestSpecification requestSpecification = RestAssured
@@ -122,7 +122,7 @@ class AuthControllerTest {
     @Test
     void givenLogoutInfo_whenLogout_thenReturns200Ok() throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured
@@ -179,7 +179,7 @@ class AuthControllerTest {
     void givenTokenInfo_whenRefreshingToken_thenReturnsNewAccessToken()
         throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         RequestSpecification requestSpecification = RestAssured

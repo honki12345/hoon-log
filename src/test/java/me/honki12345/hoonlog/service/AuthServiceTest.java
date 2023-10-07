@@ -8,7 +8,7 @@ import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
-import me.honki12345.hoonlog.util.TestUtil;
+import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("AuthService 애플리케이션 통합테스트")
-@Import({TestUtil.class})
+@Import({TestUtils.class})
 @ActiveProfiles("test")
 @SpringBootTest
 class AuthServiceTest {
@@ -35,18 +35,18 @@ class AuthServiceTest {
     @Autowired
     JwtTokenizer jwtTokenizer;
     @Autowired
-    TestUtil testUtil;
+    TestUtils testUtils;
 
     @AfterEach
     void tearDown() {
-        testUtil.deleteAllInBatchInAllRepository();
+        testUtils.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[로그인/성공]유저 정보를 입력시, 토큰생성을 성공한다.")
     @Test
     void givenUserInfo_whenLogin_thenReturnsTokens() {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
 
         // when
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
@@ -65,7 +65,7 @@ class AuthServiceTest {
     @Test
     void givenSavedRefreshToken_whenLogout_thenDeletingSavedRefreshToken() {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser();
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         // when

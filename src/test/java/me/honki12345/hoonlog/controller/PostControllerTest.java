@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.controller;
 
 import static io.restassured.RestAssured.*;
-import static me.honki12345.hoonlog.util.TestUtil.*;
+import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -12,7 +12,6 @@ import io.restassured.response.Response;
 import java.io.File;
 import java.util.Optional;
 import me.honki12345.hoonlog.domain.Post;
-import me.honki12345.hoonlog.domain.PostComment;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.dto.TagDTO;
@@ -23,7 +22,7 @@ import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.UserAccountService;
-import me.honki12345.hoonlog.util.TestUtil;
+import me.honki12345.hoonlog.util.TestUtils;
 import me.honki12345.hoonlog.util.WithMockCustomUser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("E2E PostController 컨트롤러 테스트")
-@Import({TestUtil.class})
+@Import({TestUtils.class})
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostControllerTest {
@@ -45,7 +44,7 @@ class PostControllerTest {
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
-    TestUtil testUtil;
+    TestUtils testUtils;
     @Autowired
     AuditorAware<String> auditorAwareForTest;
 
@@ -67,16 +66,15 @@ class PostControllerTest {
 
     @AfterEach
     void tearDown() {
-        testUtil.deleteAllInBatchInAllRepository();
+        testUtils.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[생성/성공]게시글 생성에 성공한다.")
     @Test
     void givenPostInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given // when
-        String username = "fpg123";
-        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser(username, "12345678");
-        String fullPathName = testUtil.createImageFilePath();
+        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
+        String fullPathName = testUtils.createImageFilePath();
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -111,7 +109,7 @@ class PostControllerTest {
     @Test
     void givenNothing_whenSearchingPost_thenReturnsListOfPostInfo() {
         // given // when
-        createPostsWithMockCustomer();
+        createPostsByMockCustomer();
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -135,9 +133,9 @@ class PostControllerTest {
         // given // when
         String title = "title";
         String content = "content";
-        Post createdPost = createPostWithMockCustomer(title, content);
-        testUtil.createTagWithTestUser(createdPost);
-        PostComment createdPostComment = testUtil.createCommentWithTestUser(createdPost.getId());
+        Post createdPost = createPostByMockCustomer(title, content);
+        testUtils.createTagByTestUser(createdPost);
+        testUtils.createCommentByTestUser(createdPost.getId());
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -187,8 +185,8 @@ class PostControllerTest {
     @Test
     void givenUpdatingInfo_whenUpdatingPost_thenReturnsUpdatedPostInfo() {
         // given // when
-        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
-        Post createdPost = testUtil.createPostWithTestUser("title", "content");
+        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
+        Post createdPost = testUtils.createPostByTestUser("title", "content");
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -218,8 +216,8 @@ class PostControllerTest {
     @Test
     void givenPostId_whenDeletingPost_thenReturnsOK() {
         // given // when
-        TokenDTO tokenDTO = testUtil.createTokensAfterSavingTestUser();
-        Post createdPost = testUtil.createPostWithTestUser("title", "content");
+        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
+        Post createdPost = testUtils.createPostByTestUser("title", "content");
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -240,8 +238,8 @@ class PostControllerTest {
 
 
     @WithMockCustomUser
-    private void createPostsWithMockCustomer() {
-        testUtil.createTokensAfterSavingTestUser(TEST_USERNAME, TEST_PASSWORD);
+    private void createPostsByMockCustomer() {
+        testUtils.createTokensAfterSavingTestUser();
         for (int i = 0; i < 10; i++) {
             PostRequest postRequest = PostRequest.of("title" + i, "content" + i);
             userAccountRepository.findByUsername(TEST_USERNAME).ifPresent(userAccount ->
@@ -250,8 +248,8 @@ class PostControllerTest {
     }
 
     @WithMockCustomUser
-    private Post createPostWithMockCustomer(String title, String content) {
-        testUtil.createTokensAfterSavingTestUser(TEST_USERNAME, TEST_PASSWORD);
+    private Post createPostByMockCustomer(String title, String content) {
+        testUtils.createTokensAfterSavingTestUser();
         PostRequest postRequest = PostRequest.of(title, content);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
