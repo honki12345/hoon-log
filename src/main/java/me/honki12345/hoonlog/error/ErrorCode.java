@@ -13,6 +13,8 @@ public enum ErrorCode {
 
     DUPLICATE_USER_ACCOUNT(HttpStatus.BAD_REQUEST, "USER1", "중복된 값이 존재합니다"),
     USER_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "USER2", "존재하지 않는 값입니다"),
+    SEARCH_USER_ACCOUNT_FORBIDDEN(HttpStatus.FORBIDDEN, "USER3", "조회 권한이 없습니다"),
+    MODIFY_USER_ACCOUNT_FORBIDDEN(HttpStatus.FORBIDDEN, "USER4", "수정 권한이 없습니다"),
 
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROLE1", "유저에게 줄 권한이 존재하지 않습니다"),
 
