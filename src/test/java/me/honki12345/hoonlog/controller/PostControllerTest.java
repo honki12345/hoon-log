@@ -10,20 +10,24 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import java.io.File;
-import java.util.Optional;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.Tag;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.dto.TagDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
 import me.honki12345.hoonlog.repository.PostRepository;
+import me.honki12345.hoonlog.repository.TagRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.PostService;
+import me.honki12345.hoonlog.service.TagService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import me.honki12345.hoonlog.util.TestUtils;
-import me.honki12345.hoonlog.util.WithMockCustomUser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,7 +59,11 @@ class PostControllerTest {
     @Autowired
     UserAccountRepository userAccountRepository;
     @Autowired
+    TagRepository tagRepository;
+    @Autowired
     UserAccountService userAccountService;
+    @Autowired
+    TagService tagService;
     @Autowired
     AuthService authService;
     @Autowired
@@ -109,7 +117,8 @@ class PostControllerTest {
     @Test
     void givenNothing_whenSearchingPost_thenReturnsListOfPostInfo() {
         // given // when
-        createPostsByMockCustomer();
+        int postsSize = 5;
+        List<Post> postsByTestUser = createPostsByTestUser(postsSize);
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -123,17 +132,90 @@ class PostControllerTest {
         // then
         assertAll(
             () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
-            () -> assertThat(extract.jsonPath().getList("content")).hasSize(10)
+            () -> assertThat(extract.jsonPath().getList("content")).hasSize(
+                postsByTestUser.size()),
+            () -> assertThat(postsByTestUser.size()).isEqualTo(postsSize)
         );
     }
 
-    @DisplayName("[조회/성공]게시글 조회에 성공한다.")
+    @DisplayName("[조회/성공]주어진 태그이름으로, 게시글 리스트 조회에 성공한다.")
+    @Test
+    void givenTagName_whenSearchingPostByTag_thenReturnsListOfPostInfo() {
+        // given // when
+        String tagName = "hi";
+        int postsSize = 5;
+        Tag savedTag = tagRepository.save(Tag.of(tagName));
+        List<Post> posts = createPostsWithTagByTestUser(postsSize, savedTag);
+        postRepository.saveAll(posts);
+        tagRepository.save(savedTag);
+
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .contentType(ContentType.JSON)
+                .when()
+                .queryParam("tagName", tagName)
+                .get("/api/v1/posts/tag")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(extract.jsonPath().getList("content")).hasSize(posts.size()),
+            () -> assertThat(posts.size()).isEqualTo(postsSize)
+        );
+    }
+
+    @DisplayName("[조회/성공]주어진 키워드로, 게시글 리스트 조회에 성공한다.")
+    @Test
+    void givenKeyword_whenSearchingPostByKeyword_thenReturnsListOfPostInfo() {
+        // given // when
+        String searchKeyword = "1";
+        testUtils.saveTestUser();
+        List<List<String>> titleContentList = List.of(
+            List.of("title1", "content9"),
+            List.of("title2", "content9"),
+            List.of("title3", "content1"),
+            List.of("title4", "content9")
+        );
+        testUtils.createPostByTestUser(titleContentList.get(0).get(0),
+            titleContentList.get(0).get(1));
+        testUtils.createPostByTestUser(titleContentList.get(1).get(0),
+            titleContentList.get(1).get(1));
+        testUtils.createPostByTestUser(titleContentList.get(2).get(0),
+            titleContentList.get(2).get(1));
+        testUtils.createPostByTestUser(titleContentList.get(3).get(0),
+            titleContentList.get(3).get(1));
+        long count = titleContentList.stream()
+            .filter(strings -> strings.stream().anyMatch(s -> s.contains(searchKeyword))).count();
+
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .contentType(ContentType.JSON)
+                .when()
+                .queryParam("searchKeyword", searchKeyword)
+                .get("/api/v1/posts")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(extract.jsonPath().getList("content")).hasSize((int) count)
+        );
+    }
+
+
+    @DisplayName("[조회/성공]게시글 상세조회에 성공한다.")
     @Test
     void givenPostId_whenSearchingPost_thenReturnsFoundPostInfo() {
         // given // when
         String title = "title";
         String content = "content";
-        Post createdPost = createPostByMockCustomer(title, content);
+        testUtils.saveTestUser();
+        Post createdPost = testUtils.createPostByTestUser(title, content);
         testUtils.createTagByTestUser(createdPost);
         testUtils.createCommentByTestUser(createdPost.getId());
 
@@ -236,24 +318,31 @@ class PostControllerTest {
         );
     }
 
-
-    @WithMockCustomUser
-    private void createPostsByMockCustomer() {
+    private List<Post> createPostsByTestUser(int count) {
         testUtils.createTokensAfterSavingTestUser();
-        for (int i = 0; i < 10; i++) {
-            PostRequest postRequest = PostRequest.of("title" + i, "content" + i);
-            userAccountRepository.findByUsername(TEST_USERNAME).ifPresent(userAccount ->
-                postRepository.save(postRequest.toDTO().toEntity().addUserAccount(userAccount)));
+        UserAccount userAccount = userAccountRepository.findByUsername(TEST_USERNAME)
+            .orElseThrow();
+        List<Post> posts = new LinkedList<>();
+        for (int i = 0; i < count; i++) {
+            PostRequest postRequest = PostRequest.of(TEST_POST_TITLE + i, TEST_POST_CONTENT + i);
+            posts.add(postRepository.save(
+                postRequest.toDTO().toEntity().addUserAccount(userAccount)));
         }
+        return posts;
     }
 
-    @WithMockCustomUser
-    private Post createPostByMockCustomer(String title, String content) {
+    private List<Post> createPostsWithTagByTestUser(int count, Tag tag) {
         testUtils.createTokensAfterSavingTestUser();
-        PostRequest postRequest = PostRequest.of(title, content);
-        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
-            TEST_USERNAME);
-        return optionalUserAccount.map(userAccount -> postRepository.save(
-            postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
+        UserAccount userAccount = userAccountRepository.findByUsername(TEST_USERNAME)
+            .orElseThrow();
+        List<Post> posts = new LinkedList<>();
+        for (int i = 0; i < count; i++) {
+            PostRequest postRequest = PostRequest.of(TEST_POST_TITLE + i, TEST_POST_CONTENT + i);
+            Post savedPost = postRepository.save(
+                postRequest.toDTO().toEntity().addUserAccount(userAccount)).addTags(Set.of(tag));
+            posts.add(savedPost);
+        }
+        return posts;
     }
+
 }
