@@ -16,12 +16,14 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
+    @Transactional(readOnly = true)
     public Tag searchTag(String tagName) {
         return tagRepository.findByName(tagName)
             .orElseThrow(() -> new TagNotFoundException(ErrorCode.TAG_NOT_FOUND));
     }
 
-    public Tag getTagIfPresent(String tagName) {
+    @Transactional(readOnly = true)
+    public Tag getTagIfPresentOrCreate(String tagName) {
         return tagRepository.findByName(tagName).orElse(Tag.of(tagName));
     }
 }

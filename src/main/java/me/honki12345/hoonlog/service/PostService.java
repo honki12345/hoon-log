@@ -70,7 +70,7 @@ public class PostService {
         Optional.ofNullable(postImageFiles).ifPresent(
             multipartFiles -> postImageService.savePostImagesWithPost(postImageFiles, post));
         post.addTags(tagNames.isEmpty() ?
-            Collections.emptySet() : tagNames.stream().map(tagService::getTagIfPresent).collect(
+            Collections.emptySet() : tagNames.stream().map(tagService::getTagIfPresentOrCreate).collect(
             Collectors.toUnmodifiableSet()));
 
         return post;

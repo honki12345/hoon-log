@@ -1,5 +1,6 @@
 package me.honki12345.hoonlog.service;
 
+import static me.honki12345.hoonlog.domain.util.FileUtil.*;
 import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
 
@@ -18,7 +19,6 @@ import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException
 import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
-import me.honki12345.hoonlog.domain.util.FileUtil;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -152,7 +152,7 @@ class PostServiceTest {
         List<MultipartFile> multipartFileList = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
-            String path = FileUtil.UPLOAD_URL + File.separator;
+            String path = UPLOAD_URL + File.separator;
             String imageName = "image" + i + ".jpg";
             MockMultipartFile mockMultipartFile = new MockMultipartFile(path, imageName,
                 "image/jpg", new byte[]{1, 2, 3, 4});
