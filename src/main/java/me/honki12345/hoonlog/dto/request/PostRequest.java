@@ -34,6 +34,9 @@ public record PostRequest(
         return new PostRequest(title, content, null, tagNames);
     }
 
+    public static PostRequest of(String title, String content, List<Long> postImageIds, Set<String> tagNames) {
+        return new PostRequest(title, content, postImageIds, tagNames);
+    }
     public PostDTO toDTO() {
         return PostDTO.of(title, content, postImageIds);
     }

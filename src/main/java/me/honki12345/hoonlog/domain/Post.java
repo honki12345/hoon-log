@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -120,6 +121,14 @@ public class Post extends AuditingFields {
         return this;
     }
 
+    public Post addPostImages(Collection<PostImage> postImages) {
+        postImages.forEach(postImage -> {
+            this.postImages.add(postImage);
+            postImage.addPost(this);
+        });
+        return this;
+    }
+
     public void updateTitleAndContent(String title, String content) {
         this.title = title;
         this.content = content;
@@ -141,11 +150,11 @@ public class Post extends AuditingFields {
     public void addPostLike(PostLike postLike) {
         this.postLikes.add(postLike);
         postLike.addPost(this);
-        likeCount = this.postLikes.stream().count();
+        likeCount = this.postLikes.size();
     }
 
     public void deletePostLike(PostLike postLike) {
         this.postLikes.remove(postLike);
-        likeCount = this.postLikes.stream().count();
+        likeCount = this.postLikes.size();
     }
 }

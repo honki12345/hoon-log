@@ -3,6 +3,7 @@ package me.honki12345.hoonlog.util;
 import static me.honki12345.hoonlog.domain.util.FileUtils.UPLOAD_URL;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -11,8 +12,10 @@ import java.util.StringJoiner;
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostComment;
+import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.Tag;
 import me.honki12345.hoonlog.domain.UserAccount;
+import me.honki12345.hoonlog.domain.util.FileUtils;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -48,6 +51,8 @@ public class TestUtils {
     public static final String TEST_COMMENT_CONTENT = "commentContent";
     public static final String TEST_TAG_NAME = "tagName";
     public static final String TEST_FILE_ORIGINAL_NAME = "drawing.jpg";
+
+    private final FileUtils fileUtils;
 
     private final AuthService authService;
     private final UserAccountService userAccountService;
@@ -117,6 +122,16 @@ public class TestUtils {
             TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
             postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
+    }
+
+    public Post createPostWithImageFileByTestUser(PostImage postImage) throws IOException {
+        PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
+            TEST_USERNAME);
+
+        return optionalUserAccount.map(userAccount -> postRepository.saveAndFlush(
+                postRequest.toDTO().toEntity().addUserAccount(userAccount)).addPostImage(postImage))
+            .orElse(null);
     }
 
     public PostComment createCommentByTestUser(Long postId) {

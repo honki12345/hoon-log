@@ -138,6 +138,33 @@ class PostControllerTest {
         );
     }
 
+    @DisplayName("[조회/성공]게시글 리스트 조회에 성공한다.(keyword is whitespace)")
+    @Test
+    void givenNothingVersionWhitespace_whenSearchingPost_thenReturnsListOfPostInfo() {
+        // given // when
+        int postsSize = 5;
+        List<Post> postsByTestUser = createPostsByTestUser(postsSize);
+
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .contentType(ContentType.JSON)
+                .queryParam("keyword", " ")
+                .when()
+                .get("/api/v1/posts")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.OK.value()),
+            () -> assertThat(extract.jsonPath().getList("content")).hasSize(
+                postsByTestUser.size()),
+            () -> assertThat(postsByTestUser.size()).isEqualTo(postsSize)
+        );
+    }
+
+
     @DisplayName("[조회/성공]주어진 태그이름으로, 게시글 리스트 조회에 성공한다.")
     @Test
     void givenTagName_whenSearchingPostByTag_thenReturnsListOfPostInfo() {
@@ -171,7 +198,7 @@ class PostControllerTest {
     @Test
     void givenKeyword_whenSearchingPostByKeyword_thenReturnsListOfPostInfo() {
         // given // when
-        String searchKeyword = "1";
+        String keyword = "1";
         testUtils.saveTestUser();
         List<List<String>> titleContentList = List.of(
             List.of("title1", "content9"),
@@ -188,14 +215,14 @@ class PostControllerTest {
         testUtils.createPostByTestUser(titleContentList.get(3).get(0),
             titleContentList.get(3).get(1));
         long count = titleContentList.stream()
-            .filter(strings -> strings.stream().anyMatch(s -> s.contains(searchKeyword))).count();
+            .filter(strings -> strings.stream().anyMatch(s -> s.contains(keyword))).count();
 
         ExtractableResponse<Response> extract =
             given().log().all()
                 .port(port)
                 .contentType(ContentType.JSON)
                 .when()
-                .queryParam("searchKeyword", searchKeyword)
+                .queryParam("keyword", keyword)
                 .get("/api/v1/posts")
                 .then().log().all()
                 .extract();

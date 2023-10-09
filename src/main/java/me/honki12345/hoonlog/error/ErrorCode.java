@@ -27,6 +27,8 @@ public enum ErrorCode {
     TOKEN_UNSUPPORTED(HttpStatus.BAD_REQUEST, "TOKEN4", "지원하지 않는 토큰입니다"),
 
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST1", "게시글을 찾을 수 없습니다"),
+    UPDATE_POST_FORBIDDEN(HttpStatus.BAD_REQUEST, "POST2", "게시글 수정 권한이 없습니다"),
+    DELETE_POST_FORBIDDEN(HttpStatus.BAD_REQUEST, "POST3", "게시글 삭제 권한이 없습니다"),
 
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT1", "댓글을 찾을 수 없습니다"),
 
