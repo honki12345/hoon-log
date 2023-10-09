@@ -1,12 +1,9 @@
 package me.honki12345.hoonlog.service;
 
-import static me.honki12345.hoonlog.domain.util.FileUtil.*;
 import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import me.honki12345.hoonlog.domain.Post;
@@ -26,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -79,7 +75,7 @@ class PostServiceTest {
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
         UserAccountDTO userAccountDTO = testUtils.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
-        List<MultipartFile> multipartFiles = createMultipartFiles();
+        List<MultipartFile> multipartFiles = testUtils.createMockMultipartFiles();
 
         // when
         Post post = postService.addPost(postRequest.toDTO(), multipartFiles,
@@ -148,18 +144,5 @@ class PostServiceTest {
             () -> postService.deletePost(savedPost.getId(), userAccountDTO));
     }
 
-    List<MultipartFile> createMultipartFiles() {
-        List<MultipartFile> multipartFileList = new ArrayList<>();
-
-        for (int i = 0; i < 5; i++) {
-            String path = UPLOAD_URL + File.separator;
-            String imageName = "image" + i + ".jpg";
-            MockMultipartFile mockMultipartFile = new MockMultipartFile(path, imageName,
-                "image/jpg", new byte[]{1, 2, 3, 4});
-            multipartFileList.add(mockMultipartFile);
-        }
-
-        return multipartFileList;
-    }
 
 }
