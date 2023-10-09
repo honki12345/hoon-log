@@ -13,8 +13,9 @@ import me.honki12345.hoonlog.dto.PostDTO;
 import me.honki12345.hoonlog.dto.TagDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.ErrorCode;
-import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.error.exception.domain.DeletePostForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.UpdatePostForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -42,12 +43,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Post> searchPosts(String searchKeyword, Pageable pageable) {
-        if (searchKeyword == null || searchKeyword.isBlank()) {
+    public Page<Post> searchPosts(String keyword, Pageable pageable) {
+        if (keyword == null || keyword.isBlank()) {
             return postRepository.findAllWithAll(pageable);
         }
 
-        return postRepository.findWithAllByTitleContainingOrContentContaining(searchKeyword,
+        return postRepository.findWithAllByTitleContainingOrContentContaining(keyword,
             pageable);
     }
 
@@ -83,7 +84,7 @@ public class PostService {
             .orElseThrow(() -> new PostNotFoundException(
                 ErrorCode.POST_NOT_FOUND));
         if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+            throw new UpdatePostForbiddenException(ErrorCode.UPDATE_POST_FORBIDDEN);
         }
         post.updateTitleAndContent(postDTO.title(), postDTO.content());
 
@@ -107,7 +108,7 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(
             ErrorCode.POST_NOT_FOUND));
         if (!post.getUserAccount().getUsername().equals(dto.username())) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+            throw new DeletePostForbiddenException(ErrorCode.DELETE_POST_FORBIDDEN);
         }
         postRepository.deleteById(postId);
     }
