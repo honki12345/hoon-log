@@ -1,13 +1,16 @@
 package me.honki12345.hoonlog.service;
 
+import me.honki12345.hoonlog.config.Initializer;
 import me.honki12345.hoonlog.dto.request.LoginRequest;
 import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.domain.RoleNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
+import me.honki12345.hoonlog.repository.RoleRepository;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
@@ -34,6 +38,8 @@ class UserAccountServiceTest {
 
     @Autowired
     private UserAccountService userAccountService;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @AfterEach
     void tearDown() {
@@ -73,14 +79,21 @@ class UserAccountServiceTest {
             DuplicateUserAccountException.class);
     }
 
-    @DisplayName("[조회/실패]존재하지 않는 유저 아이디로, 회원조회 시, 예외를 발생한다.")
+    @Transactional
+    @DisplayName("[가입/실패]SetUp 된 Role 객체가 없으시, 회원가입 하면, 예외를 발생한다.")
     @Test
-    void givenNotFoundUserId_whenFindUserAccount_thenThrowingException() {
-        // given // when // then
-        assertThatThrownBy(
-            () -> userAccountService.findUserAccountByUsername("fpg123")).isInstanceOf(
-            UserAccountNotFoundException.class);
+    void givenNotSavedRole_whenSignUp_thenThrowingException() {
+        // given
+        roleRepository.deleteByName(Initializer.DEFAULT_ROLE_NAME);
+        ProfileDTO profileDTO = new ProfileDTO("blogName", null);
+        UserAccountAddRequest request = new UserAccountAddRequest(
+            "fpg123", "12345678", "fpg123@mail.com", profileDTO);
+
+        // when // then
+        assertThatThrownBy(() -> userAccountService.saveUserAccount(request.toDTO())).isInstanceOf(
+            RoleNotFoundException.class);
     }
+
 
     @DisplayName("[조회/성공]주어진 아이디와 비밀번호가, 저장된 값과 일치하면, 유저엔티티를 반환한다")
     @Test
@@ -99,7 +112,26 @@ class UserAccountServiceTest {
             .hasFieldOrPropertyWithValue("userPassword", userAccountDTO.userPassword());
     }
 
-    @DisplayName("[조회/실패]주어진 아이디가, 저장된 값과 일치하면, 예외를 반환한다")
+    @DisplayName("[조회/실패]존재하지 않는 userId로, 회원조회 시, 예외를 발생한다.")
+    @Test
+    void givenNotFoundUserId_whenFindUserAccount_thenThrowingException() {
+        // given // when // then
+        assertThatThrownBy(
+            () -> userAccountService.findUserAccountByUserId(999L)).isInstanceOf(
+            UserAccountNotFoundException.class);
+    }
+
+    @DisplayName("[조회/실패]존재하지 않는 username 으로, 회원조회 시, 예외를 발생한다.")
+    @Test
+    void givenNotFoundUsername_whenFindUserAccount_thenThrowingException() {
+        // given // when // then
+        assertThatThrownBy(
+            () -> userAccountService.findUserAccountByUsername("fpg123")).isInstanceOf(
+            UserAccountNotFoundException.class);
+    }
+
+
+    @DisplayName("[조회/실패]존재하지 않는 유저 아이디로, 비밀번호 확인 시, 예외를 반환한다")
     @Test
     void givenWrongUsername_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given

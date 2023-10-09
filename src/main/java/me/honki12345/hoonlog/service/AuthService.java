@@ -1,5 +1,7 @@
 package me.honki12345.hoonlog.service;
 
+import static me.honki12345.hoonlog.error.ErrorCode.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +9,7 @@ import me.honki12345.hoonlog.domain.RefreshToken;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
-import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.domain.TokenNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.error.exception.NotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
@@ -37,7 +39,7 @@ public class AuthService {
 
     public void deleteRefreshToken(String refreshToken) {
         RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken)
-            .orElseThrow(() -> new LogoutErrorException(ErrorCode.LOGOUT_ERROR));
+            .orElseThrow(() -> new LogoutErrorException(LOGOUT_ERROR));
         refreshTokenRepository.deleteById(refreshTokenEntity.getId());
     }
 
@@ -45,11 +47,11 @@ public class AuthService {
     public TokenDTO refreshAccessToken(String refreshToken) {
         TokenDTO tokenDTO = refreshTokenRepository.findByToken(refreshToken)
             .map(TokenDTO::from)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
+            .orElseThrow(() -> new TokenNotFoundException(TOKEN_NOT_FOUND));
         Long userIdFromRefreshToken = jwtTokenizer.getUserIdFromRefreshToken(
             tokenDTO.refreshToken());
         if (!userAccountRepository.existsById(userIdFromRefreshToken)) {
-            throw new UserAccountNotFoundException(ErrorCode.USER_ACCOUNT_NOT_FOUND);
+            throw new UserAccountNotFoundException(USER_ACCOUNT_NOT_FOUND);
         }
 
         String newAccessToken = jwtTokenizer.createNewAccessToken(refreshToken);
@@ -59,6 +61,6 @@ public class AuthService {
     public Long FindUserIdByRefreshToken(String refreshToken) {
         return refreshTokenRepository.findByToken(refreshToken)
             .map(RefreshToken::getUserId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
+            .orElseThrow(() -> new NotFoundException(NOT_FOUND));
     }
 }

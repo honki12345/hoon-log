@@ -16,11 +16,13 @@ import org.springframework.context.annotation.Bean;
 @TestConfiguration
 public class Initializer {
 
+    public static final String DEFAULT_ROLE_NAME = "ROLE_USER";
+
     @Bean
     public CommandLineRunner init(RoleRepository roleRepository) {
         return args -> {
             if (roleRepository.count() == 0) {
-                Role userRole = Role.of("ROLE_USER");
+                Role userRole = Role.of(DEFAULT_ROLE_NAME);
 
                 roleRepository.save(userRole);
 

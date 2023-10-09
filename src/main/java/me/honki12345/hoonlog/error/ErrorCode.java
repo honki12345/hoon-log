@@ -27,10 +27,12 @@ public enum ErrorCode {
     TOKEN_UNSUPPORTED(HttpStatus.BAD_REQUEST, "TOKEN4", "지원하지 않는 토큰입니다"),
 
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST1", "게시글을 찾을 수 없습니다"),
-    UPDATE_POST_FORBIDDEN(HttpStatus.BAD_REQUEST, "POST2", "게시글 수정 권한이 없습니다"),
-    DELETE_POST_FORBIDDEN(HttpStatus.BAD_REQUEST, "POST3", "게시글 삭제 권한이 없습니다"),
+    UPDATE_POST_FORBIDDEN(HttpStatus.FORBIDDEN, "POST2", "게시글 수정 권한이 없습니다"),
+    DELETE_POST_FORBIDDEN(HttpStatus.FORBIDDEN, "POST3", "게시글 삭제 권한이 없습니다"),
 
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT1", "댓글을 찾을 수 없습니다"),
+    MODIFY_COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT2", "댓글 수정 권한이 없습니다"),
+    DELETE_COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT3", "댓글 삭제 권한이 없습니다"),
 
     IMAGE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "IMAGE1", "파일 업로드에 실패하였습니다"),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMAGE2", "파일을 찾을 수 없습니다"),

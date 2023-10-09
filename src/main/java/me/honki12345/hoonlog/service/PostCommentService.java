@@ -10,6 +10,8 @@ import me.honki12345.hoonlog.dto.PostCommentDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.ForbiddenException;
+import me.honki12345.hoonlog.error.exception.domain.DeleteCommentForbiddenException;
+import me.honki12345.hoonlog.error.exception.domain.ModifyCommentForbiddenException;
 import me.honki12345.hoonlog.error.exception.domain.PostCommentNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
@@ -27,11 +29,6 @@ public class PostCommentService {
     private final PostCommentRepository postCommentRepository;
     private final UserAccountRepository userAccountRepository;
     private final PostRepository postRepository;
-
-    public List<PostCommentDTO> searchPostCommentsByPostId(Long postId) {
-        return postCommentRepository.findAllByPost_id(postId).stream().map(PostCommentDTO::from)
-            .collect(Collectors.toList());
-    }
 
     public PostCommentDTO addPostComment(PostCommentDTO postCommentDTO,
         Long postId, UserAccountDTO userAccountDTO) {
@@ -51,7 +48,7 @@ public class PostCommentService {
             .orElseThrow(() -> new PostCommentNotFoundException(
                 ErrorCode.COMMENT_NOT_FOUND));
         if (!postComment.getUserAccount().getId().equals(dto.id())) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+            throw new ModifyCommentForbiddenException(ErrorCode.MODIFY_COMMENT_FORBIDDEN);
         }
         postComment.update(postCommentDTO.content());
         return PostCommentDTO.from(postComment);
@@ -62,7 +59,7 @@ public class PostCommentService {
             .orElseThrow(() -> new PostCommentNotFoundException(
                 ErrorCode.COMMENT_NOT_FOUND));
         if (!postComment.getUserAccount().getId().equals(userAccountDTO.id())) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+            throw new DeleteCommentForbiddenException(ErrorCode.DELETE_COMMENT_FORBIDDEN);
         }
         postCommentRepository.delete(postComment);
     }

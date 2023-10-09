@@ -1,6 +1,7 @@
 package me.honki12345.hoonlog.service;
 
 import lombok.RequiredArgsConstructor;
+import me.honki12345.hoonlog.config.Initializer;
 import me.honki12345.hoonlog.error.ErrorCode;
 import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
 import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
@@ -29,7 +30,7 @@ public class UserAccountService {
         if (userAccountRepository.existsByUsername(dto.username())) {
             throw new DuplicateUserAccountException(ErrorCode.DUPLICATE_USER_ACCOUNT);
         }
-        Role userRole = roleRepository.findByName("ROLE_USER")
+        Role userRole = roleRepository.findByName(Initializer.DEFAULT_ROLE_NAME)
             .orElseThrow(() -> new RoleNotFoundException(
                 ErrorCode.ROLE_NOT_FOUND));
 

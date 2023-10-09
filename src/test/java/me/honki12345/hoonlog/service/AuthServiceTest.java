@@ -4,6 +4,8 @@ import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.domain.vo.Profile;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
+import me.honki12345.hoonlog.error.exception.domain.TokenNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -100,4 +102,28 @@ class AuthServiceTest {
             userAccount.getId());
     }
 
+    @DisplayName("[재발급/실패]유효하지 않은 회원의 리프레쉬 토큰으로, 토큰 재발급을 하면, 예외를 던진다.")
+    @Test
+    void givenRefreshTokenOfInvalidUserInfo_whenRefreshingToken_thenThrowsException() {
+        // given
+        long wrongUserId = 999L;
+        UserAccount unsavedUserAccount = UserAccount.of(wrongUserId, "fpg123", "12345678", null,
+            Profile.of("name", null));
+        TokenDTO tokenDTO = authService.createTokens(UserAccountDTO.from(unsavedUserAccount));
+
+        // when // then
+        assertThatThrownBy(() -> authService.refreshAccessToken(tokenDTO.refreshToken()))
+            .isInstanceOf(UserAccountNotFoundException.class);
+    }
+
+    @DisplayName("[재발급/실패]유효하지 않은 리프레쉬 토큰으로, 토큰 재발급을 하면, 예외를 던진다.")
+    @Test
+    void givenInvalidRefreshToken_whenRefreshingToken_thenThrowsException() {
+        // given
+        TokenDTO tokenDTO = TokenDTO.of("wrongAccessToken", "wrongRefreshToken");
+
+        // when // then
+        assertThatThrownBy(() -> authService.refreshAccessToken(tokenDTO.refreshToken()))
+            .isInstanceOf(TokenNotFoundException.class);
+    }
 }

@@ -77,7 +77,12 @@ public class UserAccount {
 
     public static UserAccount of(String username, String userPassword, String email,
         Profile profile) {
-        return new UserAccount(null, username, userPassword, email, profile, null);
+        return UserAccount.of(null, username, userPassword, email, profile);
+    }
+
+    public static UserAccount of(Long id, String username, String userPassword, String email,
+        Profile profile) {
+        return new UserAccount(id, username, userPassword, email, profile, null);
     }
 
 
