@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.config;
 
-import static me.honki12345.hoonlog.domain.util.FileUtil.IMAGE_LOCATION;
-import static me.honki12345.hoonlog.domain.util.FileUtil.UPLOAD_LOCATION;
+import static me.honki12345.hoonlog.domain.util.FileUtils.IMAGE_LOCATION;
+import static me.honki12345.hoonlog.domain.util.FileUtils.UPLOAD_LOCATION;
 
 import java.io.File;
 import me.honki12345.hoonlog.domain.Role;

@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Component
-public class FileUtil {
+public class FileUtils {
 
     public static final String UPLOAD_LOCATION =
         System.getProperty("user.home") + File.separator + "test-hoonlog";
@@ -49,10 +49,10 @@ public class FileUtil {
         if (!StringUtils.hasText(originalFilename)) {
             throw new IOException();
         }
-        String imageName = uploadFile(FileUtil.IMAGE_LOCATION,
+        String imageName = uploadFile(FileUtils.IMAGE_LOCATION,
             originalFilename,
             postImageFile.getBytes());
-        String imageUrl = FileUtil.UPLOAD_URL + imageName;
+        String imageUrl = FileUtils.UPLOAD_URL + imageName;
 
         return PostImage.of(originalFilename, imageName, imageUrl);
     }
