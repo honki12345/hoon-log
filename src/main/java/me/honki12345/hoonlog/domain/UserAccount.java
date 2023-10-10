@@ -85,6 +85,14 @@ public class UserAccount {
         return new UserAccount(id, username, userPassword, email, profile, null);
     }
 
+    public static UserAccount of(Long id, String username, String userPassword, String email,
+        Profile profile, Set<Role> roles) {
+        UserAccount userAccount = new UserAccount(id, username, userPassword, email, profile, null);
+        if (roles != null && !roles.isEmpty()) {
+            roles.forEach(role -> userAccount.getRoles().add(role));
+        }
+        return userAccount;
+    }
 
     @Override
     public boolean equals(Object o) {

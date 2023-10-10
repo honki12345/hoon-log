@@ -34,6 +34,12 @@ spring:
 jwt:
   secretKey: ${JWT_SECRET_KEY}
   refreshKey: ${JWT_REFRESH_KEY}
+file:
+  upload:
+    location: ${user.home}${file.separator}hoonlog
+    url: /images/post/
+  image:
+    location: ${user.home}${file.separator}hoonlog${file.separator}post
 
 ---
 spring:
@@ -59,3 +65,9 @@ spring:
 jwt:
   secretKey: 098766543211hoon-log-secretKey-2023-10-0101234567890
   refreshKey: 2098766543211hoon023_10-01-hoon-log-refreshKey01234567890
+file:
+  upload:
+    location: ${user.home}${file.separator}test-hoonlog
+    url: /images/post/
+  image:
+    location: ${user.home}${file.separator}test-hoonlog${file.separator}post

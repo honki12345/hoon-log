@@ -6,20 +6,33 @@ import java.io.IOException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import me.honki12345.hoonlog.domain.PostImage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
-@Component
+@Component("fileUtils")
 public class FileUtils {
 
-    public static final String UPLOAD_LOCATION =
-        System.getProperty("user.home") + File.separator + "hoonlog";
-    public static final String UPLOAD_URL = "/images/post/";
-    public static final String IMAGE_LOCATION =
-        System.getProperty("user.home") + File.separator + "hoonlog"
-            + File.separator + "post";
+    public static String UPLOAD_LOCATION;
+    public static String UPLOAD_URL;
+    public static String IMAGE_LOCATION;
+
+    @Value("${file.upload.location}")
+    public void setUploadLocation(String uploadLocation) {
+        UPLOAD_LOCATION = uploadLocation;
+    }
+
+    @Value("${file.upload.url}")
+    public void setUploadUrl(String uploadUrl) {
+        UPLOAD_URL = uploadUrl;
+    }
+
+    @Value("${file.image.location}")
+    public void setImageLocation(String imageLocation) {
+        IMAGE_LOCATION = imageLocation;
+    }
 
     public String uploadFile(String uploadPath, String originalFileName, byte[] fileData)
         throws IOException {

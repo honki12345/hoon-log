@@ -1,6 +1,7 @@
 package me.honki12345.hoonlog.controller;
 
 import static io.restassured.RestAssured.*;
+import static me.honki12345.hoonlog.error.ErrorCode.*;
 import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -10,16 +11,24 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import me.honki12345.hoonlog.config.ContainerShutDownListener;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.Tag;
 import me.honki12345.hoonlog.domain.UserAccount;
+import me.honki12345.hoonlog.domain.util.FileUtils;
 import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.dto.TagDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.request.PostRequest;
+import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.TagRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
@@ -28,6 +37,7 @@ import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.TagService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import me.honki12345.hoonlog.util.TestUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,15 +48,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("E2E PostController 컨트롤러 테스트")
-@Import({TestUtils.class})
+@Import({TestUtils.class, ContainerShutDownListener.class, TestJpaConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostControllerTest {
 
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    FileUtils fileUtils;
     @Autowired
     TestUtils testUtils;
     @Autowired
@@ -58,6 +71,8 @@ class PostControllerTest {
     PostRepository postRepository;
     @Autowired
     UserAccountRepository userAccountRepository;
+    @Autowired
+    PostImageRepository postImageRepository;
     @Autowired
     TagRepository tagRepository;
     @Autowired
@@ -82,7 +97,7 @@ class PostControllerTest {
     void givenPostInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given // when
         TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        String fullPathName = testUtils.createImageFilePath();
+        String fullPathName = testUtils.createImageFilePath(TEST_FILE_ORIGINAL_NAME);
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -320,6 +335,45 @@ class PostControllerTest {
                 TEST_UPDATED_POST_CONTENT)
         );
     }
+
+    @DisplayName("[수정/실패]게시글 수정에 성공한다.")
+    @Test
+    void givenEmptyFile_whenUpdatingPost_thenReturnsErrorMessage() throws IOException {
+        // given // when
+        MultipartFile mockMultipartFile = testUtils.createMockMultipartFile("mockFile.jpg");
+        PostImage postImage = fileUtils.fromMultipartFileToPostImage(mockMultipartFile);
+        postImageRepository.save(postImage);
+        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
+        Post createdPost = testUtils.createPostByTestUser("title", "content");
+
+        Path path = Path.of(testUtils.createImageFilePath("empty-file"));
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
+        File emptyFile = Files.createFile(path).toFile();
+
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .pathParam("postId", createdPost.getId())
+                .multiPart("title", TEST_UPDATED_POST_TITLE)
+                .multiPart("content", TEST_UPDATED_POST_CONTENT)
+                .multiPart("postImageFiles", emptyFile)
+                .multiPart("postImageIds", postImage.getId())
+                .when()
+                .put("/api/v1/posts/{postId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+            () -> assertThat(extract.jsonPath().getString("message")).isEqualTo(IMAGE_UPLOAD_ERROR.getMessage()),
+            () -> assertThat(extract.jsonPath().getString("code")).isEqualTo(IMAGE_UPLOAD_ERROR.getCode())
+        );
+    }
+
 
     @DisplayName("[삭제/성공]게시글 삭제에 성공한다.")
     @Test

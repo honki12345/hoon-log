@@ -71,27 +71,12 @@ public class Post extends AuditingFields {
         this.content = content;
     }
 
-    private Post(Long id, UserAccount userAccount, String title, String content,
-        List<PostImage> postImages, Set<Tag> tags) {
-        this.id = id;
-        this.userAccount = userAccount;
-        this.title = title;
-        this.content = content;
-        this.postImages = postImages;
-        this.tags = tags;
-    }
-
     public static Post of(Long id, String title, String content) {
         return Post.of(id, null, title, content);
     }
 
     public static Post of(Long id, UserAccount userAccount, String title, String content) {
         return new Post(id, userAccount, title, content);
-    }
-
-    public static Post of(Long id, UserAccount userAccount, String title, String content,
-        Set<Tag> tags) {
-        return new Post(id, userAccount, title, content, null, tags);
     }
 
     @Override
@@ -118,14 +103,6 @@ public class Post extends AuditingFields {
     public Post addPostImage(PostImage postImage) {
         this.postImages.add(postImage);
         postImage.addPost(this);
-        return this;
-    }
-
-    public Post addPostImages(Collection<PostImage> postImages) {
-        postImages.forEach(postImage -> {
-            this.postImages.add(postImage);
-            postImage.addPost(this);
-        });
         return this;
     }
 

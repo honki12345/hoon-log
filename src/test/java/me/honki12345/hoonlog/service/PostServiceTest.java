@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.util.FileUtils;
@@ -33,7 +34,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("PostService 애플리케이션 통합테스트")
-@Import({TestUtils.class})
+@Import({TestUtils.class, TestJpaConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest
 class PostServiceTest {

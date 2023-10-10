@@ -1,6 +1,7 @@
 package me.honki12345.hoonlog.service;
 
 import me.honki12345.hoonlog.config.Initializer;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.dto.request.LoginRequest;
 import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
 import me.honki12345.hoonlog.error.exception.domain.RoleNotFoundException;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("UserAccountService 애플리케이션 통합테스트")
 @ActiveProfiles("test")
-@Import({TestUtils.class})
+@Import({TestUtils.class, TestJpaConfig.class})
 @SpringBootTest
 class UserAccountServiceTest {
 

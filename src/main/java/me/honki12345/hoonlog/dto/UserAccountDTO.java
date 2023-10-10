@@ -1,7 +1,6 @@
 package me.honki12345.hoonlog.dto;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +61,6 @@ public record UserAccountDTO(
     }
 
     public UserAccount toEntity() {
-        return UserAccount.of(username, userPassword, email, profileDTO.toVO());
+        return UserAccount.of(null, username, userPassword, email, profileDTO.toVO(), roles);
     }
 }

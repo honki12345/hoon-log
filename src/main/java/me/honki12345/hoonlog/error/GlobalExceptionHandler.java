@@ -9,6 +9,7 @@ import me.honki12345.hoonlog.error.exception.security.JwtException;
 import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
 import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.error.exception.NotFoundException;
+import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

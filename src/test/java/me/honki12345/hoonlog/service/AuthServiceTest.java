@@ -1,13 +1,20 @@
 package me.honki12345.hoonlog.service;
 
+import java.util.List;
+import java.util.Set;
+import me.honki12345.hoonlog.config.Initializer;
+import me.honki12345.hoonlog.config.TestJpaConfig;
+import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.domain.vo.Profile;
+import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.error.exception.domain.TokenNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.error.exception.security.LogoutErrorException;
 import me.honki12345.hoonlog.repository.RefreshTokenRepository;
+import me.honki12345.hoonlog.repository.RoleRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import me.honki12345.hoonlog.util.TestUtils;
@@ -19,10 +26,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import static me.honki12345.hoonlog.util.TestUtils.*;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("AuthService 애플리케이션 통합테스트")
-@Import({TestUtils.class})
+@Import({TestUtils.class, TestJpaConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest
 class AuthServiceTest {
@@ -33,6 +41,8 @@ class AuthServiceTest {
     UserAccountRepository userAccountRepository;
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
+    @Autowired
+    RoleRepository roleRepository;
 
     @Autowired
     JwtTokenizer jwtTokenizer;
@@ -62,6 +72,35 @@ class AuthServiceTest {
         assertThat(userIdFromAccessToken).isEqualTo(userAccountDTO.id());
         assertThat(userIdFromRefreshToken).isEqualTo(userAccountDTO.id());
     }
+
+    @DisplayName("[로그인/성공]유저 정보를 입력시, 토큰생성을 성공한다. (ver2)")
+    @Test
+    void givenUserInfo_whenLogin_thenReturnsTokens_ver2() {
+        // given
+        String roleName = "ROLE_USER2";
+        Role role2 = roleRepository.save(Role.of(roleName));
+        roleRepository.save(role2);
+
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(TEST_USERNAME, TEST_PASSWORD,
+            "test@mail.com",
+            new ProfileDTO("name", null),
+            Set.of(role2));
+
+        // when
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
+        String accessToken = tokenDTO.accessToken();
+        String refreshToken = tokenDTO.refreshToken();
+        Long userIdFromAccessToken = jwtTokenizer.getUserIdFromAccessToken(accessToken);
+        Long userIdFromRefreshToken = jwtTokenizer.getUserIdFromRefreshToken(refreshToken);
+        List<String> rolesFromAccessToken = jwtTokenizer.getRolesFromAccessToken(accessToken);
+
+        // then
+        assertThat(refreshTokenRepository.existsByToken(refreshToken)).isTrue();
+        assertThat(userIdFromAccessToken).isEqualTo(userAccountDTO.id());
+        assertThat(userIdFromRefreshToken).isEqualTo(userAccountDTO.id());
+        assertThat(rolesFromAccessToken).contains(Initializer.DEFAULT_ROLE_NAME, roleName);
+    }
+
 
     @DisplayName("[로그아웃/성공]저장된 리프레쉬 토큰을 입력하고, 로그아웃을 하면, 토큰을 삭제한다.")
     @Test

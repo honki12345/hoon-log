@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.util.FileUtils;
@@ -23,7 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("PostImageService 애플리케이션 통합테스트")
-@Import({TestUtils.class})
+@Import({TestUtils.class, TestJpaConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest
 class PostImageServiceTest {

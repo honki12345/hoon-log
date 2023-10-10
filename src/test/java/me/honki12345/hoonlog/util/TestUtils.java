@@ -1,5 +1,7 @@
 package me.honki12345.hoonlog.util;
 
+import static me.honki12345.hoonlog.domain.util.FileUtils.IMAGE_LOCATION;
+import static me.honki12345.hoonlog.domain.util.FileUtils.UPLOAD_LOCATION;
 import static me.honki12345.hoonlog.domain.util.FileUtils.UPLOAD_URL;
 
 import java.io.File;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostComment;
 import me.honki12345.hoonlog.domain.PostImage;
+import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.Tag;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.domain.util.FileUtils;
@@ -108,6 +111,15 @@ public class TestUtils {
         return userAccountService.saveUserAccount(request.toDTO());
     }
 
+    public UserAccountDTO saveTestUser(String username, String password, String email,
+        ProfileDTO profileDTO, Set<Role> roles) {
+        UserAccountAddRequest request = new UserAccountAddRequest(username, password, email,
+            profileDTO);
+        UserAccountDTO dto = request.toDTO();
+        roles.forEach(dto::addRole);
+        return userAccountService.saveUserAccount(dto);
+    }
+
     public Post createPostByTestUser() {
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
@@ -157,10 +169,10 @@ public class TestUtils {
         return tagRepository.save(tag);
     }
 
-    public String createImageFilePath() {
+    public String createImageFilePath(String fileName) {
         StringJoiner sj = new StringJoiner(File.separator);
         String pathname = System.getProperty("user.dir") + File.separator + "src";
-        return sj.add(pathname).add("test").add("data").add(TEST_FILE_ORIGINAL_NAME)
+        return sj.add(pathname).add("test").add("data").add(fileName)
             .toString();
     }
 
@@ -185,5 +197,13 @@ public class TestUtils {
         }
 
         return multipartFileList;
+    }
+
+    private void deleteDir(File file) {
+        String[] entries = file.list();
+        for (String s : entries) {
+            File currentFile = new File(file.getPath(), s);
+            currentFile.delete();
+        }
     }
 }

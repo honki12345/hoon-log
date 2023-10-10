@@ -18,6 +18,7 @@ public class JwtTokenizer {
     private final byte[] accessSecret;
     private final byte[] refreshSecret;
 
+    // TODO application.yaml 로 빼기
     public final static Long ACCESS_TOKEN_EXPIRE_COUNT = 30 * 60 * 1000L; // 30 minutes
     public final static Long REFRESH_TOKEN_EXPIRE_COUNT = 7 * 24 * 60 * 60 * 1000L; // 7 days
 
@@ -67,6 +68,12 @@ public class JwtTokenizer {
         Claims claims = parseRefreshToken(token);
         return Long.valueOf((Integer) claims.get("id"));
     }
+
+    public List<String> getRolesFromAccessToken(String token) {
+        Claims claims = parseAccessToken(token);
+        return (List<String>) claims.get("roles");
+    }
+
 
     public Claims parseAccessToken(String accessToken) {
         return parseToken(accessToken, accessSecret);

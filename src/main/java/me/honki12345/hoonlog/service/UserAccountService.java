@@ -30,16 +30,22 @@ public class UserAccountService {
         if (userAccountRepository.existsByUsername(dto.username())) {
             throw new DuplicateUserAccountException(ErrorCode.DUPLICATE_USER_ACCOUNT);
         }
+
+        UserAccountDTO addEncodedPwd = dto
+            .changePassword(passwordEncoder.encode(dto.userPassword()));
+        UserAccountDTO userAccountDTO = addUserRole(addEncodedPwd);
+        UserAccount entity = userAccountDTO.toEntity();
+        UserAccount savedUserAccount = userAccountRepository.save(entity);
+        return UserAccountDTO.from(savedUserAccount);
+    }
+
+    private UserAccountDTO addUserRole(UserAccountDTO dtoAddedEncodedPwd) {
         Role userRole = roleRepository.findByName(Initializer.DEFAULT_ROLE_NAME)
             .orElseThrow(() -> new RoleNotFoundException(
                 ErrorCode.ROLE_NOT_FOUND));
-
-        String encodedPwd = passwordEncoder.encode(dto.userPassword());
-        UserAccountDTO userAccountDTO = dto
-            .changePassword(encodedPwd)
+        UserAccountDTO userAccountDTO = dtoAddedEncodedPwd
             .addRole(userRole);
-        UserAccount savedUserAccount = userAccountRepository.save(userAccountDTO.toEntity());
-        return UserAccountDTO.from(savedUserAccount);
+        return userAccountDTO;
     }
 
     @Transactional(readOnly = true)

@@ -15,7 +15,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     private final HandlerExceptionResolver resolver;
 
-    public CustomAuthenticationEntryPoint(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    public CustomAuthenticationEntryPoint(
+        @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.resolver = resolver;
     }
 
@@ -25,7 +26,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         Exception exception = (Exception) request.getAttribute("exception");
 
         // 예외처리 GlobalExceptionHandler 에 위임
-        resolver.resolveException(request, response, null,
-            exception == null ? authException : exception);
+        resolver.resolveException(request, response, null, exception);
     }
 }

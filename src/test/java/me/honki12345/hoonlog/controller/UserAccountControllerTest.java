@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import me.honki12345.hoonlog.config.ContainerShutDownListener;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -31,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("E2E UserAccount 컨트롤러 테스트")
 @ActiveProfiles("test")
-@Import({TestUtils.class})
+@Import({TestUtils.class, ContainerShutDownListener.class, TestJpaConfig.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserAccountControllerTest {
 

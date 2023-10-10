@@ -1,8 +1,6 @@
 package me.honki12345.hoonlog.security.jwt.util;
 
 import java.util.Collection;
-import java.util.Iterator;
-import me.honki12345.hoonlog.dto.security.LoginInfoDTO;
 import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
 import org.springframework.core.MethodParameter;
@@ -18,25 +16,21 @@ public class IfLoginArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.getParameterAnnotation(IfLogin.class) != null
+        boolean b = parameter.getParameterAnnotation(IfLogin.class) != null
             && parameter.getParameterType() == UserAccountPrincipal.class;
+        return b;
     }
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         Authentication authentication = null;
-        try {
-            authentication = SecurityContextHolder.getContext().getAuthentication();
-        } catch (Exception e) {
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (!(authentication instanceof JwtAuthenticationToken authenticationToken)) {
             return null;
         }
 
-        if (authentication == null) {
-            return null;
-        }
-
-        JwtAuthenticationToken authenticationToken = (JwtAuthenticationToken) authentication;
         Object principal = authenticationToken.getPrincipal();
 
         if (principal == null) {
@@ -45,9 +39,7 @@ public class IfLoginArgumentResolver implements HandlerMethodArgumentResolver {
         UserAccountPrincipal userAccountPrincipal = (UserAccountPrincipal) principal;
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        while (iterator.hasNext()) {
-            GrantedAuthority grantedAuthority = iterator.next();
+        for (GrantedAuthority grantedAuthority : authorities) {
             String role = grantedAuthority.getAuthority();
             userAccountPrincipal.addRole(role);
         }

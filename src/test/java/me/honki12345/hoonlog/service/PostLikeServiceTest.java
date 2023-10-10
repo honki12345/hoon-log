@@ -3,6 +3,7 @@ package me.honki12345.hoonlog.service;
 import static org.assertj.core.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.dto.PostLikeDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -22,7 +23,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PostLikeService 애플리케이션 통합테스트")
-@Import({TestUtils.class})
+@Import({TestUtils.class, TestJpaConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest
 class PostLikeServiceTest {

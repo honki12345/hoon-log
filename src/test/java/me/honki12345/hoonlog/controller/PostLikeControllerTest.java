@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import me.honki12345.hoonlog.config.ContainerShutDownListener;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.dto.PostLikeDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
@@ -27,7 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("E2E PostController 컨트롤러 테스트")
-@Import({TestUtils.class})
+@Import({TestUtils.class, ContainerShutDownListener.class, TestJpaConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostLikeControllerTest {
