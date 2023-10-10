@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,39 +71,12 @@ public class Post extends AuditingFields {
         this.content = content;
     }
 
-    private Post(Long id, UserAccount userAccount, String title, String content,
-        List<PostImage> postImages, Set<Tag> tags) {
-        this.id = id;
-        this.userAccount = userAccount;
-        this.title = title;
-        this.content = content;
-        this.postImages = postImages;
-        this.tags = tags;
-    }
-
-    public static Post of(Long id) {
-        return Post.of(id, null, null, null);
-    }
-
     public static Post of(Long id, String title, String content) {
         return Post.of(id, null, title, content);
     }
 
-    public static Post of(String title, String content) {
-        return Post.of(null, null, title, content);
-    }
-
-    public static Post of(UserAccount userAccount, String title, String content) {
-        return new Post(null, userAccount, title, content);
-    }
-
     public static Post of(Long id, UserAccount userAccount, String title, String content) {
         return new Post(id, userAccount, title, content);
-    }
-
-    public static Post of(Long id, UserAccount userAccount, String title, String content,
-        Set<Tag> tags) {
-        return new Post(id, userAccount, title, content, null, tags);
     }
 
     @Override
@@ -153,11 +127,11 @@ public class Post extends AuditingFields {
     public void addPostLike(PostLike postLike) {
         this.postLikes.add(postLike);
         postLike.addPost(this);
-        likeCount = this.postLikes.stream().count();
+        likeCount = this.postLikes.size();
     }
 
     public void deletePostLike(PostLike postLike) {
         this.postLikes.remove(postLike);
-        likeCount = this.postLikes.stream().count();
+        likeCount = this.postLikes.size();
     }
 }

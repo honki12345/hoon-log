@@ -13,6 +13,8 @@ public enum ErrorCode {
 
     DUPLICATE_USER_ACCOUNT(HttpStatus.BAD_REQUEST, "USER1", "중복된 값이 존재합니다"),
     USER_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "USER2", "존재하지 않는 값입니다"),
+    SEARCH_USER_ACCOUNT_FORBIDDEN(HttpStatus.FORBIDDEN, "USER3", "조회 권한이 없습니다"),
+    MODIFY_USER_ACCOUNT_FORBIDDEN(HttpStatus.FORBIDDEN, "USER4", "수정 권한이 없습니다"),
 
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROLE1", "유저에게 줄 권한이 존재하지 않습니다"),
 
@@ -25,8 +27,12 @@ public enum ErrorCode {
     TOKEN_UNSUPPORTED(HttpStatus.BAD_REQUEST, "TOKEN4", "지원하지 않는 토큰입니다"),
 
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST1", "게시글을 찾을 수 없습니다"),
+    UPDATE_POST_FORBIDDEN(HttpStatus.FORBIDDEN, "POST2", "게시글 수정 권한이 없습니다"),
+    DELETE_POST_FORBIDDEN(HttpStatus.FORBIDDEN, "POST3", "게시글 삭제 권한이 없습니다"),
 
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT1", "댓글을 찾을 수 없습니다"),
+    MODIFY_COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT2", "댓글 수정 권한이 없습니다"),
+    DELETE_COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT3", "댓글 삭제 권한이 없습니다"),
 
     IMAGE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "IMAGE1", "파일 업로드에 실패하였습니다"),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMAGE2", "파일을 찾을 수 없습니다"),

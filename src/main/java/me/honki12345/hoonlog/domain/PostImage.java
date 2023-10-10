@@ -41,19 +41,8 @@ public class PostImage extends AuditingFields {
         this.post = post;
     }
 
-    public static PostImage of(Post post) {
-        PostImage postImage = new PostImage();
-        postImage.addPost(post);
-        return postImage;
-    }
-
     public static PostImage of(String originalImgName, String imgName, String imgUrl) {
         return new PostImage(null, imgName, originalImgName, imgUrl, null);
-    }
-
-    public static PostImage of(Long id, String imgName, String originalImgName, String imgUrl,
-        Post post) {
-        return new PostImage(id, imgName, originalImgName, imgUrl, post);
     }
 
     public void addPost(Post post) {

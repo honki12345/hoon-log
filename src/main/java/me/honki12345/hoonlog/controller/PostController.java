@@ -45,9 +45,9 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
-        @RequestParam(required = false) String searchKeyword,
+        @RequestParam(required = false) String keyword,
         @PageableDefault(size = PAGEABLE_DEFAULT_SIZE, sort = PAGEABLE_DEFAULT_SORT_COLUMN, direction = Direction.DESC) Pageable pageable) {
-        Page<PostResponse> responses = postService.searchPosts(searchKeyword, pageable)
+        Page<PostResponse> responses = postService.searchPosts(keyword, pageable)
             .map(PostResponse::from);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }

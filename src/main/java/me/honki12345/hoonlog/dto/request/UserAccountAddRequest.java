@@ -27,8 +27,4 @@ public record UserAccountAddRequest(
     public UserAccountDTO toDTO() {
         return UserAccountDTO.of(null, username, userPassword, email, profile);
     }
-
-    public UserAccount toEntity(String encodedPwd) {
-        return UserAccount.of(username, encodedPwd, email, profile.toVO());
-    }
 }

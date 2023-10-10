@@ -36,7 +36,7 @@ public class PostLikeService {
             throw new DuplicatePostLikeException(ErrorCode.DUPLICATE_POST_LIKE);
         }
 
-        PostLike postLike = PostLike.emptyPostLike();
+        PostLike postLike = PostLike.createEmptyPostLike();
         userAccount.addPostLike(postLike);
         post.addPostLike(postLike);
         postLikeRepository.save(postLike);

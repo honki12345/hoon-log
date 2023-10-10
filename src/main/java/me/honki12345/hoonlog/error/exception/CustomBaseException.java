@@ -11,11 +11,6 @@ public class CustomBaseException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public CustomBaseException(String message, ErrorCode errorCode) {
-        super(message);
-        this.errorCode = errorCode;
-    }
-
     public ErrorCode getErrorCode() {
         return errorCode;
     }

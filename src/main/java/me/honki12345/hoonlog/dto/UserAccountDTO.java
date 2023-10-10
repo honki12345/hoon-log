@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
-import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 
 public record UserAccountDTO(
     Long id,
@@ -62,6 +61,6 @@ public record UserAccountDTO(
     }
 
     public UserAccount toEntity() {
-        return UserAccount.of(username, userPassword, email, profileDTO.toVO());
+        return UserAccount.of(null, username, userPassword, email, profileDTO.toVO(), roles);
     }
 }

@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
+import org.springframework.security.core.parameters.P;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,16 +33,24 @@ public class PostLike extends AuditingFields {
     @JoinColumn(name = "postId")
     private Post post;
 
+    private PostLike(Long id) {
+        this.id = id;
+    }
+
     private PostLike(UserAccount userAccount, Post post) {
         this.userAccount = userAccount;
         this.post = post;
+    }
+
+    public static PostLike of(Long id) {
+        return new PostLike(id);
     }
 
     public static PostLike of(UserAccount userAccount, Post post) {
         return new PostLike(userAccount, post);
     }
 
-    public static PostLike emptyPostLike() {
+    public static PostLike createEmptyPostLike() {
         return new PostLike(null, null);
     }
 

@@ -31,22 +31,12 @@ public class Tag extends AuditingFields {
     @ManyToMany(mappedBy = "tags")
     private Set<Post> posts = new LinkedHashSet<>();
 
-    public Tag(Long id, String name, Set<Post> posts) {
-        this.id = id;
-        this.name = name;
-        this.posts = posts;
-    }
-
     private Tag(String name) {
         this.name = name;
     }
 
     public static Tag of(String tagName) {
         return new Tag(tagName);
-    }
-
-    public static Tag of(Long id, String name, Set<Post> posts) {
-        return new Tag(id, name, posts);
     }
 
     @Override

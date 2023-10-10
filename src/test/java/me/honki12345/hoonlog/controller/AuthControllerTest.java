@@ -1,15 +1,17 @@
 package me.honki12345.hoonlog.controller;
 
+import static io.restassured.RestAssured.*;
+import static me.honki12345.hoonlog.error.ErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
+import me.honki12345.hoonlog.config.ContainerShutDownListener;
+import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.LoginRequest;
@@ -18,7 +20,7 @@ import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
-import me.honki12345.hoonlog.util.TestUtil;
+import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("E2E AuthController 컨트롤러 테스트")
-@Import({TestUtil.class})
+@Import({TestUtils.class, ContainerShutDownListener.class, TestJpaConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthControllerTest {
@@ -40,7 +42,8 @@ class AuthControllerTest {
     @Autowired
     JwtTokenizer jwtTokenizer;
     @Autowired
-    TestUtil testUtil;
+    TestUtils testUtils;
+
     @Autowired
     UserAccountService userAccountService;
     @Autowired
@@ -55,7 +58,7 @@ class AuthControllerTest {
 
     @AfterEach
     void tearDown() {
-        testUtil.deleteAllInBatchInAllRepository();
+        testUtils.deleteAllInBatchInAllRepository();
     }
 
     @DisplayName("[로그인/성공]로그인에 성공한다")
@@ -65,20 +68,19 @@ class AuthControllerTest {
         String username = "fpg123";
         String password = "12345678";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser(username, password, email);
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, password, email);
 
         LoginRequest loginRequest = new LoginRequest(username, password);
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .body(objectMapper.writeValueAsString(loginRequest))
-            .contentType(ContentType.JSON);
 
         // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .post("/api/v1/auth/token")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .body(objectMapper.writeValueAsString(loginRequest))
+                .contentType(ContentType.JSON).when()
+                .post("/api/v1/auth/token")
+                .then().log().all()
+                .extract();
 
         // then
         assertAll(
@@ -98,17 +100,16 @@ class AuthControllerTest {
     @Test
     void givenWrongLoginInfo_whenLogin_thenReturnsErrorMessage() throws JsonProcessingException {
         LoginRequest loginRequest = new LoginRequest("fpg123", "12345678");
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .body(objectMapper.writeValueAsString(loginRequest))
-            .contentType(ContentType.JSON);
 
         // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .post("/api/v1/auth/token")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .body(objectMapper.writeValueAsString(loginRequest))
+                .contentType(ContentType.JSON).when()
+                .post("/api/v1/auth/token")
+                .then().log().all()
+                .extract();
 
         // then
         assertAll(
@@ -122,21 +123,20 @@ class AuthControllerTest {
     @Test
     void givenLogoutInfo_whenLogout_thenReturns200Ok() throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678",
+            "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .body(objectMapper.writeValueAsString(tokenDTO))
-            .header("Authorization", "Bearer " + tokenDTO.accessToken())
-            .contentType(ContentType.JSON);
-
         // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .delete("/api/v1/auth/token")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .body(objectMapper.writeValueAsString(tokenDTO))
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .contentType(ContentType.JSON).when()
+                .delete("/api/v1/auth/token")
+                .then().log().all()
+                .extract();
 
         // then
         assertAll(
@@ -149,22 +149,21 @@ class AuthControllerTest {
 
     @DisplayName("[로그아웃/실패]유효하지 않은 액세스 토큰 값일 경우, 로그아웃 시, 에러메시지를 보낸다")
     @Test
-    void givenWrongLogoutInfo_whenLogout_thenReturnsErrorMessage() throws JsonProcessingException {
+    void givenInvalidAccessToken_whenLogout_thenReturnsErrorMessage()
+        throws JsonProcessingException {
         // given
         TokenDTO tokenDTO = TokenDTO.of("WrongAccessToken", "WrongRefreshToken");
 
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .body(objectMapper.writeValueAsString(tokenDTO))
-            .header("Authorization", "Bearer " + tokenDTO.accessToken())
-            .contentType(ContentType.JSON);
-
         // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .delete("/api/v1/auth/token")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .body(objectMapper.writeValueAsString(tokenDTO))
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .contentType(ContentType.JSON).when()
+                .delete("/api/v1/auth/token")
+                .then().log().all()
+                .extract();
 
         // then
         assertAll(
@@ -174,25 +173,55 @@ class AuthControllerTest {
         );
     }
 
+    @DisplayName("[로그아웃/실패]유효하지 않은 리프레쉬 토큰 값일 경우, 로그아웃 시, 에러메시지를 보낸다")
+    @Test
+    void givenInvalidRefreshToken_whenLogout_thenReturnsErrorMessage()
+        throws JsonProcessingException {
+        // given
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678",
+            "fpg123@mail.com");
+        TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
+        TokenDTO invalidTokenDTO = TokenDTO.of(tokenDTO.accessToken(), "WrongRefreshToken");
+
+        // when
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .body(objectMapper.writeValueAsString(invalidTokenDTO))
+                .header("Authorization", "Bearer " + tokenDTO.accessToken())
+                .contentType(ContentType.JSON).when()
+                .delete("/api/v1/auth/token")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertAll(
+            () -> assertThat(extract.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
+            () -> assertThat(extract.jsonPath().getString("code")).isEqualTo(
+                LOGOUT_ERROR.getCode()),
+            () -> assertThat(extract.jsonPath().getString("message")).isEqualTo(
+                LOGOUT_ERROR.getMessage())
+        );
+    }
+
     @DisplayName("[재발급/성공]엑세스토큰 재발급을 성공한다")
     @Test
     void givenTokenInfo_whenRefreshingToken_thenReturnsNewAccessToken()
         throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtil.saveTestUser("fpg123", "12345678", "fpg123@mail.com");
+        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678",
+            "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .body(objectMapper.writeValueAsString(tokenDTO))
-            .contentType(ContentType.JSON);
-
         // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .post("/api/v1/auth/refreshToken")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .body(objectMapper.writeValueAsString(tokenDTO))
+                .contentType(ContentType.JSON).when()
+                .post("/api/v1/auth/refreshToken")
+                .then().log().all()
+                .extract();
 
         // then
         assertAll(
@@ -209,17 +238,15 @@ class AuthControllerTest {
         // given
         TokenDTO tokenDTO = TokenDTO.of("WrongAccessToken", "WrongRefreshToken");
 
-        RequestSpecification requestSpecification = RestAssured
-            .given().log().all()
-            .port(port)
-            .body(objectMapper.writeValueAsString(tokenDTO))
-            .contentType(ContentType.JSON);
-
         // when
-        ExtractableResponse<Response> extract = requestSpecification.when()
-            .post("/api/v1/auth/refreshToken")
-            .then().log().all()
-            .extract();
+        ExtractableResponse<Response> extract =
+            given().log().all()
+                .port(port)
+                .body(objectMapper.writeValueAsString(tokenDTO))
+                .contentType(ContentType.JSON).when()
+                .post("/api/v1/auth/refreshToken")
+                .then().log().all()
+                .extract();
 
         // then
         assertAll(

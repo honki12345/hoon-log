@@ -12,7 +12,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.honki12345.hoonlog.error.exception.security.JwtException;
+import me.honki12345.hoonlog.error.exception.domain.TokenExpiredException;
+import me.honki12345.hoonlog.error.exception.domain.TokenIllegalStateException;
+import me.honki12345.hoonlog.error.exception.domain.TokenInvalidException;
+import me.honki12345.hoonlog.error.exception.domain.TokenUnsupportedException;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -24,6 +27,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    // TODO application
     public static final String PREFIX = "Bearer";
     public static final String WHITESPACE = " ";
 
@@ -36,21 +40,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = "";
         try {
             token = getToken(request);
-            if (StringUtils.hasText(token)) {
-                getAuthentication(token);
-            }
-        } catch (NullPointerException | IllegalStateException exception) {
-            request.setAttribute("exception", new JwtException(TOKEN_NOT_FOUND));
+            getAuthentication(token);
+        } catch (IllegalStateException exception) {
+            request.setAttribute("exception", new TokenIllegalStateException(TOKEN_INVALID));
             log.error("Token Not Found Exception: {}", token);
         } catch (MalformedJwtException exception) {
             log.error("Invalid Token Exception: {}", token);
-            request.setAttribute("exception", new JwtException(TOKEN_INVALID));
+            request.setAttribute("exception", new TokenInvalidException(TOKEN_INVALID));
         } catch (ExpiredJwtException exception) {
             log.error("Expired Token Exception: {}", token);
-            request.setAttribute("exception", new JwtException(TOKEN_EXPIRED));
+            request.setAttribute("exception", new TokenExpiredException(TOKEN_EXPIRED));
         } catch (UnsupportedJwtException exception) {
             log.error("UnSupported Token Exception: {}", token);
-            request.setAttribute("exception", new JwtException(TOKEN_UNSUPPORTED));
+            request.setAttribute("exception", new TokenUnsupportedException(TOKEN_UNSUPPORTED));
         } catch (Exception exception) {
             log.error("JwtFilter - doFilterInternal() Exception");
             log.error("Exception Message: {}", exception.getMessage());
@@ -68,10 +70,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getToken(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
-        if (StringUtils.hasText(authorization) && authorization.startsWith(PREFIX)) {
-            String[] arr = authorization.split(WHITESPACE);
-            return arr[1];
+        if (!StringUtils.hasText(authorization) || !authorization.startsWith(PREFIX)) {
+            throw new IllegalStateException();
+
         }
-        return null;
+        String[] arr = authorization.split(WHITESPACE);
+        return arr[1];
     }
 }

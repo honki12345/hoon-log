@@ -22,9 +22,4 @@ public record PostImageDTO(
     public static List<PostImageDTO> from(List<PostImage> postImages) {
         return postImages.stream().map(PostImageDTO::from).collect(Collectors.toList());
     }
-
-    public PostImage toEntity() {
-        return PostImage.of(this.id, this.imgName, this.originalImgName, this.imgUrl,
-            Post.of(this.postId));
-    }
 }
