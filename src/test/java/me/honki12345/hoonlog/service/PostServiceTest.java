@@ -1,14 +1,21 @@
 package me.honki12345.hoonlog.service;
 
-import static me.honki12345.hoonlog.util.TestUtils.*;
-import static org.assertj.core.api.Assertions.*;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_PASSWORD;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_CONTENT;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_TITLE;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_TAG_NAME;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_CONTENT;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_TITLE;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.util.FileUtils;
@@ -23,21 +30,16 @@ import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException
 import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("PostService 애플리케이션 통합테스트")
-@Import({TestUtils.class, TestJpaConfig.class})
-@ActiveProfiles("test")
-@SpringBootTest
-class PostServiceTest {
+class PostServiceTest extends IntegrationTestSupport {
 
     @Autowired
     ObjectMapper objectMapper;

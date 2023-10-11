@@ -1,14 +1,13 @@
 package me.honki12345.hoonlog.security.jwt.util;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import me.honki12345.hoonlog.config.WebConfig;
-import me.honki12345.hoonlog.controller.AuthController;
 import me.honki12345.hoonlog.controller.PostController;
 import me.honki12345.hoonlog.controller.TestController;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;

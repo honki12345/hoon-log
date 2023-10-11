@@ -1,11 +1,8 @@
 package me.honki12345.hoonlog.util;
 
-import static me.honki12345.hoonlog.domain.util.FileUtils.IMAGE_LOCATION;
-import static me.honki12345.hoonlog.domain.util.FileUtils.UPLOAD_LOCATION;
 import static me.honki12345.hoonlog.domain.util.FileUtils.UPLOAD_URL;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +15,6 @@ import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.Tag;
 import me.honki12345.hoonlog.domain.UserAccount;
-import me.honki12345.hoonlog.domain.util.FileUtils;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -54,8 +50,6 @@ public class TestUtils {
     public static final String TEST_COMMENT_CONTENT = "commentContent";
     public static final String TEST_TAG_NAME = "tagName";
     public static final String TEST_FILE_ORIGINAL_NAME = "drawing.jpg";
-
-    private final FileUtils fileUtils;
 
     private final AuthService authService;
     private final UserAccountService userAccountService;
@@ -136,7 +130,7 @@ public class TestUtils {
             postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
     }
 
-    public Post createPostWithImageFileByTestUser(PostImage postImage) throws IOException {
+    public Post createPostWithImageFileByTestUser(PostImage postImage) {
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
@@ -161,12 +155,12 @@ public class TestUtils {
         return postCommentRepository.save(postComment);
     }
 
-    public Tag createTagByTestUser(Post post) {
+    public void createTagByTestUser(Post post) {
         Post findPost = postRepository.findById(post.getId())
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
         Tag tag = Tag.of(TEST_TAG_NAME);
         findPost.addTags(Set.of(tag));
-        return tagRepository.save(tag);
+        tagRepository.save(tag);
     }
 
     public String createImageFilePath(String fileName) {
@@ -179,10 +173,9 @@ public class TestUtils {
     public MultipartFile createMockMultipartFile(String imageFileName) {
 
         String path = UPLOAD_URL + File.separator;
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(path, imageFileName,
-            "image/jpg", new byte[]{1, 2, 3, 4});
 
-        return mockMultipartFile;
+        return new MockMultipartFile(path, imageFileName,
+            "image/jpg", new byte[]{1, 2, 3, 4});
     }
 
     public List<MultipartFile> createMockMultipartFiles() {
@@ -197,13 +190,5 @@ public class TestUtils {
         }
 
         return multipartFileList;
-    }
-
-    private void deleteDir(File file) {
-        String[] entries = file.list();
-        for (String s : entries) {
-            File currentFile = new File(file.getPath(), s);
-            currentFile.delete();
-        }
     }
 }

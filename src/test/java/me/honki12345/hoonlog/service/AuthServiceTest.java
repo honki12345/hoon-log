@@ -1,9 +1,13 @@
 package me.honki12345.hoonlog.service;
 
+import static me.honki12345.hoonlog.util.TestUtils.TEST_PASSWORD;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import java.util.List;
 import java.util.Set;
 import me.honki12345.hoonlog.config.Initializer;
-import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.domain.vo.Profile;
@@ -17,23 +21,15 @@ import me.honki12345.hoonlog.repository.RefreshTokenRepository;
 import me.honki12345.hoonlog.repository.RoleRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
-
-import static me.honki12345.hoonlog.util.TestUtils.*;
-import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("AuthService 애플리케이션 통합테스트")
-@Import({TestUtils.class, TestJpaConfig.class})
-@ActiveProfiles("test")
-@SpringBootTest
-class AuthServiceTest {
+class AuthServiceTest extends IntegrationTestSupport {
 
     @Autowired
     AuthService authService;

@@ -2,28 +2,19 @@ package me.honki12345.hoonlog.config;
 
 import static me.honki12345.hoonlog.domain.util.FileUtils.IMAGE_LOCATION;
 import static me.honki12345.hoonlog.domain.util.FileUtils.UPLOAD_LOCATION;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.repository.RoleRepository;
 import me.honki12345.hoonlog.util.TestUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.context.WebApplicationContext;
 
 @DisplayName("Initializer 테스트")
 @Import({TestUtils.class})

@@ -1,36 +1,32 @@
 package me.honki12345.hoonlog.service;
 
+import static me.honki12345.hoonlog.util.TestUtils.TEST_PASSWORD;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import me.honki12345.hoonlog.config.Initializer;
-import me.honki12345.hoonlog.config.TestJpaConfig;
-import me.honki12345.hoonlog.dto.request.LoginRequest;
-import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
-import me.honki12345.hoonlog.error.exception.domain.RoleNotFoundException;
-import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
-import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
+import me.honki12345.hoonlog.dto.request.LoginRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
+import me.honki12345.hoonlog.error.exception.domain.DuplicateUserAccountException;
+import me.honki12345.hoonlog.error.exception.domain.RoleNotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
+import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
 import me.honki12345.hoonlog.repository.RoleRepository;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import static me.honki12345.hoonlog.util.TestUtils.*;
-import static org.assertj.core.api.Assertions.*;
-
 @DisplayName("UserAccountService 애플리케이션 통합테스트")
-@ActiveProfiles("test")
-@Import({TestUtils.class, TestJpaConfig.class})
-@SpringBootTest
-class UserAccountServiceTest {
+class UserAccountServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
