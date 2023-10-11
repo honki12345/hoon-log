@@ -1,12 +1,16 @@
 package me.honki12345.hoonlog.controller;
 
+import static io.restassured.RestAssured.given;
+import static me.honki12345.hoonlog.error.ErrorCode.MODIFY_USER_ACCOUNT_FORBIDDEN;
+import static me.honki12345.hoonlog.error.ErrorCode.SEARCH_USER_ACCOUNT_FORBIDDEN;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import me.honki12345.hoonlog.config.ContainerShutDownListener;
-import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -15,27 +19,17 @@ import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
-
-import static io.restassured.RestAssured.*;
-import static me.honki12345.hoonlog.error.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("E2E UserAccount 컨트롤러 테스트")
-@ActiveProfiles("test")
-@Import({TestUtils.class, ContainerShutDownListener.class, TestJpaConfig.class})
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserAccountControllerTest {
+class UserAccountControllerTest extends IntegrationTestSupport {
 
     @Autowired
     UserAccountController userAccountController;

@@ -1,8 +1,10 @@
 package me.honki12345.hoonlog.security.filter;
 
 import static io.restassured.RestAssured.given;
-import static me.honki12345.hoonlog.error.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
+import static me.honki12345.hoonlog.error.ErrorCode.TOKEN_EXPIRED;
+import static me.honki12345.hoonlog.error.ErrorCode.TOKEN_INVALID;
+import static me.honki12345.hoonlog.error.ErrorCode.TOKEN_UNSUPPORTED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import me.honki12345.hoonlog.config.TestJpaConfig;
+import me.honki12345.hoonlog.config.JpaAuditingConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import me.honki12345.hoonlog.util.TestUtils;
@@ -32,7 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("E2E JwtAuthenticationFilter 테스트")
-@Import({TestUtils.class, TestJpaConfig.class})
+@Import({TestUtils.class, JpaAuditingConfig.class})
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class JwtAuthenticationFilterTest {

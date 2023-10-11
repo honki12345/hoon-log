@@ -1,10 +1,10 @@
 package me.honki12345.hoonlog.service;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.util.FileUtils;
@@ -12,22 +12,17 @@ import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.error.exception.domain.ImageNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.ImageUploadFailException;
 import me.honki12345.hoonlog.repository.PostImageRepository;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("PostImageService 애플리케이션 통합테스트")
-@Import({TestUtils.class, TestJpaConfig.class})
-@ActiveProfiles("test")
-@SpringBootTest
-class PostImageServiceTest {
+class PostImageServiceTest extends IntegrationTestSupport {
 
     @Autowired
     ObjectMapper objectMapper;

@@ -1,9 +1,9 @@
 package me.honki12345.hoonlog.service;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.dto.PostLikeDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
@@ -13,20 +13,15 @@ import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.util.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("PostLikeService 애플리케이션 통합테스트")
-@Import({TestUtils.class, TestJpaConfig.class})
-@ActiveProfiles("test")
-@SpringBootTest
-class PostLikeServiceTest {
+class PostLikeServiceTest extends IntegrationTestSupport {
 
     @Autowired
     ObjectMapper objectMapper;

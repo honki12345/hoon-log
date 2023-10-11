@@ -1,9 +1,15 @@
 package me.honki12345.hoonlog.controller;
 
-import static io.restassured.RestAssured.*;
-import static me.honki12345.hoonlog.error.ErrorCode.*;
-import static me.honki12345.hoonlog.util.TestUtils.*;
-import static org.assertj.core.api.Assertions.*;
+import static io.restassured.RestAssured.given;
+import static me.honki12345.hoonlog.error.ErrorCode.IMAGE_UPLOAD_ERROR;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_FILE_ORIGINAL_NAME;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_CONTENT;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_TITLE;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_TAG_NAME;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_CONTENT;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_TITLE;
+import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,8 +23,6 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import me.honki12345.hoonlog.config.ContainerShutDownListener;
-import me.honki12345.hoonlog.config.TestJpaConfig;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.Tag;
@@ -36,25 +40,19 @@ import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.TagService;
 import me.honki12345.hoonlog.service.UserAccountService;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.util.TestUtils;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("E2E PostController 컨트롤러 테스트")
-@Import({TestUtils.class, ContainerShutDownListener.class, TestJpaConfig.class})
-@ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PostControllerTest {
+class PostControllerTest extends IntegrationTestSupport {
 
     @Autowired
     ObjectMapper objectMapper;
