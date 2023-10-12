@@ -1,5 +1,6 @@
 package me.honki12345.hoonlog.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -8,13 +9,21 @@ import java.util.stream.Collectors;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.domain.UserAccount;
 
+@Schema(description = "회원정보 DTO")
 public record UserAccountDTO(
+    @Schema(description = "회원 번호")
     Long id,
+    @Schema(description = "아이디")
     String username,
+    @Schema(description = "비밀번호")
     String userPassword,
+    @Schema(description = "이메일")
     String email,
+    @Schema(description = "블로그 정보")
     ProfileDTO profileDTO,
+    @Schema(description = "가입일자")
     LocalDateTime createdAt,
+    @Schema(description = "권한")
     Set<Role> roles
 ) {
 

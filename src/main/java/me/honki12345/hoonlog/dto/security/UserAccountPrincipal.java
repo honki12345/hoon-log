@@ -1,14 +1,19 @@
 package me.honki12345.hoonlog.dto.security;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import me.honki12345.hoonlog.domain.Role;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 
+@Schema(description = "인증 객체")
 public record UserAccountPrincipal(
+    @Schema(description = "회원번호")
     Long userId,
+    @Schema(description = "아이디")
     String username,
+    @Schema(description = "권한")
     List<String> roles
 ) {
 

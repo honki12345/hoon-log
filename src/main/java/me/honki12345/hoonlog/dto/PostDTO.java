@@ -1,5 +1,6 @@
 package me.honki12345.hoonlog.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -8,17 +9,29 @@ import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.Tag;
 
+@Schema(description = "게시물 DTO")
 public record PostDTO(
+    @Schema(description = "게시물 번호")
     Long id,
+    @Schema(description = "작성자 유저 번호")
     Long userId,
+    @Schema(description = "게시물 제목")
     String title,
+    @Schema(description = "게시물 내용")
     String content,
+    @Schema(description = "게시물 좋아요 개수")
     Long likeCount,
+    @Schema(description = "게시물 작성일자")
     LocalDateTime createdAt,
+    @Schema(description = "게시물 작성자")
     String createdBy,
+    @Schema(description = "게시물 수정일자")
     LocalDateTime modifiedAt,
+    @Schema(description = "게시물 수정자")
     String modifiedBy,
+    @Schema(description = "게시물 이미지 아이디들")
     List<Long> postImageIds,
+    @Schema(description = "게시물 태그 아이디들")
     Set<Long> tagIds
 ) {
 
