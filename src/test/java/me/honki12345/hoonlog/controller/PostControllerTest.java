@@ -334,7 +334,7 @@ class PostControllerTest extends IntegrationTestSupport {
         );
     }
 
-    @DisplayName("[수정/실패]게시글 수정에 성공한다.")
+    @DisplayName("[수정/실패]잘못된 파일로 업로드 요청시, 게시글 수정에 실패한다.")
     @Test
     void givenEmptyFile_whenUpdatingPost_thenReturnsErrorMessage() throws IOException {
         // given // when

@@ -1,6 +1,6 @@
 package me.honki12345.hoonlog.config;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.*;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 import lombok.RequiredArgsConstructor;
 import me.honki12345.hoonlog.security.jwt.CustomAuthenticationEntryPoint;
@@ -52,6 +52,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
