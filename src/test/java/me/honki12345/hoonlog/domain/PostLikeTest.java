@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 @DisplayName("PostLike 도메인 단위테스트")
 class PostLikeTest {
 
-    @DisplayName("equals 메소드 테스트1")
+    @DisplayName("PostLike 의 id 값이 같다면, equals 호출시, true를 반환한다")
     @Test
-    void equals_test1() {
+    void givenPostLikeHasSameId_whenEquals_thenReturnsTrue() {
         // given
         PostLike postLike1 = PostLike.of(1L);
         PostLike postLike2 = PostLike.of(1L);
@@ -19,9 +19,9 @@ class PostLikeTest {
         assertThat(postLike1.equals(postLike2)).isTrue();
     }
 
-    @DisplayName("equals 메소드 테스트2")
+    @DisplayName("PostLike 변수가 가리키는 인스턴스가 같다면, equals 호출시, true를 반환한다")
     @Test
-    void equals_test2() {
+    void givenPostLikeHasSameRef_whenEquals_thenReturnsTrue() {
         // given
         PostLike postLike1 = PostLike.of(1L);
         PostLike postLike2 = postLike1;
@@ -31,9 +31,9 @@ class PostLikeTest {
         assertThat(postLike1.equals(postLike2)).isTrue();
     }
 
-    @DisplayName("equals 메소드 테스트3")
+    @DisplayName("다른 타입의 객체로, equals 호출시, false를 반환한다")
     @Test
-    void equals_test3() {
+    void givenAntherType_whenEquals_thenReturnsFalse() {
         // given
         PostLike postLike1 = PostLike.of(1L);
         String postLike2 = "hello";
@@ -42,9 +42,9 @@ class PostLikeTest {
         assertThat(postLike1.equals(postLike2)).isFalse();
     }
 
-    @DisplayName("생성자 메소드 of 테스트")
+    @DisplayName("UserAccount와 Post 객체로, PostLike 객체를 생성한다")
     @Test
-    void constructor_test() {
+    void givenUserAccountAndPost_whenCreatingPostLike_thenReturnsPostLikeHasUserAccountAndPost() {
         // given
         UserAccount userAccount = UserAccount.of(1L, null, null, null, null, null);
         Post post = Post.of(1L, null, null);

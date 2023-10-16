@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 @DisplayName("UserAccount 도메인 단위테스트")
 class UserAccountTest {
 
-    @DisplayName("postlike constructor 테스트")
+    @DisplayName("UserAccount 생성시, postLikes 속성으로, 빈 리스트를 가진다")
     @Test
-    void postLikes_constructor_test() {
+    void givenNothing_whenCreatingUserAccount_thenUserAccountHasPostLikeEmptyList() {
         // given
         UserAccount userAccount = UserAccount.of(null, null, null, null);
 
@@ -22,9 +22,9 @@ class UserAccountTest {
         assertThat(postLikes).isNotNull();
     }
 
-    @DisplayName("equals 메소드 테스트1")
+    @DisplayName("UserAccount 객체의 id 가 같다면, eqauls 호출시, true를 반환한다")
     @Test
-    void equals_test1() {
+    void givenUserAccountsHaveSameId_whenEquals_thenReturnsTrue() {
         // given
 
         UserAccount userAccount1 = UserAccount.of(1L, null, null, null, null);
@@ -34,9 +34,9 @@ class UserAccountTest {
         assertThat(userAccount1.equals(userAccount2)).isTrue();
     }
 
-    @DisplayName("equals 메소드 테스트2")
+    @DisplayName("UserAccount 변수가 같은 인스턴스를 가리킨다면, equals 호출시, true를 호출한다")
     @Test
-    void equals_test2() {
+    void givenUserAccountIsSameRef_whenEquals_thenReturnsTrue() {
         // given
 
         UserAccount userAccount1 = UserAccount.of(1L, null, null, null, null);
@@ -46,9 +46,9 @@ class UserAccountTest {
         assertThat(userAccount1.equals(userAccount2)).isTrue();
     }
 
-    @DisplayName("equals 메소드 테스트3")
+    @DisplayName("다른 타입의 객체와, equals 호출시, false를 반환한다")
     @Test
-    void equals_test3() {
+    void givenAnotherType_whenEquals_thenReturnsFalse() {
         // given
 
         UserAccount userAccount1 = UserAccount.of(1L, null, null, null, null);
@@ -58,9 +58,9 @@ class UserAccountTest {
         assertThat(userAccount1.equals(userAccount2)).isFalse();
     }
 
-    @DisplayName("hashcode 메소드 테스트")
+    @DisplayName("UserAccount의 id가 같으면, hascode 비교하면, true를 반환한다")
     @Test
-    void hashcode_test() {
+    void givenUserAccountsHasSameId_whenComparingHashCode_thenReturnsTrue() {
         // given
         UserAccount userAccount1 = UserAccount.of(1L, null, null, null, null);
         UserAccount userAccount2 = UserAccount.of(1L, null, null, null, null);
@@ -73,9 +73,9 @@ class UserAccountTest {
         assertThat(i == i1).isTrue();
     }
 
-    @DisplayName("생성자 메소드 of 테스트")
+    @DisplayName("UserAccount를 생성하면, roles 속성으로 빈 컬렉션을 가진다")
     @Test
-    void constructor_test() {
+    void givenNothing_whenCreatingUserAccount_thenUserAccountHaveEmptyRoles() {
         // given
         UserAccount userAccount = UserAccount.of(1L, null, null, null, null, null);
 
@@ -83,9 +83,9 @@ class UserAccountTest {
         assertThat(userAccount.getRoles()).isEmpty();
     }
 
-    @DisplayName("생성자 메소드 of 테스트2")
+    @DisplayName("empty Set을 인자로, UserAccount를 생성하면, empty set을 가진다")
     @Test
-    void constructor_test2() {
+    void givenNothing_whenCreatingUserAccountWithEmptySet_thenUserAccountHaveEmptyCollection() {
         // given
         UserAccount userAccount = UserAccount.of(1L, null, null, null, null, Set.of());
 
