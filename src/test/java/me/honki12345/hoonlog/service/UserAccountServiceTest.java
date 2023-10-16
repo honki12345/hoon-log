@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.service;
 
-import static me.honki12345.hoonlog.util.TestUtils.TEST_PASSWORD;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_PASSWORD;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -17,7 +17,7 @@ import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException
 import me.honki12345.hoonlog.error.exception.security.LoginErrorException;
 import me.honki12345.hoonlog.repository.RoleRepository;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class UserAccountServiceTest extends IntegrationTestSupport {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private TestUtils testUtils;
+    UserAccountBuilder userAccountBuilder;
 
     @Autowired
     private UserAccountService userAccountService;
@@ -40,7 +40,7 @@ class UserAccountServiceTest extends IntegrationTestSupport {
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[가입/성공]유저 정보를 입력하면, 회원가입 시, id와 encoded 비밀번호와 가입일자 정보가 포함된 유저 객체를 생성한다.")
@@ -96,7 +96,7 @@ class UserAccountServiceTest extends IntegrationTestSupport {
     @Test
     void givenLoginInfo_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
         LoginRequest loginRequest = new LoginRequest(userAccountDTO.username(), TEST_PASSWORD);
 
         // when
@@ -132,7 +132,7 @@ class UserAccountServiceTest extends IntegrationTestSupport {
     @Test
     void givenWrongUsername_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        testUtils.saveTestUser();
+        userAccountBuilder.saveTestUser();
         LoginRequest loginRequest = new LoginRequest("wrongUserId", TEST_PASSWORD);
 
         // when
@@ -145,7 +145,7 @@ class UserAccountServiceTest extends IntegrationTestSupport {
     @Test
     void givenWrongPassword_whenFindEntityCheckingPassword_thenReturnsEntity() {
         // given
-        testUtils.saveTestUser();
+        userAccountBuilder.saveTestUser();
         LoginRequest loginRequest = new LoginRequest(TEST_USERNAME, "wrongPassword");
 
         // when

@@ -13,9 +13,12 @@ import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.dto.PostLikeDTO;
 import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
+import me.honki12345.hoonlog.repository.PostLikeRepository;
 import me.honki12345.hoonlog.service.PostLikeService;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.TokenBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,30 +31,39 @@ import org.springframework.http.HttpStatus;
 class PostLikeControllerTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    TestUtils testUtils;
+    private UserAccountBuilder userAccountBuilder;
     @Autowired
-    AuditorAware<String> auditorAwareForTest;
+    private PostBuilder postBuilder;
+    @Autowired
+    private TokenBuilder tokenBuilder;
+    @Autowired
+    private AuditorAware<String> auditorAwareForTest;
 
     @Autowired
-    PostLikeService postLikeService;
+    private PostLikeService postLikeService;
+    @Autowired
+    private PostLikeRepository postLikeRepository;
 
     @LocalServerPort
     private int port;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postLikeRepository.deleteAllInBatch();
+        tokenBuilder.deleteAllInBatch();
+        postBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("게시물좋아요에 성공한다")
     @Test
     void givenPostLikeInfo_whenAddingPostLike_thenReturnsCreated() throws JsonProcessingException {
         // given // when
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        TokenDTO tokenDTO = testUtils.createTokens(userAccountDTO);
-        Post postByTestUser = testUtils.createPostByTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        TokenDTO tokenDTO = tokenBuilder.createTokens(userAccountDTO);
+        Post postByTestUser = postBuilder.createPostByTestUser();
         PostLikeDTO postLikeDTO = new PostLikeDTO(postByTestUser.getId(), userAccountDTO.id());
 
         ExtractableResponse<Response> extract =
@@ -75,9 +87,9 @@ class PostLikeControllerTest extends IntegrationTestSupport {
     @Test
     void givenPostLikeInfo_whenDeletingPostLike_thenReturnsOK() throws JsonProcessingException {
         // given // when
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        TokenDTO tokenDTO = testUtils.createTokens(userAccountDTO);
-        Post postByTestUser = testUtils.createPostByTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        TokenDTO tokenDTO = tokenBuilder.createTokens(userAccountDTO);
+        Post postByTestUser = postBuilder.createPostByTestUser();
         PostLikeDTO postLikeDTO = new PostLikeDTO(postByTestUser.getId(), userAccountDTO.id());
         postLikeService.create(postLikeDTO);
 

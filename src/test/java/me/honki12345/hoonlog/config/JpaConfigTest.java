@@ -6,7 +6,7 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import me.honki12345.hoonlog.dto.security.UserAccountPrincipal;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,9 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 class JpaConfigTest {
 
-    @DisplayName("")
+    @DisplayName("jpaConfigTest")
     @Test
-    void test() throws Exception {
+    void jpaConfigTest() throws Exception {
         // given
         Class<?> jpaConfigClass = Class.forName("me.honki12345.hoonlog.config.JpaConfig");
         Constructor<?> constructor = jpaConfigClass.getConstructor();
@@ -26,7 +26,7 @@ class JpaConfigTest {
         context.setAuthentication(
             new JwtAuthenticationToken(
                 List.of(new SimpleGrantedAuthority("ROLE_USER")),
-                UserAccountPrincipal.of(1L, TestUtils.TEST_USERNAME),
+                UserAccountPrincipal.of(1L, UserAccountBuilder.TEST_USERNAME),
                 null
             )
         );
@@ -39,6 +39,6 @@ class JpaConfigTest {
         // then
         assertThat(jpaConfigClass).isNotNull();
         assertThat(jpaConfig).isNotNull();
-        assertThat(actual).isEqualTo(TestUtils.TEST_USERNAME);
+        assertThat(actual).isEqualTo(UserAccountBuilder.TEST_USERNAME);
     }
 }

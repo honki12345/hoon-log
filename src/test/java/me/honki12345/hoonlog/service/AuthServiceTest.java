@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.service;
 
-import static me.honki12345.hoonlog.util.TestUtils.TEST_PASSWORD;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_PASSWORD;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -22,7 +22,7 @@ import me.honki12345.hoonlog.repository.RoleRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,29 +32,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 class AuthServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    AuthService authService;
+    private JwtTokenizer jwtTokenizer;
     @Autowired
-    UserAccountRepository userAccountRepository;
-    @Autowired
-    RefreshTokenRepository refreshTokenRepository;
-    @Autowired
-    RoleRepository roleRepository;
+    private UserAccountBuilder userAccountBuilder;
 
     @Autowired
-    JwtTokenizer jwtTokenizer;
+    private AuthService authService;
     @Autowired
-    TestUtils testUtils;
+    private UserAccountRepository userAccountRepository;
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[로그인/성공]유저 정보를 입력시, 토큰생성을 성공한다.")
     @Test
     void givenUserInfo_whenLogin_thenReturnsTokens() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
 
         // when
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
@@ -77,7 +77,7 @@ class AuthServiceTest extends IntegrationTestSupport {
         Role role2 = roleRepository.save(Role.of(roleName));
         roleRepository.save(role2);
 
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(TEST_USERNAME, TEST_PASSWORD,
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(TEST_USERNAME, TEST_PASSWORD,
             "test@mail.com",
             new ProfileDTO("name", null),
             Set.of(role2));
@@ -102,7 +102,7 @@ class AuthServiceTest extends IntegrationTestSupport {
     @Test
     void givenSavedRefreshToken_whenLogout_thenDeletingSavedRefreshToken() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         // when

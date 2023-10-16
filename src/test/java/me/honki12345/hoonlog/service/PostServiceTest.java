@@ -1,12 +1,12 @@
 package me.honki12345.hoonlog.service;
 
-import static me.honki12345.hoonlog.util.TestUtils.TEST_PASSWORD;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_CONTENT;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_TITLE;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_TAG_NAME;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_CONTENT;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_TITLE;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_POST_CONTENT;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_POST_TITLE;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_UPDATED_POST_CONTENT;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_UPDATED_POST_TITLE;
+import static me.honki12345.hoonlog.util.TagBuilder.TEST_TAG_NAME;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_PASSWORD;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,8 +30,10 @@ import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException
 import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.util.FileHelper;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,24 +44,30 @@ import org.springframework.web.multipart.MultipartFile;
 class PostServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    TestUtils testUtils;
+    private FileUtils fileUtils;
     @Autowired
-    FileUtils fileUtils;
+    private UserAccountBuilder userAccountBuilder;
+    @Autowired
+    private PostBuilder postBuilder;
+    @Autowired
+    private FileHelper fileHelper;
 
     @Autowired
-    PostRepository postRepository;
+    private PostRepository postRepository;
     @Autowired
-    UserAccountRepository userAccountRepository;
+    private UserAccountRepository userAccountRepository;
     @Autowired
-    PostImageRepository postImageRepository;
+    private PostImageRepository postImageRepository;
     @Autowired
-    PostService postService;
+    private PostService postService;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postImageRepository.deleteAllInBatch();
+        postBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[저장/성공]게시글 생성에 성공한다.")
@@ -67,7 +75,7 @@ class PostServiceTest extends IntegrationTestSupport {
     void givenPostInfoAndUserInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
 
         // when
@@ -84,9 +92,9 @@ class PostServiceTest extends IntegrationTestSupport {
     void givenPostInfoWithImageFile_whenAddingPost_thenReturnsSavedPostInfo() {
         // given
         PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(TEST_USERNAME, TEST_PASSWORD);
         UserAccountPrincipal userAccountPrincipal = UserAccountPrincipal.from(userAccountDTO);
-        List<MultipartFile> multipartFiles = testUtils.createMockMultipartFiles();
+        List<MultipartFile> multipartFiles = fileHelper.createMockMultipartFiles();
 
         // when
         Post post = postService.addPost(postRequest.toDTO(), multipartFiles,
@@ -123,8 +131,8 @@ class PostServiceTest extends IntegrationTestSupport {
     void givenUpdatingPostInfoWithUnRegisteredUserInfo_whenUpdatingPost_thenReturnsUpdatedPostInfo() {
         // given
 
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post savedPost = testUtils.createPostByTestUser("title", "content");
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post savedPost = postBuilder.createPostByTestUser("title", "content");
         String newTitle = "newTitle";
         String newContent = "newContent";
         PostRequest updateRequest = PostRequest.of(newTitle, newContent, Set.of(TEST_TAG_NAME));
@@ -148,10 +156,10 @@ class PostServiceTest extends IntegrationTestSupport {
     void givenUpdatingPostInfoWithPostImages_whenUpdatingPost_thenReturnsUpdatedPostInfo()
         throws IOException {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
         PostImage postImage = fileUtils.fromMultipartFileToPostImage(
-            testUtils.createMockMultipartFile("mock.jpg"));
-        Post savedPost = testUtils.createPostWithImageFileByTestUser(
+            fileHelper.createMockMultipartFile("mock.jpg"));
+        Post savedPost = postBuilder.createPostWithImageFileByTestUser(
             postImage);
         postRepository.save(savedPost);
         postImageRepository.save(postImage);
@@ -162,7 +170,7 @@ class PostServiceTest extends IntegrationTestSupport {
             savedPost.getPostImages().stream().map(PostImage::getId).collect(Collectors.toList()),
             Set.of(TEST_TAG_NAME));
         String updateFileName = "afterMock.jpg";
-        MultipartFile updateMockMultipartFile = testUtils.createMockMultipartFile(updateFileName);
+        MultipartFile updateMockMultipartFile = fileHelper.createMockMultipartFile(updateFileName);
 
         // when
         PostDTO updatedPostDTO = PostDTO.from(
@@ -186,8 +194,8 @@ class PostServiceTest extends IntegrationTestSupport {
     void givenUpdatingPostInfoWithUnsavedPostId_whenUpdatingPost_thenThrowsException() {
         // given
 
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        testUtils.createPostByTestUser("title", "content");
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        postBuilder.createPostByTestUser("title", "content");
         String newTitle = "newTitle";
         String newContent = "newContent";
         PostRequest updateRequest = PostRequest.of(newTitle, newContent, Set.of(TEST_TAG_NAME));
@@ -208,8 +216,8 @@ class PostServiceTest extends IntegrationTestSupport {
     void givenUpdatingWithoutRegisteredUserInfo_whenUpdatingPost_thenThrowsException() {
         // given
         UserAccountDTO userAccountDTO = UserAccountDTO.of("unsavedUser", "pwd");
-        testUtils.saveTestUser();
-        Post savedPost = testUtils.createPostByTestUser("title", "content");
+        userAccountBuilder.saveTestUser();
+        Post savedPost = postBuilder.createPostByTestUser("title", "content");
         PostRequest updateRequest = PostRequest.of("newTitle", "newContent", Set.of(TEST_TAG_NAME));
 
         // when // then
@@ -225,8 +233,8 @@ class PostServiceTest extends IntegrationTestSupport {
     @Test
     void givenPostIdWithUnRegisteredUserInfo_whenDeletingPost_thenReturnsNothing() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post savedPost = testUtils.createPostByTestUser("title", "content");
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post savedPost = postBuilder.createPostByTestUser("title", "content");
 
         // when // then
         assertThatNoException().isThrownBy(
@@ -238,8 +246,8 @@ class PostServiceTest extends IntegrationTestSupport {
     void givenPostIdWithoutRegisteredUserInfo_whenDeletingPost_thenThrowsException() {
         // given
         UserAccountDTO userAccountDTO = UserAccountDTO.of("unsavedUser", "pwd");
-        testUtils.saveTestUser();
-        Post savedPost = testUtils.createPostByTestUser("title", "content");
+        userAccountBuilder.saveTestUser();
+        Post savedPost = postBuilder.createPostByTestUser("title", "content");
 
         // when // then
         assertThatThrownBy(
@@ -253,8 +261,8 @@ class PostServiceTest extends IntegrationTestSupport {
         // given
         Long unsavedPostId = 999L;
         UserAccountDTO userAccountDTO = UserAccountDTO.of("unsavedUser", "pwd");
-        testUtils.saveTestUser();
-        testUtils.createPostByTestUser("title", "content");
+        userAccountBuilder.saveTestUser();
+        postBuilder.createPostByTestUser("title", "content");
 
         // when // then
         assertThatThrownBy(
