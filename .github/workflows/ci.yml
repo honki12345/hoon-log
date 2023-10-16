@@ -22,14 +22,9 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-        
-#
-#      - name: Gradle build
-#        run: sudo ./gradlew clean build
-      - name: setup and execute gradle task
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build
+
+      - name: Gradle build
+        run: ./gradlew clean build test
 
       - name: Upload test result on PR
         uses: EnricoMi/publish-unit-test-result-action@v1
