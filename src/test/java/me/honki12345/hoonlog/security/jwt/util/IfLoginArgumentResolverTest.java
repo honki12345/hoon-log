@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import me.honki12345.hoonlog.config.WebConfig;
 import me.honki12345.hoonlog.controller.PostController;
-import me.honki12345.hoonlog.controller.TestController;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
 import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.TagService;
@@ -29,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("MockMvcTest")
 @Import({WebConfig.class})
 @WebMvcTest(
-    controllers = {PostController.class, TestController.class},
+    controllers = {PostController.class, IfLoginAnnotationTestController.class},
     includeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebConfig.class)},
     excludeAutoConfiguration = SecurityAutoConfiguration.class
@@ -37,11 +36,11 @@ import org.springframework.test.web.servlet.MockMvc;
 class IfLoginArgumentResolverTest {
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
     @MockBean
-    PostService postService;
+    private PostService postService;
     @MockBean
-    TagService tagService;
+    private TagService tagService;
 
     @DisplayName("Authentication 객체가 null이라면, 권한이 필요한 요청시, 에러 메시지를 반환한다")
     @Test
