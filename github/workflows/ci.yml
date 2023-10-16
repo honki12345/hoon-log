@@ -24,7 +24,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Gradle build
-        run: ./gradlew build
+        run: ./gradlew clean build
 
       - name: Upload test result on PR
         uses: EnricoMi/publish-unit-test-result-action@v1
