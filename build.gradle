@@ -74,7 +74,7 @@ tasks.named('test') {
 }
 
 // Querydsl Q Class 생성 위치
-def querydslDir = '/src/main/generated/'
+def querydslDir = "${File.separator}src${File.separator}main${File.separator}generated${File.separator}"
 
 // Querydsl Q Class 생성 위치 지정
 tasks.withType(JavaCompile) {
