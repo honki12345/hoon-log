@@ -4,10 +4,10 @@ import static io.restassured.RestAssured.given;
 import static me.honki12345.hoonlog.error.ErrorCode.TOKEN_EXPIRED;
 import static me.honki12345.hoonlog.error.ErrorCode.TOKEN_INVALID;
 import static me.honki12345.hoonlog.error.ErrorCode.TOKEN_UNSUPPORTED;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -18,51 +18,48 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import me.honki12345.hoonlog.config.JpaAuditingConfig;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.domain.Post;
-import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.TokenBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("E2E JwtAuthenticationFilter 테스트")
-@Import({TestUtils.class, JpaAuditingConfig.class})
-@ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class JwtAuthenticationFilterTest {
+class JwtAuthenticationFilterTest extends IntegrationTestSupport {
 
     @Value("${jwt.secretKey}")
-    String accessSecret;
+    private String accessSecret;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private TokenBuilder tokenBuilder;
     @Autowired
-    JwtTokenizer jwtTokenizer;
+    private PostBuilder postBuilder;
     @Autowired
-    TestUtils testUtils;
+    private UserAccountBuilder userAccountBuilder;
 
     @LocalServerPort
     private int port;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        tokenBuilder.deleteAllInBatch();
+        postBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[실패]요청 헤더 액세스토큰의 algorithm 가 유효하지 않으면, 토큰검사시, 예외를 던진다")
     @Test
     void givenInvalidAlgorithm_whenParsingJWT_thenThrowsException() {
         // given // when
-        testUtils.createTokensAfterSavingTestUser();
-        Post createdPost = testUtils.createPostByTestUser("title", "content");
+        tokenBuilder.createTokensAfterSavingTestUser();
+        Post createdPost = postBuilder.createPostByTestUser("title", "content");
         String jwsByRSA = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJSUzI1NmluT1RBIiwibmFtZSI6IkpvaG4gRG9lIn0.ICV6gy7CDKPHMGJxV80nDZ7Vxe0ciqyzXD_Hr4mTDrdTyi6fNleYAyhEZq2J29HSI5bhWnJyOBzg2bssBUKMYlC2Sr8WFUas5MAKIr2Uh_tZHDsrCxggQuaHpF4aGCFZ1Qc0rrDXvKLuk1Kzrfw1bQbqH6xTmg2kWQuSGuTlbTbDhyhRfu1WDs-Ju9XnZV-FBRgHJDdTARq1b4kuONgBP430wJmJ6s9yl3POkHIdgV-Bwlo6aZluophoo5XWPEHQIpCCgDm3-kTN_uIZMOHs2KRdb6Px-VN19A5BYDXlUBFOo-GvkCBZCgmGGTlHF_cWlDnoA9XTWWcIYNyUI4PXNw";
 
         ExtractableResponse<Response> extract =
@@ -91,9 +88,9 @@ class JwtAuthenticationFilterTest {
     @Test
     void givenTokenInvalidSecretKey_whenParsingJWT_thenThrowsException() {
         // given // when
-        testUtils.createTokensAfterSavingTestUser();
-        Post createdPost = testUtils.createPostByTestUser("title", "content");
-        String token = createToken(1L, TestUtils.TEST_USERNAME, List.of("USER_ROLE"),
+        tokenBuilder.createTokensAfterSavingTestUser();
+        Post createdPost = postBuilder.createPostByTestUser("title", "content");
+        String token = createToken(1L, TEST_USERNAME, List.of("USER_ROLE"),
             new Date().getTime() + 299329392L, "시크리코드를위한대충열여섯글자를채우기위한내용입니다");
 //        String jwsByInvalidSecretKey = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.pBhe1zK7tdjOq_AQTMm0eu8nAWBMKErFQ2j8Fmvsy6GMDX6bldwsD87ZqJ_kkbtI";
 
@@ -170,8 +167,8 @@ class JwtAuthenticationFilterTest {
     @Test
     void givenExpiredToken_whenDeletingPost_thenReturnsErrorMessage() {
         // given // when
-        testUtils.createTokensAfterSavingTestUser();
-        testUtils.createPostByTestUser("title", "content");
+        tokenBuilder.createTokensAfterSavingTestUser();
+        postBuilder.createPostByTestUser("title", "content");
         String token = createToken(232939L);
 
         ExtractableResponse<Response> extract =
@@ -201,7 +198,7 @@ class JwtAuthenticationFilterTest {
     @Test
     void givenJWTInvalidPayLoad_whenDeletingPost_thenReturnsErrorMessage() {
         // given // when
-        String token = createToken("hi", TestUtils.TEST_USERNAME, List.of("USER_ROLE"),
+        String token = createToken("hi", TEST_USERNAME, List.of("USER_ROLE"),
             (new Date().getTime() + 39394939L), accessSecret);
 
         ExtractableResponse<Response> extract =
@@ -220,7 +217,7 @@ class JwtAuthenticationFilterTest {
     }
 
     private String createToken(Long expire) {
-        return createToken(1L, TestUtils.TEST_USERNAME, List.of("USER_ROLE"), expire, accessSecret);
+        return createToken(1L, TEST_USERNAME, List.of("USER_ROLE"), expire, accessSecret);
     }
 
     private String createToken(Object id, String username, List<String> roles,

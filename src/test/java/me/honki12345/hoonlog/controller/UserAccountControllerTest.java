@@ -16,11 +16,12 @@ import me.honki12345.hoonlog.dto.TokenDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 import me.honki12345.hoonlog.dto.request.UserAccountAddRequest;
 import me.honki12345.hoonlog.dto.request.UserAccountModifyRequest;
+import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,11 @@ import org.springframework.http.HttpStatus;
 class UserAccountControllerTest extends IntegrationTestSupport {
 
     @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
+    UserAccountBuilder userAccountBuilder;
+
+    @Autowired
     UserAccountController userAccountController;
     @Autowired
     UserAccountService userAccountService;
@@ -40,16 +46,15 @@ class UserAccountControllerTest extends IntegrationTestSupport {
     @Autowired
     UserAccountRepository userAccountRepository;
     @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
-    TestUtils testUtils;
+    PostRepository postRepository;
 
     @LocalServerPort
     private int port;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postRepository.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[생성/성공]회원가입을 성공한다")
@@ -164,7 +169,7 @@ class UserAccountControllerTest extends IntegrationTestSupport {
         // given
         String username = "fpg123";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678", email);
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(username, "12345678", email);
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         // when
@@ -192,7 +197,7 @@ class UserAccountControllerTest extends IntegrationTestSupport {
         String anotherUsername = "another";
         String username = "fpg123";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678", email);
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(username, "12345678", email);
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         // when
@@ -220,7 +225,7 @@ class UserAccountControllerTest extends IntegrationTestSupport {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678");
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = "blogName2";
@@ -257,7 +262,7 @@ class UserAccountControllerTest extends IntegrationTestSupport {
         // given // when
         String anotherUsername = "another";
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678");
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = "blogName2";
@@ -295,7 +300,7 @@ class UserAccountControllerTest extends IntegrationTestSupport {
         throws JsonProcessingException {
         // given
         String username = "fpg123";
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, "12345678");
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(username, "12345678");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
         String modifiedBlogName = null;

@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 @DisplayName("PostComment 도메인 단위테스트")
 class PostCommentTest {
 
-    @DisplayName("equals 메소드 테스트")
+    @DisplayName("PostComment 객체의 id 속성 값이 같다면, equals 메소드 호출시, true를 반환한다")
     @Test
-    void equals_test() {
+    void givenPostCommentsHaveSameId_whenEquals_thenReturnsTrue() {
         // given
         PostComment postComment1 = PostComment.of(1L, "content2");
         PostComment postComment2 = PostComment.of(1L, "content1");
@@ -19,9 +19,9 @@ class PostCommentTest {
         assertThat(postComment1.equals(postComment2)).isTrue();
     }
 
-    @DisplayName("equals 메소드 테스트2")
+    @DisplayName("PostComment 변수가 같은 인스턴스를 가리킨다면, equals 메소드 호출시, true를 반환한다")
     @Test
-    void equals_test2() {
+    void givenPostCommentsHaveSameRef_whenEquals_thenReturnsTrue() {
         // given
         PostComment postComment1 = PostComment.of(1L, "content2");
         PostComment postComment2 = postComment1;
@@ -30,9 +30,9 @@ class PostCommentTest {
         assertThat(postComment1.equals(postComment2)).isTrue();
     }
 
-    @DisplayName("equals 메소드 테스트3")
+    @DisplayName("PostComment와다른 타입의 객체로, equals 메소드 호출시, false를 반환한다")
     @Test
-    void equals_test3() {
+    void givenAnotherType_whenEquals_thenReturnFalse() {
         // given
         PostComment postComment1 = PostComment.of(1L, "content2");
         String postComment2 = "hi";
@@ -41,9 +41,9 @@ class PostCommentTest {
         assertThat(postComment1.equals(postComment2)).isFalse();
     }
 
-    @DisplayName("update 메소드 테스트1")
+    @DisplayName("null을 argument로, update를 호출시, 예외를 던진다")
     @Test
-    void update_test1() {
+    void givenNull_whenUpdate_thenThrowsException() {
         // given
         PostComment postComment1 = PostComment.of(1L, "content2");
 

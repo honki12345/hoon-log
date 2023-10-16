@@ -11,10 +11,12 @@ import me.honki12345.hoonlog.error.exception.domain.DuplicatePostLikeException;
 import me.honki12345.hoonlog.error.exception.domain.PostLikeNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.PostNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
+import me.honki12345.hoonlog.repository.PostLikeRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,28 +26,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 class PostLikeServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    TestUtils testUtils;
+    private UserAccountBuilder userAccountBuilder;
+    @Autowired
+    private PostBuilder postBuilder;
 
     @Autowired
-    PostLikeService postLikeService;
+    private PostLikeService postLikeService;
     @Autowired
-    PostRepository postRepository;
+    private PostRepository postRepository;
     @Autowired
-    UserAccountRepository userAccountRepository;
+    private UserAccountRepository userAccountRepository;
+    @Autowired
+    private PostLikeRepository postLikeRepository;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[생성/성공]게시글좋아요를 성공한다")
     @Test
     void givenPostIdAndUserId_whenCreatingPostLike_thenReturnsNothing() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         PostLikeDTO postLikeDTO = new PostLikeDTO(post.getId(), userAccountDTO.id());
 
         // when
@@ -60,8 +67,8 @@ class PostLikeServiceTest extends IntegrationTestSupport {
     @Test
     void givenPostIdAndUserId_whenCreatingPostLikeAgain_thenThrowsException() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         PostLikeDTO postLikeDTO = new PostLikeDTO(post.getId(), userAccountDTO.id());
         postLikeService.create(postLikeDTO);
 
@@ -74,8 +81,8 @@ class PostLikeServiceTest extends IntegrationTestSupport {
     @Test
     void givenUnRegisteredUserId_whenCreatingPostLikeAgain_thenThrowsException() {
         // given
-        testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         long wrongUserId = 9999L;
         PostLikeDTO postLikeDTO = new PostLikeDTO(post.getId(), wrongUserId);
 
@@ -88,7 +95,7 @@ class PostLikeServiceTest extends IntegrationTestSupport {
     @Test
     void givenUnsavedPostId_whenCreatingPostLikeAgain_thenThrowsException() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
         long unsavedPostId = 2L;
         PostLikeDTO postLikeDTO = new PostLikeDTO(unsavedPostId, userAccountDTO.id());
 
@@ -101,8 +108,8 @@ class PostLikeServiceTest extends IntegrationTestSupport {
     @Test
     void givenPostIdAndUserId_whenDeletingPostLike_thenReturnsNothing() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         PostLikeDTO postLikeDTO = new PostLikeDTO(post.getId(), userAccountDTO.id());
         postLikeService.create(postLikeDTO);
 
@@ -118,8 +125,8 @@ class PostLikeServiceTest extends IntegrationTestSupport {
     @Test
     void givenPostIdAndUserId_whenDeletingUnlikedPostLike_thenThrowsException() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         PostLikeDTO postLikeDTO = new PostLikeDTO(post.getId(), userAccountDTO.id());
 
         // when // then
@@ -131,7 +138,7 @@ class PostLikeServiceTest extends IntegrationTestSupport {
     @Test
     void givenUnsavedPostIdAndUserId_whenDeletingPostLike_thenThrowsException() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
         long unsavedPostId = 2L;
         PostLikeDTO postLikeDTO = new PostLikeDTO(unsavedPostId, userAccountDTO.id());
 
@@ -144,8 +151,8 @@ class PostLikeServiceTest extends IntegrationTestSupport {
     @Test
     void givenPostIdAndUnregisteredUserId_whenDeletingPostLike_thenThrowsException() {
         // given
-        testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         long wrongUserId = 999L;
         PostLikeDTO postLikeDTO = new PostLikeDTO(post.getId(), wrongUserId);
 

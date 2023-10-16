@@ -2,11 +2,8 @@ package me.honki12345.hoonlog.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import me.honki12345.hoonlog.error.exception.domain.TagNotFoundException;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class TagServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
-    TestUtils testUtils;
-
-    @Autowired
     TagService tagService;
-
-    @AfterEach
-    void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
-    }
 
     @DisplayName("[조회/실패]저장되지 않은 태그이름으로, 태그 검색시, 예외를 던진다")
     @Test

@@ -12,8 +12,10 @@ import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.error.exception.domain.ImageNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.ImageUploadFailException;
 import me.honki12345.hoonlog.repository.PostImageRepository;
+import me.honki12345.hoonlog.util.FileHelper;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,29 +27,34 @@ import org.springframework.web.multipart.MultipartFile;
 class PostImageServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    TestUtils testUtils;
+    private FileUtils fileUtils;
     @Autowired
-    FileUtils fileUtils;
+    private UserAccountBuilder userAccountBuilder;
+    @Autowired
+    private PostBuilder postBuilder;
+    @Autowired
+    private FileHelper fileHelper;
 
     @Autowired
-    PostImageService postImageService;
+    private PostImageService postImageService;
     @Autowired
-    PostImageRepository postImageRepository;
+    private PostImageRepository postImageRepository;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[생성/실패]게시물 이미지 저장시, 이미지 파일 이름이 없으면, 예외를 던진다")
     @Test
     void givenNoNamedPostFileInfo_whenSavingPostImages_thenThrowsException() {
         // given
-        testUtils.saveTestUser();
-        Post postByTestUser = testUtils.createPostByTestUser();
-        MultipartFile mockMultipartFile = testUtils.createMockMultipartFile(null);
+        userAccountBuilder.saveTestUser();
+        Post postByTestUser = postBuilder.createPostByTestUser();
+        MultipartFile mockMultipartFile = fileHelper.createMockMultipartFile(null);
 
         // when // then
         assertThatThrownBy(
@@ -61,9 +68,9 @@ class PostImageServiceTest extends IntegrationTestSupport {
     @Test
     void givenSavingPostImageInfos_whenSavingPostImages_thenReturnsSavedPostImageInfos() {
         // given
-        testUtils.saveTestUser();
-        Post postByTestUser = testUtils.createPostByTestUser();
-        List<MultipartFile> mockMultipartFiles = testUtils.createMockMultipartFiles();
+        userAccountBuilder.saveTestUser();
+        Post postByTestUser = postBuilder.createPostByTestUser();
+        List<MultipartFile> mockMultipartFiles = fileHelper.createMockMultipartFiles();
 
         // when
         List<PostImageDTO> postImageDTOList = postImageService.savePostImagesWithPost(
@@ -82,9 +89,9 @@ class PostImageServiceTest extends IntegrationTestSupport {
     @Test
     void givenUpdatePostImageInfo_whenUpdatingPostImage_thenReturnsUpdatedPostImageInfo() {
         // given
-        testUtils.saveTestUser();
-        Post postByTestUser = testUtils.createPostByTestUser();
-        List<MultipartFile> mockMultipartFiles = testUtils.createMockMultipartFiles();
+        userAccountBuilder.saveTestUser();
+        Post postByTestUser = postBuilder.createPostByTestUser();
+        List<MultipartFile> mockMultipartFiles = fileHelper.createMockMultipartFiles();
         PostImageDTO postImageDTO = postImageService.savePostImageWithPost(
             mockMultipartFiles.get(0), postByTestUser);
 
@@ -104,9 +111,9 @@ class PostImageServiceTest extends IntegrationTestSupport {
     @Test
     void givenSavedPostIdIsWrong_whenUpdatingPostImage_thenThrowsException() {
         // given
-        testUtils.saveTestUser();
+        userAccountBuilder.saveTestUser();
         Long wrongPostId = 999L;
-        MultipartFile updateMultipartFile = testUtils.createMockMultipartFile("after");
+        MultipartFile updateMultipartFile = fileHelper.createMockMultipartFile("after");
 
         // when // then
         assertThatThrownBy(() -> postImageService.updatePostImage(wrongPostId,
@@ -117,12 +124,12 @@ class PostImageServiceTest extends IntegrationTestSupport {
     @Test
     void givenUpdatePostImageNamedNull_whenUpdatingPostImage_thenThrowsException() {
         // given
-        testUtils.saveTestUser();
-        Post postByTestUser = testUtils.createPostByTestUser();
-        MultipartFile beforeMultipartFile = testUtils.createMockMultipartFile("before.jpg");
+        userAccountBuilder.saveTestUser();
+        Post postByTestUser = postBuilder.createPostByTestUser();
+        MultipartFile beforeMultipartFile = fileHelper.createMockMultipartFile("before.jpg");
         PostImageDTO savedPostImageDTO = postImageService.savePostImageWithPost(
             beforeMultipartFile, postByTestUser);
-        MultipartFile updateMultipartFile = testUtils.createMockMultipartFile("after");
+        MultipartFile updateMultipartFile = fileHelper.createMockMultipartFile("after");
 
         // when // then
         assertThatThrownBy(() -> postImageService.updatePostImage(savedPostImageDTO.id(),
@@ -133,9 +140,9 @@ class PostImageServiceTest extends IntegrationTestSupport {
     @Test
     void givenUpdatePostImageIsNull_whenUpdatingPostImage_thenThrowsException() {
         // given
-        testUtils.saveTestUser();
-        Post postByTestUser = testUtils.createPostByTestUser();
-        MultipartFile beforeMultipartFile = testUtils.createMockMultipartFile("before.jpg");
+        userAccountBuilder.saveTestUser();
+        Post postByTestUser = postBuilder.createPostByTestUser();
+        MultipartFile beforeMultipartFile = fileHelper.createMockMultipartFile("before.jpg");
         PostImageDTO savedPostImageDTO = postImageService.savePostImageWithPost(
             beforeMultipartFile, postByTestUser);
 
@@ -148,9 +155,9 @@ class PostImageServiceTest extends IntegrationTestSupport {
     @Test
     void givenPostImageIsEmpty_whenUpdatingPostImage_thenThrowsException() {
         // given
-        testUtils.saveTestUser();
-        Post postByTestUser = testUtils.createPostByTestUser();
-        MultipartFile beforeMultipartFile = testUtils.createMockMultipartFile("before.jpg");
+        userAccountBuilder.saveTestUser();
+        Post postByTestUser = postBuilder.createPostByTestUser();
+        MultipartFile beforeMultipartFile = fileHelper.createMockMultipartFile("before.jpg");
         PostImageDTO savedPostImageDTO = postImageService.savePostImageWithPost(
             beforeMultipartFile, postByTestUser);
         MockMultipartFile mockMultipartFile = new MockMultipartFile("empty.jpg", new byte[]{});

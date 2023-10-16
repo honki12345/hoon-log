@@ -1,7 +1,7 @@
 package me.honki12345.hoonlog.config;
 
 import java.util.Optional;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
@@ -15,6 +15,6 @@ public class JpaAuditingConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> Optional.of(TestUtils.TEST_USERNAME);
+        return () -> Optional.of(UserAccountBuilder.TEST_USERNAME);
     }
 }

@@ -19,7 +19,7 @@ import me.honki12345.hoonlog.security.jwt.util.JwtTokenizer;
 import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,27 +31,27 @@ import org.springframework.http.HttpStatus;
 class AuthControllerTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    JwtTokenizer jwtTokenizer;
+    private JwtTokenizer jwtTokenizer;
     @Autowired
-    TestUtils testUtils;
+    private UserAccountBuilder userAccountBuilder;
 
     @Autowired
-    UserAccountService userAccountService;
+    private UserAccountService userAccountService;
     @Autowired
-    AuthService authService;
+    private AuthService authService;
     @Autowired
-    UserAccountRepository userAccountRepository;
+    private UserAccountRepository userAccountRepository;
     @Autowired
-    RefreshTokenRepository refreshTokenRepository;
+    private RefreshTokenRepository refreshTokenRepository;
 
     @LocalServerPort
     private int port;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[로그인/성공]로그인에 성공한다")
@@ -61,7 +61,7 @@ class AuthControllerTest extends IntegrationTestSupport {
         String username = "fpg123";
         String password = "12345678";
         String email = "fpg123@mail.com";
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser(username, password, email);
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser(username, password, email);
 
         LoginRequest loginRequest = new LoginRequest(username, password);
 
@@ -116,7 +116,7 @@ class AuthControllerTest extends IntegrationTestSupport {
     @Test
     void givenLogoutInfo_whenLogout_thenReturns200Ok() throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678",
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser("fpg123", "12345678",
             "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 
@@ -171,7 +171,7 @@ class AuthControllerTest extends IntegrationTestSupport {
     void givenInvalidRefreshToken_whenLogout_thenReturnsErrorMessage()
         throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678",
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser("fpg123", "12345678",
             "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
         TokenDTO invalidTokenDTO = TokenDTO.of(tokenDTO.accessToken(), "WrongRefreshToken");
@@ -202,7 +202,7 @@ class AuthControllerTest extends IntegrationTestSupport {
     void givenTokenInfo_whenRefreshingToken_thenReturnsNewAccessToken()
         throws JsonProcessingException {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser("fpg123", "12345678",
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser("fpg123", "12345678",
             "fpg123@mail.com");
         TokenDTO tokenDTO = authService.createTokens(userAccountDTO);
 

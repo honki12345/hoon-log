@@ -2,13 +2,13 @@ package me.honki12345.hoonlog.controller;
 
 import static io.restassured.RestAssured.given;
 import static me.honki12345.hoonlog.error.ErrorCode.IMAGE_UPLOAD_ERROR;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_FILE_ORIGINAL_NAME;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_CONTENT;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_POST_TITLE;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_TAG_NAME;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_CONTENT;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_UPDATED_POST_TITLE;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static me.honki12345.hoonlog.util.FileHelper.TEST_FILE_ORIGINAL_NAME;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_POST_CONTENT;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_POST_TITLE;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_UPDATED_POST_CONTENT;
+import static me.honki12345.hoonlog.util.PostBuilder.TEST_UPDATED_POST_TITLE;
+import static me.honki12345.hoonlog.util.TagBuilder.TEST_TAG_NAME;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.Tag;
@@ -36,12 +37,12 @@ import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.TagRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
-import me.honki12345.hoonlog.service.AuthService;
-import me.honki12345.hoonlog.service.PostService;
-import me.honki12345.hoonlog.service.TagService;
-import me.honki12345.hoonlog.service.UserAccountService;
-import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.FileHelper;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.PostCommentBuilder;
+import me.honki12345.hoonlog.util.TagBuilder;
+import me.honki12345.hoonlog.util.TokenBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,47 +56,52 @@ import org.springframework.web.multipart.MultipartFile;
 class PostControllerTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    FileUtils fileUtils;
+    private FileUtils fileUtils;
     @Autowired
-    TestUtils testUtils;
+    private AuditorAware<String> auditorAwareForTest;
     @Autowired
-    AuditorAware<String> auditorAwareForTest;
+    private UserAccountBuilder userAccountBuilder;
+    @Autowired
+    private PostBuilder postBuilder;
+    @Autowired
+    private TokenBuilder tokenBuilder;
+    @Autowired
+    private TagBuilder tagBuilder;
+    @Autowired
+    private PostCommentBuilder postCommentBuilder;
+    @Autowired
+    private FileHelper fileHelper;
 
     @Autowired
-    PostController postController;
+    private PostRepository postRepository;
     @Autowired
-    PostRepository postRepository;
+    private UserAccountRepository userAccountRepository;
     @Autowired
-    UserAccountRepository userAccountRepository;
+    private PostImageRepository postImageRepository;
     @Autowired
-    PostImageRepository postImageRepository;
-    @Autowired
-    TagRepository tagRepository;
-    @Autowired
-    UserAccountService userAccountService;
-    @Autowired
-    TagService tagService;
-    @Autowired
-    AuthService authService;
-    @Autowired
-    PostService postService;
+    private TagRepository tagRepository;
 
     @LocalServerPort
     private int port;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postImageRepository.deleteAllInBatch();
+        postCommentBuilder.deleteAllInBatch();
+        tokenBuilder.deleteAllInBatch();
+        tagBuilder.deleteAllInBatch();
+        postBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[생성/성공]게시글 생성에 성공한다.")
     @Test
     void givenPostInfo_whenAddingPost_thenReturnsSavedPostInfo() {
         // given // when
-        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        String fullPathName = testUtils.createImageFilePath(TEST_FILE_ORIGINAL_NAME);
+        TokenDTO tokenDTO = tokenBuilder.createTokensAfterSavingTestUser();
+        String fullPathName = fileHelper.createImageFilePath(TEST_FILE_ORIGINAL_NAME);
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -212,20 +218,20 @@ class PostControllerTest extends IntegrationTestSupport {
     void givenKeyword_whenSearchingPostByKeyword_thenReturnsListOfPostInfo() {
         // given // when
         String keyword = "1";
-        testUtils.saveTestUser();
+        userAccountBuilder.saveTestUser();
         List<List<String>> titleContentList = List.of(
             List.of("title1", "content9"),
             List.of("title2", "content9"),
             List.of("title3", "content1"),
             List.of("title4", "content9")
         );
-        testUtils.createPostByTestUser(titleContentList.get(0).get(0),
+        postBuilder.createPostByTestUser(titleContentList.get(0).get(0),
             titleContentList.get(0).get(1));
-        testUtils.createPostByTestUser(titleContentList.get(1).get(0),
+        postBuilder.createPostByTestUser(titleContentList.get(1).get(0),
             titleContentList.get(1).get(1));
-        testUtils.createPostByTestUser(titleContentList.get(2).get(0),
+        postBuilder.createPostByTestUser(titleContentList.get(2).get(0),
             titleContentList.get(2).get(1));
-        testUtils.createPostByTestUser(titleContentList.get(3).get(0),
+        postBuilder.createPostByTestUser(titleContentList.get(3).get(0),
             titleContentList.get(3).get(1));
         long count = titleContentList.stream()
             .filter(strings -> strings.stream().anyMatch(s -> s.contains(keyword))).count();
@@ -254,10 +260,10 @@ class PostControllerTest extends IntegrationTestSupport {
         // given // when
         String title = "title";
         String content = "content";
-        testUtils.saveTestUser();
-        Post createdPost = testUtils.createPostByTestUser(title, content);
-        testUtils.createTagByTestUser(createdPost);
-        testUtils.createCommentByTestUser(createdPost.getId());
+        userAccountBuilder.saveTestUser();
+        Post createdPost = postBuilder.createPostByTestUser(title, content);
+        tagBuilder.createTagByTestUser(createdPost);
+        postCommentBuilder.createCommentByTestUser(createdPost.getId());
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -307,8 +313,8 @@ class PostControllerTest extends IntegrationTestSupport {
     @Test
     void givenUpdatingInfo_whenUpdatingPost_thenReturnsUpdatedPostInfo() {
         // given // when
-        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        Post createdPost = testUtils.createPostByTestUser("title", "content");
+        TokenDTO tokenDTO = tokenBuilder.createTokensAfterSavingTestUser();
+        Post createdPost = postBuilder.createPostByTestUser("title", "content");
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -338,13 +344,13 @@ class PostControllerTest extends IntegrationTestSupport {
     @Test
     void givenEmptyFile_whenUpdatingPost_thenReturnsErrorMessage() throws IOException {
         // given // when
-        MultipartFile mockMultipartFile = testUtils.createMockMultipartFile("mockFile.jpg");
+        MultipartFile mockMultipartFile = fileHelper.createMockMultipartFile("mockFile.jpg");
         PostImage postImage = fileUtils.fromMultipartFileToPostImage(mockMultipartFile);
         postImageRepository.save(postImage);
-        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        Post createdPost = testUtils.createPostByTestUser("title", "content");
+        TokenDTO tokenDTO = tokenBuilder.createTokensAfterSavingTestUser();
+        Post createdPost = postBuilder.createPostByTestUser("title", "content");
 
-        Path path = Path.of(testUtils.createImageFilePath("empty-file"));
+        Path path = Path.of(fileHelper.createImageFilePath("empty-file"));
         if (Files.exists(path)) {
             Files.delete(path);
         }
@@ -377,8 +383,8 @@ class PostControllerTest extends IntegrationTestSupport {
     @Test
     void givenPostId_whenDeletingPost_thenReturnsOK() {
         // given // when
-        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        Post createdPost = testUtils.createPostByTestUser("title", "content");
+        TokenDTO tokenDTO = tokenBuilder.createTokensAfterSavingTestUser();
+        Post createdPost = postBuilder.createPostByTestUser("title", "content");
 
         ExtractableResponse<Response> extract =
             given().log().all()
@@ -398,7 +404,7 @@ class PostControllerTest extends IntegrationTestSupport {
     }
 
     private List<Post> createPostsByTestUser(int count) {
-        testUtils.createTokensAfterSavingTestUser();
+        tokenBuilder.createTokensAfterSavingTestUser();
         UserAccount userAccount = userAccountRepository.findByUsername(TEST_USERNAME)
             .orElseThrow();
         List<Post> posts = new LinkedList<>();
@@ -411,7 +417,7 @@ class PostControllerTest extends IntegrationTestSupport {
     }
 
     private List<Post> createPostsWithTagByTestUser(int count, Tag tag) {
-        testUtils.createTokensAfterSavingTestUser();
+        tokenBuilder.createTokensAfterSavingTestUser();
         UserAccount userAccount = userAccountRepository.findByUsername(TEST_USERNAME)
             .orElseThrow();
         List<Post> posts = new LinkedList<>();

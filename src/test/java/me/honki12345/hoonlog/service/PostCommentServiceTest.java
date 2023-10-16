@@ -1,5 +1,6 @@
 package me.honki12345.hoonlog.service;
 
+import static me.honki12345.hoonlog.util.PostCommentBuilder.TEST_COMMENT_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -19,7 +20,9 @@ import me.honki12345.hoonlog.repository.PostCommentRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.PostCommentBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,34 +32,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 class PostCommentServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    TestUtils testUtils;
+    private UserAccountBuilder userAccountBuilder;
+    @Autowired
+    private PostBuilder postBuilder;
+    @Autowired
+    private PostCommentBuilder postCommentBuilder;
+
 
     @Autowired
-    PostRepository postRepository;
+    private PostRepository postRepository;
     @Autowired
-    UserAccountRepository userAccountRepository;
+    private UserAccountRepository userAccountRepository;
     @Autowired
-    PostCommentRepository postCommentRepository;
+    private PostCommentRepository postCommentRepository;
     @Autowired
-    PostCommentService postCommentService;
+    private PostCommentService postCommentService;
     @Autowired
-    PostService postService;
+    private PostService postService;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postCommentBuilder.deleteAllInBatch();
+        postBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
     @DisplayName("[생성/성공]댓글 생성에 성공한다.")
     @Test
     void givenCommentInfoWithPostIdAndUserInfo_whenAddingComment_thenReturnsSavedPostComment() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         PostCommentRequest postCommentRequest = new PostCommentRequest(post.getId(),
-            TestUtils.TEST_COMMENT_CONTENT);
+            TEST_COMMENT_CONTENT);
 
         // when
         PostCommentDTO postCommentDTO = postCommentService.addPostComment(
@@ -64,17 +74,17 @@ class PostCommentServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(postCommentDTO.createdBy()).isEqualTo(userAccountDTO.username());
-        assertThat(postCommentDTO.content()).isEqualTo(TestUtils.TEST_COMMENT_CONTENT);
+        assertThat(postCommentDTO.content()).isEqualTo(TEST_COMMENT_CONTENT);
     }
 
     @DisplayName("[생성/실패]찾을 수 없는 게시물에, 댓글 생성 요청시, 예외를 던진다.")
     @Test
     void givenCommentInfoWithUnSavedPostId_whenAddingComment_thenReturnsThrowsException() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
         Long unsavedPostId = 999L;
         PostCommentRequest postCommentRequest = new PostCommentRequest(unsavedPostId,
-            TestUtils.TEST_COMMENT_CONTENT);
+            TEST_COMMENT_CONTENT);
 
         // when // then
         assertThatThrownBy(() ->
@@ -89,10 +99,10 @@ class PostCommentServiceTest extends IntegrationTestSupport {
         // given
         long wrongUserId = 999L;
         UserAccountDTO wrongUserAccountDTO = UserAccountDTO.of(wrongUserId, null, List.of());
-        testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
+        userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
         PostCommentRequest postCommentRequest = new PostCommentRequest(post.getId(),
-            TestUtils.TEST_COMMENT_CONTENT);
+            TEST_COMMENT_CONTENT);
 
         // when // then
         assertThatThrownBy(() ->
@@ -106,9 +116,9 @@ class PostCommentServiceTest extends IntegrationTestSupport {
     @Test
     void givenCommentInfoWithPostIdAndUserInfo_whenUpdatingComment_thenReturnsUpdatedPostComment() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
-        PostComment savedPostComment = testUtils.createCommentByTestUser(post.getId());
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        PostComment savedPostComment = postCommentBuilder.createCommentByTestUser(post.getId());
         String updatedContent = "updatedContent";
         PostCommentRequest updateRequest = new PostCommentRequest(post.getId(), updatedContent);
 
@@ -128,9 +138,9 @@ class PostCommentServiceTest extends IntegrationTestSupport {
         // given
         long wrongUserId = 999L;
         UserAccountDTO wrongUserAccountDTO = UserAccountDTO.of(wrongUserId, null, List.of());
-        testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
-        PostComment savedPostComment = testUtils.createCommentByTestUser(post.getId());
+        userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        PostComment savedPostComment = postCommentBuilder.createCommentByTestUser(post.getId());
         PostCommentRequest updateRequest = new PostCommentRequest(post.getId(), "updatedContent");
 
         // when // then
@@ -146,9 +156,9 @@ class PostCommentServiceTest extends IntegrationTestSupport {
     @Test
     void givenCommentInfoWithUnregisteredCommentId_whenUpdatingComment_thenThrowsException() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
-        testUtils.createCommentByTestUser(post.getId());
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        postCommentBuilder.createCommentByTestUser(post.getId());
         Long wrongCommentId = 999L;
         PostCommentRequest updateRequest = new PostCommentRequest(wrongCommentId, "updatedContent");
 
@@ -166,9 +176,9 @@ class PostCommentServiceTest extends IntegrationTestSupport {
     @Test
     void givenCommentIdWithUserInfo_whenDeletingComment_thenReturnsNothing() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
-        PostComment savedPostComment = testUtils.createCommentByTestUser(post.getId());
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        PostComment savedPostComment = postCommentBuilder.createCommentByTestUser(post.getId());
 
         // when
         postCommentService.deleteComment(savedPostComment.getId(), userAccountDTO);
@@ -183,9 +193,9 @@ class PostCommentServiceTest extends IntegrationTestSupport {
         // given
         long wrongUserId = 999L;
         UserAccountDTO wrongUserAccountDTO = UserAccountDTO.of(wrongUserId, null, List.of());
-        testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
-        PostComment savedPostComment = testUtils.createCommentByTestUser(post.getId());
+        userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        PostComment savedPostComment = postCommentBuilder.createCommentByTestUser(post.getId());
 
         // when // then
         assertThatThrownBy(() ->
@@ -197,9 +207,9 @@ class PostCommentServiceTest extends IntegrationTestSupport {
     @Test
     void givenCommentIdWithUnRegisteredPostId_whenDeletingComment_thenThrowsException() {
         // given
-        UserAccountDTO userAccountDTO = testUtils.saveTestUser();
-        Post post = testUtils.createPostByTestUser();
-        testUtils.createCommentByTestUser(post.getId());
+        UserAccountDTO userAccountDTO = userAccountBuilder.saveTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        postCommentBuilder.createCommentByTestUser(post.getId());
         Long wrongCommentId = 999L;
 
         // when // then

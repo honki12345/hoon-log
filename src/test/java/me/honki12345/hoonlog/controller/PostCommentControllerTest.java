@@ -1,8 +1,8 @@
 package me.honki12345.hoonlog.controller;
 
 import static io.restassured.RestAssured.given;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_COMMENT_CONTENT;
-import static me.honki12345.hoonlog.util.TestUtils.TEST_USERNAME;
+import static me.honki12345.hoonlog.util.PostCommentBuilder.TEST_COMMENT_CONTENT;
+import static me.honki12345.hoonlog.util.UserAccountBuilder.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -22,7 +22,10 @@ import me.honki12345.hoonlog.service.AuthService;
 import me.honki12345.hoonlog.service.PostService;
 import me.honki12345.hoonlog.service.UserAccountService;
 import me.honki12345.hoonlog.util.IntegrationTestSupport;
-import me.honki12345.hoonlog.util.TestUtils;
+import me.honki12345.hoonlog.util.PostBuilder;
+import me.honki12345.hoonlog.util.PostCommentBuilder;
+import me.honki12345.hoonlog.util.TokenBuilder;
+import me.honki12345.hoonlog.util.UserAccountBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,44 +38,53 @@ import org.springframework.http.HttpStatus;
 class PostCommentControllerTest extends IntegrationTestSupport {
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Autowired
-    TestUtils testUtils;
+    private AuditorAware<String> auditorAwareForTest;
     @Autowired
-    AuditorAware<String> auditorAwareForTest;
+    private UserAccountBuilder userAccountBuilder;
+    @Autowired
+    private TokenBuilder tokenBuilder;
+    @Autowired
+    private PostBuilder postBuilder;
+    @Autowired
+    private PostCommentBuilder postCommentBuilder;
 
     @Autowired
-    PostController postController;
+    private PostController postController;
     @Autowired
-    PostRepository postRepository;
+    private PostRepository postRepository;
     @Autowired
-    UserAccountRepository userAccountRepository;
+    private UserAccountRepository userAccountRepository;
     @Autowired
-    PostCommentRepository postCommentRepository;
+    private PostCommentRepository postCommentRepository;
     @Autowired
-    UserAccountService userAccountService;
+    private UserAccountService userAccountService;
     @Autowired
-    AuthService authService;
+    private AuthService authService;
     @Autowired
-    PostService postService;
+    private PostService postService;
 
     @LocalServerPort
     private int port;
 
     @AfterEach
     void tearDown() {
-        testUtils.deleteAllInBatchInAllRepository();
+        postCommentBuilder.deleteAllInBatch();
+        postBuilder.deleteAllInBatch();
+        tokenBuilder.deleteAllInBatch();
+        userAccountBuilder.deleteAllInBatch();
     }
 
-    @DisplayName("댓글 생성에 성공한다.")
+    @DisplayName("[생성/성공]댓글 생성에 성공한다.")
     @Test
     void givenPostCommentInfo_whenAddingPostComment_thenReturnsSavedPostCommentInfo()
         throws JsonProcessingException {
         // given
-        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        Post post = testUtils.createPostByTestUser();
+        TokenDTO tokenDTO = tokenBuilder.createTokensAfterSavingTestUser();
+        Post post = postBuilder.createPostByTestUser();
         PostCommentRequest postCommentRequest = new PostCommentRequest(post.getId(),
-            TestUtils.TEST_COMMENT_CONTENT);
+            TEST_COMMENT_CONTENT);
 
         // when
         ExtractableResponse<Response> extract =
@@ -95,14 +107,14 @@ class PostCommentControllerTest extends IntegrationTestSupport {
         );
     }
 
-    @DisplayName("댓글 수정에 성공한다.")
+    @DisplayName("[수정/성공]댓글 수정에 성공한다.")
     @Test
     void givenPostCommentInfo_whenUpdatingPostComment_thenReturnsUpdatedPostCommentInfo()
         throws JsonProcessingException {
         // given
-        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        Post post = testUtils.createPostByTestUser();
-        PostComment commentWithTestUser = testUtils.createCommentByTestUser(post.getId());
+        TokenDTO tokenDTO = tokenBuilder.createTokensAfterSavingTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        PostComment commentWithTestUser = postCommentBuilder.createCommentByTestUser(post.getId());
         PostCommentRequest updateRequest = new PostCommentRequest(post.getId(),
             "newUpdatedComment");
 
@@ -127,13 +139,13 @@ class PostCommentControllerTest extends IntegrationTestSupport {
         );
     }
 
-    @DisplayName("댓글 삭제에 성공한다.")
+    @DisplayName("[삭제/성공]댓글 삭제에 성공한다.")
     @Test
     void givenPostCommentIdWithUserInfo_whenDeletingPostComment_thenReturnsOK() {
         // given
-        TokenDTO tokenDTO = testUtils.createTokensAfterSavingTestUser();
-        Post post = testUtils.createPostByTestUser();
-        PostComment commentWithTestUser = testUtils.createCommentByTestUser(post.getId());
+        TokenDTO tokenDTO = tokenBuilder.createTokensAfterSavingTestUser();
+        Post post = postBuilder.createPostByTestUser();
+        PostComment commentWithTestUser = postCommentBuilder.createCommentByTestUser(post.getId());
 
         // when
         ExtractableResponse<Response> extract =
