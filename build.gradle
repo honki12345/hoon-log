@@ -56,7 +56,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-    // dev-tools
+    // dev-tools 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     // h2
     runtimeOnly 'com.h2database:h2'
@@ -74,7 +74,7 @@ tasks.named('test') {
 }
 
 // Querydsl Q Class 생성 위치
-def querydslDir = '/src/main/generated/'
+def querydslDir = "$buildDir/generated/querydsl"
 
 // Querydsl Q Class 생성 위치 지정
 tasks.withType(JavaCompile) {
