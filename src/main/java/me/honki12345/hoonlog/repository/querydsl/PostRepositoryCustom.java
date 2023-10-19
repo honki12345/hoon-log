@@ -11,6 +11,8 @@ public interface PostRepositoryCustom {
     Page<Post> findByTagName(String tagName, Pageable pageable);
 
     Optional<Post> findByPostIdWithAll(@Param("postId") Long postId);
+
+    Optional<Post> findByPostIdOnPessimisticLock(@Param("postId") Long postId);
     Page<Post> findAllWithAll(Pageable pageable);
     Page<Post> findWithAllByTitleContainingOrContentContaining(String keyword, Pageable pageable);
 

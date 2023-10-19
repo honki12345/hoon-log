@@ -29,7 +29,7 @@ public class PostLikeService {
         UserAccount userAccount = userAccountRepository.findByIdWithPostLike(postLikeDTO.userId())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
-        Post post = postRepository.findByPostIdWithAll(postLikeDTO.postId())
+        Post post = postRepository.findByPostIdOnPessimisticLock(postLikeDTO.postId())
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
         if (postLikeRepository.existsByPost_IdAndUserAccount_Id(postLikeDTO.postId(),
             postLikeDTO.userId())) {
@@ -46,7 +46,7 @@ public class PostLikeService {
         UserAccount userAccount = userAccountRepository.findByIdWithPostLike(postLikeDTO.userId())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
-        Post post = postRepository.findByPostIdWithAll(postLikeDTO.postId())
+        Post post = postRepository.findByPostIdOnPessimisticLock(postLikeDTO.postId())
             .orElseThrow(() -> new PostNotFoundException(ErrorCode.POST_NOT_FOUND));
         PostLike postLike = postLikeRepository.findByPost_IdAndUserAccount_Id(postLikeDTO.postId(),
                 postLikeDTO.userId())
