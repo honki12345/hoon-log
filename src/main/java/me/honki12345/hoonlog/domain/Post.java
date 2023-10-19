@@ -127,11 +127,11 @@ public class Post extends AuditingFields {
     public void addPostLike(PostLike postLike) {
         this.postLikes.add(postLike);
         postLike.addPost(this);
-        likeCount = this.postLikes.size();
+        likeCount++;
     }
 
     public void deletePostLike(PostLike postLike) {
         this.postLikes.remove(postLike);
-        likeCount = this.postLikes.size();
+        likeCount--;
     }
 }
