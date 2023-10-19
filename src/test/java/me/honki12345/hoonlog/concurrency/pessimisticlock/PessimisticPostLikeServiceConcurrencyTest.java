@@ -8,22 +8,22 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
-import me.honki12345.hoonlog.concurrency.pessimisticlock.repository.PessimisticTestPostRepository;
 import me.honki12345.hoonlog.concurrency.pessimisticlock.domain.PessimisticTestPost;
 import me.honki12345.hoonlog.concurrency.pessimisticlock.domain.PessimisticTestUserAccount;
 import me.honki12345.hoonlog.concurrency.pessimisticlock.repository.PessimisticTestPostLikeRepository;
+import me.honki12345.hoonlog.concurrency.pessimisticlock.repository.PessimisticTestPostRepository;
 import me.honki12345.hoonlog.concurrency.pessimisticlock.repository.PessimisticTestUserAccountRepository;
 import me.honki12345.hoonlog.concurrency.pessimisticlock.service.PessimisticTestPostLikeService;
 import me.honki12345.hoonlog.dto.PostLikeDTO;
-import me.honki12345.hoonlog.util.IntegrationTestSupport;
+import me.honki12345.hoonlog.util.ConcurrencyTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@DisplayName("PostLike Concurrency Test")
-public class PessimisticPostLikeServiceConcurrencyTest extends IntegrationTestSupport {
+@DisplayName("PostLike Pessimistic lock Test")
+public class PessimisticPostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
 
     private final int threadCount = 300;
 
