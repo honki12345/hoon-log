@@ -1,4 +1,4 @@
-package me.honki12345.hoonlog.concurrency.pessimisticlock.domain;
+package me.honki12345.hoonlog.concurrency.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Version;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -19,7 +20,7 @@ import me.honki12345.hoonlog.domain.vo.AuditingFields;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class PessimisticTestPost extends AuditingFields {
+public class TestPost extends AuditingFields {
 
     @Id
     @Column(name = "post_id")
@@ -28,7 +29,7 @@ public class PessimisticTestPost extends AuditingFields {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "userId")
-    private PessimisticTestUserAccount userAccount;
+    private TestUserAccount userAccount;
 
     @Column(nullable = false)
     private String title;
@@ -38,22 +39,25 @@ public class PessimisticTestPost extends AuditingFields {
 
     private long likeCount;
 
-    @OneToMany(mappedBy = "post")
-    private Set<PessimisticTestPostLike> postLikes = new ConcurrentSkipListSet<>();
+    @Version
+    private Long version;
 
-    private PessimisticTestPost(Long id, PessimisticTestUserAccount userAccount, String title, String content) {
+    @OneToMany(mappedBy = "post")
+    private Set<TestPostLike> postLikes = new ConcurrentSkipListSet<>();
+
+    private TestPost(Long id, TestUserAccount userAccount, String title, String content) {
         this.id = id;
         this.userAccount = userAccount;
         this.title = title;
         this.content = content;
     }
 
-    public static PessimisticTestPost of(Long id, String title, String content) {
-        return PessimisticTestPost.of(id, null, title, content);
+    public static TestPost of(Long id, String title, String content) {
+        return TestPost.of(id, null, title, content);
     }
 
-    public static PessimisticTestPost of(Long id, PessimisticTestUserAccount userAccount, String title, String content) {
-        return new PessimisticTestPost(id, userAccount, title, content);
+    public static TestPost of(Long id, TestUserAccount userAccount, String title, String content) {
+        return new TestPost(id, userAccount, title, content);
     }
 
     @Override
@@ -61,7 +65,7 @@ public class PessimisticTestPost extends AuditingFields {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PessimisticTestPost post)) {
+        if (!(o instanceof TestPost post)) {
             return false;
         }
         return Objects.equals(id, post.id);
@@ -72,7 +76,7 @@ public class PessimisticTestPost extends AuditingFields {
         return Objects.hash(id);
     }
 
-    public PessimisticTestPost addUserAccount(PessimisticTestUserAccount userAccount) {
+    public TestPost addUserAccount(TestUserAccount userAccount) {
         this.userAccount = userAccount;
         return this;
     }
@@ -83,13 +87,13 @@ public class PessimisticTestPost extends AuditingFields {
     }
 
 
-    public void addPostLike(PessimisticTestPostLike postLike) {
+    public void addPostLike(TestPostLike postLike) {
         this.postLikes.add(postLike);
         postLike.addPost(this);
         likeCount++;
     }
 
-    public void deletePostLike(PessimisticTestPostLike postLike) {
+    public void deletePostLike(TestPostLike postLike) {
         this.postLikes.remove(postLike);
         likeCount--;
     }

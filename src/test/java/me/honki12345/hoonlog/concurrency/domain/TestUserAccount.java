@@ -1,4 +1,4 @@
-package me.honki12345.hoonlog.concurrency.optimisticlock.domain;
+package me.honki12345.hoonlog.concurrency.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -30,7 +30,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class OptimisticTestUserAccount {
+public class TestUserAccount {
 
     @Id
     @Column(name = "user_id")
@@ -62,9 +62,9 @@ public class OptimisticTestUserAccount {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "userAccount")
-    private Set<OptimisticTestPostLike> postLikes = new LinkedHashSet<>();
+    private Set<TestPostLike> postLikes = new LinkedHashSet<>();
 
-    private OptimisticTestUserAccount(Long id, String username, String userPassword, String email,
+    private TestUserAccount(Long id, String username, String userPassword, String email,
         Profile profile,
         LocalDateTime createdAt) {
         this.id = id;
@@ -75,23 +75,23 @@ public class OptimisticTestUserAccount {
         this.createdAt = createdAt;
     }
 
-    public static OptimisticTestUserAccount of(String username, String userPassword, String email) {
-        return OptimisticTestUserAccount.of(null, username, userPassword, email, Profile.of("name", "bio"));
+    public static TestUserAccount of(String username, String userPassword, String email) {
+        return TestUserAccount.of(null, username, userPassword, email, Profile.of("name", "bio"));
     }
 
-    public static OptimisticTestUserAccount of(String username, String userPassword, String email,
+    public static TestUserAccount of(String username, String userPassword, String email,
         Profile profile) {
-        return OptimisticTestUserAccount.of(null, username, userPassword, email, profile);
+        return TestUserAccount.of(null, username, userPassword, email, profile);
     }
 
-    public static OptimisticTestUserAccount of(Long id, String username, String userPassword, String email,
+    public static TestUserAccount of(Long id, String username, String userPassword, String email,
         Profile profile) {
-        return new OptimisticTestUserAccount(id, username, userPassword, email, profile, null);
+        return new TestUserAccount(id, username, userPassword, email, profile, null);
     }
 
-    public static OptimisticTestUserAccount of(Long id, String username, String userPassword, String email,
+    public static TestUserAccount of(Long id, String username, String userPassword, String email,
         Profile profile, Set<Role> roles) {
-        OptimisticTestUserAccount userAccount = new OptimisticTestUserAccount(id, username, userPassword, email,
+        TestUserAccount userAccount = new TestUserAccount(id, username, userPassword, email,
             profile, null);
         if (roles != null && !roles.isEmpty()) {
             roles.forEach(role -> userAccount.getRoles().add(role));
@@ -104,7 +104,7 @@ public class OptimisticTestUserAccount {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof OptimisticTestUserAccount that)) {
+        if (!(o instanceof TestUserAccount that)) {
             return false;
         }
         return Objects.equals(id, that.id);
@@ -115,12 +115,12 @@ public class OptimisticTestUserAccount {
         return Objects.hash(id);
     }
 
-    public void addPostLike(OptimisticTestPostLike postLike) {
+    public void addPostLike(TestPostLike postLike) {
         this.postLikes.add(postLike);
         postLike.addUserAccount(this);
     }
 
-    public void deletePostLike(OptimisticTestPostLike postLike) {
+    public void deletePostLike(TestPostLike postLike) {
         this.postLikes.remove(postLike);
     }
 }

@@ -1,20 +1,20 @@
-package me.honki12345.hoonlog.concurrency.pessimisticlock.repository;
+package me.honki12345.hoonlog.concurrency.repository;
 
 import java.util.Optional;
-import me.honki12345.hoonlog.concurrency.pessimisticlock.domain.PessimisticTestUserAccount;
+import me.honki12345.hoonlog.concurrency.domain.TestUserAccount;
 import me.honki12345.hoonlog.domain.UserAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PessimisticTestUserAccountRepository extends JpaRepository<PessimisticTestUserAccount, Long> {
+public interface TestUserAccountRepository extends JpaRepository<TestUserAccount, Long> {
 
     Optional<UserAccount> findByUsername(String username);
 
     boolean existsByUsername(String username);
 
-    @Query("SELECT u FROM PessimisticTestUserAccount u "
+    @Query("SELECT u FROM TestUserAccount u "
         + "LEFT JOIN FETCH u.postLikes "
         + "WHERE u.id = :userId")
-    Optional<PessimisticTestUserAccount> findByIdWithPostLike(@Param("userId") Long userId);
+    Optional<TestUserAccount> findByIdWithPostLike(@Param("userId") Long userId);
 }
