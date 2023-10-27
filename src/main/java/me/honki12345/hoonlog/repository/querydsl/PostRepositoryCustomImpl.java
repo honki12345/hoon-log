@@ -7,6 +7,7 @@ import static me.honki12345.hoonlog.domain.QPostLike.*;
 import static me.honki12345.hoonlog.domain.QTag.*;
 
 import com.querydsl.jpa.JPQLQuery;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import me.honki12345.hoonlog.domain.Post;
@@ -47,6 +48,21 @@ public class PostRepositoryCustomImpl extends QuerydslRepositorySupport implemen
             .where(post.id.eq(postId))
             .fetchOne();
         return Optional.ofNullable(fetchedOne);
+    }
+
+    @Override
+    public Optional<Post> findByPostIdOnPessimisticLock(Long postId) {
+        Post fetchedOne = (Post) getQuerydsl().createQuery(post)
+            .from(post)
+            .leftJoin(post.postImages, postImage).fetchJoin()
+            .leftJoin(post.postComments, postComment).fetchJoin()
+            .leftJoin(post.tags, tag).fetchJoin()
+            .leftJoin(post.postLikes, postLike).fetchJoin()
+            .where(post.id.eq(postId))
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .fetchOne();
+        return Optional.ofNullable(fetchedOne);
+
     }
 
     @Override

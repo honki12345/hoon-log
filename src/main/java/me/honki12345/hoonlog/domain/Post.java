@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import jakarta.persistence.Version;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -63,6 +64,9 @@ public class Post extends AuditingFields {
 
     @OneToMany(mappedBy = "post")
     private Set<PostLike> postLikes = new ConcurrentSkipListSet<>();
+
+    @Version
+    private Long version;
 
     private Post(Long id, UserAccount userAccount, String title, String content) {
         this.id = id;
@@ -127,11 +131,11 @@ public class Post extends AuditingFields {
     public void addPostLike(PostLike postLike) {
         this.postLikes.add(postLike);
         postLike.addPost(this);
-        likeCount = this.postLikes.size();
+        likeCount++;
     }
 
     public void deletePostLike(PostLike postLike) {
         this.postLikes.remove(postLike);
-        likeCount = this.postLikes.size();
+        likeCount--;
     }
 }

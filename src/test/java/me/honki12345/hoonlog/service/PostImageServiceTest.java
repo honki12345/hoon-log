@@ -3,11 +3,9 @@ package me.honki12345.hoonlog.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
-import me.honki12345.hoonlog.domain.util.FileUtils;
 import me.honki12345.hoonlog.dto.PostImageDTO;
 import me.honki12345.hoonlog.error.exception.domain.ImageNotFoundException;
 import me.honki12345.hoonlog.error.exception.domain.ImageUploadFailException;
@@ -26,10 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 @DisplayName("PostImageService 애플리케이션 통합테스트")
 class PostImageServiceTest extends IntegrationTestSupport {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private FileUtils fileUtils;
     @Autowired
     private UserAccountBuilder userAccountBuilder;
     @Autowired

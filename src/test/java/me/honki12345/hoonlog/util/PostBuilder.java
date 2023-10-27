@@ -8,6 +8,9 @@ import me.honki12345.hoonlog.domain.Post;
 import me.honki12345.hoonlog.domain.PostImage;
 import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.request.PostRequest;
+import me.honki12345.hoonlog.error.ErrorCode;
+import me.honki12345.hoonlog.error.exception.NotFoundException;
+import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostLikeRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
@@ -17,6 +20,7 @@ import org.springframework.boot.test.context.TestComponent;
 @TestComponent
 @RequiredArgsConstructor
 public class PostBuilder {
+
     public static final String TEST_POST_TITLE = "title";
     public static final String TEST_POST_CONTENT = "content";
     public static final String TEST_UPDATED_POST_TITLE = "updatedTitle";
@@ -38,7 +42,9 @@ public class PostBuilder {
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.saveAndFlush(
-            postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
+                postRequest.toDTO().toEntity().addUserAccount(userAccount)))
+            .orElseThrow(() -> new UserAccountNotFoundException(
+                ErrorCode.USER_ACCOUNT_NOT_FOUND));
     }
 
     public Post createPostByTestUser(String title, String content) {
@@ -46,7 +52,9 @@ public class PostBuilder {
         Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
             TEST_USERNAME);
         return optionalUserAccount.map(userAccount -> postRepository.save(
-            postRequest.toDTO().toEntity().addUserAccount(userAccount))).orElse(null);
+                postRequest.toDTO().toEntity().addUserAccount(userAccount)))
+            .orElseThrow(() -> new UserAccountNotFoundException(
+                ErrorCode.USER_ACCOUNT_NOT_FOUND));
     }
 
     public Post createPostWithImageFileByTestUser(PostImage postImage) {
