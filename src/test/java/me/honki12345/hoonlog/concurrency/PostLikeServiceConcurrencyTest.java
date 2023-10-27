@@ -9,13 +9,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
-import me.honki12345.hoonlog.concurrency.domain.TestPost;
-import me.honki12345.hoonlog.concurrency.domain.TestUserAccount;
-import me.honki12345.hoonlog.concurrency.repository.TestPostLikeRepository;
-import me.honki12345.hoonlog.concurrency.repository.TestPostRepository;
-import me.honki12345.hoonlog.concurrency.repository.TestUserAccountRepository;
+import me.honki12345.hoonlog.concurrency.repository.PostRepositoryOptimisticLock;
+import me.honki12345.hoonlog.concurrency.service.PostLikeServiceOptimisticLock;
+import me.honki12345.hoonlog.domain.Post;
+import me.honki12345.hoonlog.domain.UserAccount;
+import me.honki12345.hoonlog.domain.vo.Profile;
 import me.honki12345.hoonlog.dto.PostLikeDTO;
-import me.honki12345.hoonlog.util.ConcurrencyTestSupport;
+import me.honki12345.hoonlog.repository.PostLikeRepository;
+import me.honki12345.hoonlog.repository.PostRepository;
+import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.service.PostLikeService;
+import me.honki12345.hoonlog.util.IntegrationTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @DisplayName("PostLike Pessimistic lock Test")
-public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
+public class PostLikeServiceConcurrencyTest extends IntegrationTestSupport {
 
     private final int threadCount = 300;
 
@@ -31,13 +35,17 @@ public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
     private CountDownLatch countDownLatch;
 
     @Autowired
-    TestUserAccountRepository userAccountRepository;
+    UserAccountRepository userAccountRepository;
     @Autowired
-    TestPostRepository postRepository;
+    PostRepository postRepositoryPessimisticLock;
     @Autowired
-    TestPostLikeRepository postLikeRepository;
+    PostRepositoryOptimisticLock postRepositoryOptimisticLock;
     @Autowired
-    me.honki12345.hoonlog.concurrency.service.PostLikeServiceConcurrencyTest postLikeService;
+    PostLikeRepository postLikeRepository;
+    @Autowired
+    PostLikeService postLikeServicePessimisticLock;
+    @Autowired
+    PostLikeServiceOptimisticLock postLikeServiceOptimisticLock;
 
     @BeforeEach
     void setUp() {
@@ -48,20 +56,21 @@ public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
     @AfterEach
     void tearDown() {
         postLikeRepository.deleteAllInBatch();
-        postRepository.deleteAllInBatch();
+        postRepositoryPessimisticLock.deleteAllInBatch();
         userAccountRepository.deleteAllInBatch();
     }
 
 
     @DisplayName("게시글에 좋아요 요청이 동시에 이루어질 경우, 게시글의 좋아요 카운트에 비관적 락을 걸었다면, 데이터 무결성을 보장한다")
     @Test
-    void givenMultiThreadingRequest_whenPessimisticLockOnPostLike_thenReturnsLikeCountSameAsMultiThread() throws InterruptedException {
+    void givenMultiThreadingRequest_whenPessimisticLockOnPostLike_thenReturnsLikeCountSameAsMultiThread()
+        throws InterruptedException {
         // given
-        TestUserAccount testUserAccount = TestUserAccount.of(TEST_USERNAME, TEST_PASSWORD,
-            "test@email.com");
+        UserAccount testUserAccount = UserAccount.of(TEST_USERNAME, TEST_PASSWORD,
+            "test@email.com", Profile.of("blogName", "blogBio"));
         userAccountRepository.save(testUserAccount);
-        TestPost testPost = TestPost.of(null, testUserAccount, "title", "content");
-        TestPost savedTestPost = postRepository.save(testPost);
+        Post testPost = Post.of(null, testUserAccount, "title", "content");
+        Post savedTestPost = postRepositoryPessimisticLock.save(testPost);
 
         // when
         IntStream.range(0, threadCount).forEach(e -> executorService.submit(() -> {
@@ -69,12 +78,12 @@ public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
                 String username = "test" + e;
                 String password = "pwd" + e;
                 String email = "test" + e + "@mail.com";
-                TestUserAccount userAccount = TestUserAccount.of(username, password,
-                    email);
-                TestUserAccount savedTestUserAccount = userAccountRepository.save(userAccount);
+                UserAccount userAccount = UserAccount.of(username, password,
+                    email, Profile.of("name", "bio"));
+                UserAccount savedTestUserAccount = userAccountRepository.save(userAccount);
                 PostLikeDTO postLikeDTO = new PostLikeDTO(savedTestPost.getId(),
                     savedTestUserAccount.getId());
-                postLikeService.createOnPessimisticLock(postLikeDTO);
+                postLikeServicePessimisticLock.create(postLikeDTO);
             } catch (Exception exception) {
                 System.out.println("exception: " + exception.getMessage());
             } finally {
@@ -85,7 +94,7 @@ public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
         countDownLatch.await();
 
         // then
-        TestPost post = postRepository.findById(savedTestPost.getId()).orElseThrow();
+        Post post = postRepositoryPessimisticLock.findById(savedTestPost.getId()).orElseThrow();
         System.out.println("post.getLikeCount() = " + post.getLikeCount());
         assertThat(post.getLikeCount()).isEqualTo(threadCount);
 
@@ -93,13 +102,14 @@ public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
 
     @DisplayName("게시글에 좋아요 요청이 동시에 이루어질 경우, 게시글의 좋아요 카운트에 낙관적 락을 걸었다면, 데이터 무결성을 보장한다")
     @Test
-    void givenMultiThreadingRequest_whenOptimisticLockOnPostLike_thenReturnsLikeCountSameAsMultiThread2() throws InterruptedException {
+    void givenMultiThreadingRequest_whenOptimisticLockOnPostLike_thenReturnsLikeCountSameAsMultiThread()
+        throws InterruptedException {
         // given
-        TestUserAccount testUserAccount = TestUserAccount.of(TEST_USERNAME, TEST_PASSWORD,
-            "test@email.com");
+        UserAccount testUserAccount = UserAccount.of(TEST_USERNAME, TEST_PASSWORD,
+            "test@email.com", Profile.of("name", "bio"));
         userAccountRepository.save(testUserAccount);
-        TestPost testPost = TestPost.of(null, testUserAccount, "title", "content");
-        TestPost savedTestPost = postRepository.save(testPost);
+        Post testPost = Post.of(null, testUserAccount, "title", "content");
+        Post savedTestPost = postRepositoryOptimisticLock.save(testPost);
         AtomicInteger conflictCount = new AtomicInteger();
 
         // when
@@ -108,12 +118,12 @@ public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
                 String username = "test" + e;
                 String password = "pwd" + e;
                 String email = "test" + e + "@mail.com";
-                TestUserAccount userAccount = TestUserAccount.of(username, password,
-                    email);
-                TestUserAccount savedTestUserAccount = userAccountRepository.save(userAccount);
+                UserAccount userAccount = UserAccount.of(username, password,
+                    email, Profile.of("name", "bio"));
+                UserAccount savedTestUserAccount = userAccountRepository.save(userAccount);
                 PostLikeDTO postLikeDTO = new PostLikeDTO(savedTestPost.getId(),
                     savedTestUserAccount.getId());
-                postLikeService.createOnOptimisticLock(postLikeDTO);
+                postLikeServiceOptimisticLock.createOnOptimisticLock(postLikeDTO);
             } catch (Exception exception) {
                 conflictCount.getAndIncrement();
             } finally {
@@ -124,7 +134,7 @@ public class PostLikeServiceConcurrencyTest extends ConcurrencyTestSupport {
         countDownLatch.await();
 
         // then
-        TestPost post = postRepository.findById(savedTestPost.getId()).orElseThrow();
+        Post post = postRepositoryOptimisticLock.findById(savedTestPost.getId()).orElseThrow();
         System.out.println("post.getLikeCount() = " + post.getLikeCount());
         assertThat(post.getLikeCount()).isEqualTo(threadCount - conflictCount.get());
 
