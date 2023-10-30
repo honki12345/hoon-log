@@ -15,6 +15,7 @@ import me.honki12345.hoonlog.repository.PostImageRepository;
 import me.honki12345.hoonlog.repository.PostLikeRepository;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.repository.elasticsearch.PostSearchRepository;
 import org.springframework.boot.test.context.TestComponent;
 
 @TestComponent
@@ -27,6 +28,7 @@ public class PostBuilder {
     public static final String TEST_UPDATED_POST_CONTENT = "updatedContent";
 
     private final PostRepository postRepository;
+    private final PostSearchRepository postSearchRepository;
     private final UserAccountRepository userAccountRepository;
     private final PostImageRepository postImageRepository;
     private final PostLikeRepository postLikeRepository;
@@ -35,26 +37,23 @@ public class PostBuilder {
         this.postLikeRepository.deleteAllInBatch();
         this.postImageRepository.deleteAllInBatch();
         this.postRepository.deleteAllInBatch();
+        this.postSearchRepository.deleteAll();
     }
 
     public Post createPostByTestUser() {
-        PostRequest postRequest = PostRequest.of(TEST_POST_TITLE, TEST_POST_CONTENT);
-        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
-            TEST_USERNAME);
-        return optionalUserAccount.map(userAccount -> postRepository.saveAndFlush(
-                postRequest.toDTO().toEntity().addUserAccount(userAccount)))
-            .orElseThrow(() -> new UserAccountNotFoundException(
-                ErrorCode.USER_ACCOUNT_NOT_FOUND));
+        return createPostByTestUser(TEST_POST_TITLE, TEST_POST_CONTENT);
     }
 
     public Post createPostByTestUser(String title, String content) {
         PostRequest postRequest = PostRequest.of(title, content);
-        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsername(
+        Optional<UserAccount> optionalUserAccount = userAccountRepository.findByUsernameFetchJoin(
             TEST_USERNAME);
-        return optionalUserAccount.map(userAccount -> postRepository.save(
-                postRequest.toDTO().toEntity().addUserAccount(userAccount)))
+        Post post = optionalUserAccount.map(userAccount -> postRepository.save(
+            postRequest.toDTO().toEntity().addUserAccount(userAccount)))
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
+        postSearchRepository.save(post);
+        return post;
     }
 
     public Post createPostWithImageFileByTestUser(PostImage postImage) {
