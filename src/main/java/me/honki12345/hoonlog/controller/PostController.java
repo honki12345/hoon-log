@@ -75,7 +75,8 @@ public class PostController {
     public ResponseEntity<Page<PostResponse>> searchPosts(
         @RequestParam(required = false) String keyword,
 
-        @Parameter(description = "default 값: size=" + PAGEABLE_DEFAULT_SIZE + " sort=" + PAGEABLE_DEFAULT_SORT_COLUMN + " direction=DESC")
+        @Parameter(description = "default 값: size=" + PAGEABLE_DEFAULT_SIZE + " sort="
+            + PAGEABLE_DEFAULT_SORT_COLUMN + " direction=DESC")
         @PageableDefault(size = PAGEABLE_DEFAULT_SIZE, sort = PAGEABLE_DEFAULT_SORT_COLUMN, direction = Direction.DESC) Pageable pageable) {
         Page<PostResponse> responses = postService.searchPosts(keyword, pageable)
             .map(PostResponse::from);
@@ -94,8 +95,8 @@ public class PostController {
     @GetMapping("/tag")
     public ResponseEntity<Page<PostResponse>> searchPostsByTag(
         @RequestParam("tagName") String tagName,
-
-        @Parameter(description = "default 값: size=" + PAGEABLE_DEFAULT_SIZE + " sort=" + PAGEABLE_DEFAULT_SORT_COLUMN + " direction=DESC")
+        @Parameter(description = "default 값: size=" + PAGEABLE_DEFAULT_SIZE + " sort="
+            + PAGEABLE_DEFAULT_SORT_COLUMN + " direction=DESC")
         @PageableDefault(size = PAGEABLE_DEFAULT_SIZE, sort = PAGEABLE_DEFAULT_SORT_COLUMN, direction = Direction.DESC) Pageable pageable) {
         TagDTO tagDTO = TagDTO.fromWithoutPostIds(tagService.searchTag(tagName));
         Page<PostResponse> responses = postService.searchPostsByTagName(pageable, tagDTO)

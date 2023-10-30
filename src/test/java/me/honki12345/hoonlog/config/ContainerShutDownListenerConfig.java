@@ -11,7 +11,7 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
-public class ContainerShutDownListener {
+public class ContainerShutDownListenerConfig {
 
     @Bean
     ServletListenerRegistrationBean<ServletContextListener> servletListener() {
