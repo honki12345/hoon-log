@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import me.honki12345.hoonlog.repository.elasticsearch.PostSearchRepository;
-import me.honki12345.hoonlog.repository.elasticsearch.UserAccountSearchRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +15,7 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchCustomConversions;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
-@EnableElasticsearchRepositories(basePackageClasses = {PostSearchRepository.class,
-    UserAccountSearchRepository.class})
+@EnableElasticsearchRepositories(basePackageClasses = {PostSearchRepository.class})
 @Configuration
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
