@@ -17,10 +17,19 @@ public class UserAccountRepositoryCustomImpl extends QuerydslRepositorySupport i
     }
 
     @Override
-    public Optional<UserAccount> findByIdWithPostLike(Long userId) {
+    public Optional<UserAccount> findByIdFetchJoin(Long userId) {
         UserAccount fetchedOne = from(userAccount)
             .leftJoin(userAccount.postLikes, postLike).fetchJoin()
             .where(userAccount.id.eq(userId))
+            .fetchOne();
+        return Optional.ofNullable(fetchedOne);
+    }
+
+    @Override
+    public Optional<UserAccount> findByUsernameFetchJoin(String username) {
+        UserAccount fetchedOne = from(userAccount)
+            .leftJoin(userAccount.postLikes, postLike).fetchJoin()
+            .where(userAccount.username.eq(username))
             .fetchOne();
         return Optional.ofNullable(fetchedOne);
     }

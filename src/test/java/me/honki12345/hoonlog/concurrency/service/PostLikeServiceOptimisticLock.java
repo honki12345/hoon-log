@@ -25,7 +25,7 @@ public class PostLikeServiceOptimisticLock {
     private final UserAccountRepository userAccountRepository;
 
     public void createOnOptimisticLock(PostLikeDTO postLikeDTO) {
-        UserAccount userAccount = userAccountRepository.findByIdWithPostLike(
+        UserAccount userAccount = userAccountRepository.findByIdFetchJoin(
                 postLikeDTO.userId())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));

@@ -39,7 +39,7 @@ public class PostRepositoryCustomImpl extends QuerydslRepositorySupport implemen
     }
 
     @Override
-    public Optional<Post> findByPostIdWithAll(Long postId) {
+    public Optional<Post> findByPostIdFetchJoin(Long postId) {
         Post fetchedOne = from(post)
             .leftJoin(post.postImages, postImage).fetchJoin()
             .leftJoin(post.postComments, postComment).fetchJoin()
@@ -66,7 +66,7 @@ public class PostRepositoryCustomImpl extends QuerydslRepositorySupport implemen
     }
 
     @Override
-    public Page<Post> findAllWithAll(Pageable pageable) {
+    public Page<Post> findAllFetchJoin(Pageable pageable) {
         JPQLQuery<Post> query = from(post)
             .leftJoin(post.postImages, postImage).fetchJoin()
             .leftJoin(post.postComments, postComment).fetchJoin()
@@ -77,7 +77,7 @@ public class PostRepositoryCustomImpl extends QuerydslRepositorySupport implemen
     }
 
     @Override
-    public Page<Post> findWithAllByTitleContainingOrContentContaining(String keyword,
+    public Page<Post> findFetchJoinByTitleContainingOrContentContaining(String keyword,
         Pageable pageable) {
         JPQLQuery<Post> query = from(post)
             .leftJoin(post.postImages, postImage).fetchJoin()

@@ -19,6 +19,7 @@ import me.honki12345.hoonlog.error.exception.domain.UpdatePostForbiddenException
 import me.honki12345.hoonlog.error.exception.domain.UserAccountNotFoundException;
 import me.honki12345.hoonlog.repository.PostRepository;
 import me.honki12345.hoonlog.repository.UserAccountRepository;
+import me.honki12345.hoonlog.repository.elasticsearch.PostSearchRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostSearchRepository postSearchRepository;
     private final UserAccountRepository userAccountRepository;
     private final PostImageService postImageService;
     private final TagService tagService;
 
     @Transactional(readOnly = true)
     public Post searchPost(Long postId) {
-        return postRepository.findByPostIdWithAll(postId)
+        return postRepository.findByPostIdFetchJoin(postId)
             .orElseThrow(() -> new PostNotFoundException(
                 ErrorCode.POST_NOT_FOUND));
     }
@@ -45,11 +47,14 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<Post> searchPosts(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isBlank()) {
-            return postRepository.findAllWithAll(pageable);
+            return postRepository.findAllFetchJoin(pageable);
         }
 
-        return postRepository.findWithAllByTitleContainingOrContentContaining(keyword,
+/*
+        return postRepository.findFetchJoinByTitleContainingOrContentContaining(keyword,
             pageable);
+*/
+        return postSearchRepository.searchByKeyword(keyword, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -68,6 +73,7 @@ public class PostService {
         Post post = postDTO.toEntity();
         post.addUserAccount(userAccount);
         postRepository.save(post);
+        postSearchRepository.save(post);
         Optional.ofNullable(postImageFiles).ifPresent(
             multipartFiles -> postImageService.savePostImagesWithPost(postImageFiles, post));
         post.addTags(tagNames.isEmpty() ?
@@ -80,7 +86,7 @@ public class PostService {
     public Post updatePost(Long postId, UserAccountDTO userAccountDTO,
         PostDTO postDTO, List<MultipartFile> postImageFiles,
         Set<String> tagNames) {
-        Post post = postRepository.findByPostIdWithAll(postId)
+        Post post = postRepository.findByPostIdFetchJoin(postId)
             .orElseThrow(() -> new PostNotFoundException(
                 ErrorCode.POST_NOT_FOUND));
         if (!post.getUserAccount().getUsername().equals(userAccountDTO.username())) {
