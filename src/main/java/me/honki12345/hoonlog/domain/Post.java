@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Version;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -156,5 +157,12 @@ public class Post extends AuditingFields {
     public void deletePostLike(PostLike postLike) {
         this.postLikes.remove(postLike);
         likeCount--;
+    }
+
+    public void updateTimeAndWriter(String username) {
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
+        this.createdBy = username;
+        this.modifiedBy = username;
     }
 }
