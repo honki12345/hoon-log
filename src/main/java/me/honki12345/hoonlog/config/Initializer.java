@@ -83,7 +83,7 @@ public class Initializer {
             UserAccount savedUserAccount = userAccountRepository.save(userAccount);
 
             List<Post> posts = new LinkedList<>();
-            for (int i = 1; i <= 300_000; i++) {
+            for (int i = 1; i <= 3000_000; i++) {
                 Post post = Post.of((long) i, savedUserAccount, lorem.getTitle(3, 5), lorem.getWords(5, 10));
                 post.updateTimeAndWriter(userAccount.getUsername());
                 posts.add(post);
