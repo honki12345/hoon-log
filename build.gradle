@@ -61,6 +61,8 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
     // dev-tools 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // lorem generator
+    implementation 'com.thedeanda:lorem:2.2'
     // h2
     runtimeOnly 'com.h2database:h2'
     // mysql driver
