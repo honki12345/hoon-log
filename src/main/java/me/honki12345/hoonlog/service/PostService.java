@@ -50,10 +50,6 @@ public class PostService {
             return postRepository.findAllFetchJoin(pageable);
         }
 
-/*
-        return postRepository.findFetchJoinByTitleContainingOrContentContaining(keyword,
-            pageable);
-*/
         return postSearchRepository.searchByKeyword(keyword, pageable);
     }
 
