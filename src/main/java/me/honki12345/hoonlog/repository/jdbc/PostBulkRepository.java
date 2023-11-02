@@ -26,20 +26,12 @@ public class PostBulkRepository {
                 ps.setLong(1, post.getId());
                 ps.setString(2, post.getContent());
                 ps.setObject(3, post.getCreatedAt());
-                // createdBy
                 ps.setString(4, post.getCreatedBy());
-                // likecount
                 ps.setLong(5, post.getLikeCount());
-                // modifiedAt
                 ps.setObject(6, post.getModifiedAt());
-                // modifiedBy
                 ps.setString(7, post.getModifiedBy());
-                // title
                 ps.setString(8, post.getTitle());
-                // userId
                 ps.setLong(9, post.getUserAccount().getId());
-                // version
-
             }
 
             @Override

@@ -159,9 +159,9 @@ public class Post extends AuditingFields {
         likeCount--;
     }
 
-    public void updateTimeAndWriter(String username) {
-        this.createdAt = LocalDateTime.now();
-        this.modifiedAt = LocalDateTime.now();
+    public void updateTimeAndWriter(String username, LocalDateTime time) {
+        this.createdAt = time;
+        this.modifiedAt = time;
         this.createdBy = username;
         this.modifiedBy = username;
     }
