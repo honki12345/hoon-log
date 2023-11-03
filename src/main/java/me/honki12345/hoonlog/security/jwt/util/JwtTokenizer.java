@@ -18,9 +18,9 @@ public class JwtTokenizer {
     private final byte[] accessSecret;
     private final byte[] refreshSecret;
 
-    @Value("{jwt.access-token-expire-count}")
+    @Value("${jwt.access-token-expire-count}")
     private String ACCESS_TOKEN_EXPIRE_COUNT;
-    @Value("{jwt.refresh-token-expire-count}")
+    @Value("${jwt.refresh-token-expire-count}")
     private String REFRESH_TOKEN_EXPIRE_COUNT;
 
     public JwtTokenizer(@Value("${jwt.secretKey}") String accessSecret,
