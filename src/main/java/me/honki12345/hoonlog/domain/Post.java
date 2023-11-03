@@ -55,10 +55,10 @@ public class Post extends AuditingFields {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private Set<PostComment> postComments = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<PostImage> postImages = new LinkedList<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JoinTable(
         name = "post_tag",
         joinColumns = @JoinColumn(name = "postId"),
@@ -66,7 +66,7 @@ public class Post extends AuditingFields {
     )
     private Set<Tag> tags = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private Set<PostLike> postLikes = new ConcurrentSkipListSet<>();
 
     @Version
