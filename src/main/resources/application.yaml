@@ -4,6 +4,7 @@ logging:
     me.honki12345.hoonlog: debug
     org.springframework.web.server: debug
     org.springframework.security: debug
+    org.springframework.data.elasticsearch.client.wire: trace
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     org.hibernate.orm.jdbc.bind: trace
 spring:
@@ -30,6 +31,8 @@ spring:
       max-request-size: 30MB
       enabled: true
       location:
+  main:
+    allow-bean-definition-overriding: true
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -54,6 +57,8 @@ file:
     url: /images/post/
   image:
     location: ${user.home}${file.separator}hoonlog${file.separator}post
+elasticsearch:
+  hostAndPort: localhost:9200
 
 ---
 spring:

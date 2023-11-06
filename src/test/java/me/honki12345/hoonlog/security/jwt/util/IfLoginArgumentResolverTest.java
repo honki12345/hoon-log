@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import me.honki12345.hoonlog.config.ElasticTestContainerConfig;
 import me.honki12345.hoonlog.config.WebConfig;
 import me.honki12345.hoonlog.controller.PostController;
 import me.honki12345.hoonlog.security.jwt.token.JwtAuthenticationToken;
@@ -26,7 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
 @DisplayName("MockMvcTest")
-@Import({WebConfig.class})
+@Import({WebConfig.class, ElasticTestContainerConfig.class})
 @WebMvcTest(
     controllers = {PostController.class, IfLoginAnnotationTestController.class},
     includeFilters = {

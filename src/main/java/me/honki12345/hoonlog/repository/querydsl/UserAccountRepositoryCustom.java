@@ -5,5 +5,6 @@ import me.honki12345.hoonlog.domain.UserAccount;
 
 public interface UserAccountRepositoryCustom {
 
-    Optional<UserAccount> findByIdWithPostLike(Long userId);
+    Optional<UserAccount> findByIdFetchJoin(Long userId);
+    Optional<UserAccount> findByUsernameFetchJoin(String username);
 }

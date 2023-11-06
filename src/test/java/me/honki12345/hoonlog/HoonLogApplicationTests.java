@@ -2,16 +2,19 @@ package me.honki12345.hoonlog;
 
 import static org.mockito.Mockito.mockStatic;
 
+import me.honki12345.hoonlog.config.ElasticTestContainerConfig;
+import me.honki12345.hoonlog.config.JpaAuditingConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
+@Import({ElasticTestContainerConfig.class, JpaAuditingConfig.class})
 @SpringBootTest
 class HoonLogApplicationTests {
 

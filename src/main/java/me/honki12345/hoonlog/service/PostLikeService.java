@@ -26,7 +26,7 @@ public class PostLikeService {
     private final UserAccountRepository userAccountRepository;
 
     public void create(PostLikeDTO postLikeDTO) {
-        UserAccount userAccount = userAccountRepository.findByIdWithPostLike(postLikeDTO.userId())
+        UserAccount userAccount = userAccountRepository.findByIdFetchJoin(postLikeDTO.userId())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
         Post post = postRepository.findByPostIdOnPessimisticLock(postLikeDTO.postId())
@@ -43,7 +43,7 @@ public class PostLikeService {
     }
 
     public void delete(PostLikeDTO postLikeDTO) {
-        UserAccount userAccount = userAccountRepository.findByIdWithPostLike(postLikeDTO.userId())
+        UserAccount userAccount = userAccountRepository.findByIdFetchJoin(postLikeDTO.userId())
             .orElseThrow(() -> new UserAccountNotFoundException(
                 ErrorCode.USER_ACCOUNT_NOT_FOUND));
         Post post = postRepository.findByPostIdOnPessimisticLock(postLikeDTO.postId())

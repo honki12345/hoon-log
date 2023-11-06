@@ -24,9 +24,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.honki12345.hoonlog.domain.vo.AuditingFields;
+import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Document(indexName = "posts")
 @Entity
 public class Post extends AuditingFields {
 
@@ -49,7 +52,7 @@ public class Post extends AuditingFields {
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private final Set<PostComment> postComments = new LinkedHashSet<>();
+    private Set<PostComment> postComments = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "post")
     private List<PostImage> postImages = new LinkedList<>();
@@ -73,6 +76,22 @@ public class Post extends AuditingFields {
         this.userAccount = userAccount;
         this.title = title;
         this.content = content;
+    }
+
+    @PersistenceCreator
+    public Post(Long id, UserAccount userAccount, String title, String content, long likeCount,
+        Set<PostComment> postComments, List<PostImage> postImages, Set<Tag> tags,
+        Set<PostLike> postLikes, Long version) {
+        this.id = id;
+        this.userAccount = userAccount;
+        this.title = title;
+        this.content = content;
+        this.likeCount = likeCount;
+        this.postComments = postComments;
+        this.postImages = postImages;
+        this.tags = tags;
+        this.postLikes = postLikes;
+        this.version = version;
     }
 
     public static Post of(Long id, String title, String content) {
