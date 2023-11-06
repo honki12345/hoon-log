@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Version;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -54,10 +55,10 @@ public class Post extends AuditingFields {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private Set<PostComment> postComments = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<PostImage> postImages = new LinkedList<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JoinTable(
         name = "post_tag",
         joinColumns = @JoinColumn(name = "postId"),
@@ -65,7 +66,7 @@ public class Post extends AuditingFields {
     )
     private Set<Tag> tags = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private Set<PostLike> postLikes = new ConcurrentSkipListSet<>();
 
     @Version
@@ -156,5 +157,12 @@ public class Post extends AuditingFields {
     public void deletePostLike(PostLike postLike) {
         this.postLikes.remove(postLike);
         likeCount--;
+    }
+
+    public void updateTimeAndWriter(String username, LocalDateTime time) {
+        this.createdAt = time;
+        this.modifiedAt = time;
+        this.createdBy = username;
+        this.modifiedBy = username;
     }
 }

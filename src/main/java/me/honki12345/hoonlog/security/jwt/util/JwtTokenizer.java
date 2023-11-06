@@ -18,9 +18,10 @@ public class JwtTokenizer {
     private final byte[] accessSecret;
     private final byte[] refreshSecret;
 
-    // TODO application.yaml 로 빼기
-    public final static Long ACCESS_TOKEN_EXPIRE_COUNT = 30 * 60 * 1000L; // 30 minutes
-    public final static Long REFRESH_TOKEN_EXPIRE_COUNT = 7 * 24 * 60 * 60 * 1000L; // 7 days
+    @Value("${jwt.access-token-expire-count}")
+    private String ACCESS_TOKEN_EXPIRE_COUNT;
+    @Value("${jwt.refresh-token-expire-count}")
+    private String REFRESH_TOKEN_EXPIRE_COUNT;
 
     public JwtTokenizer(@Value("${jwt.secretKey}") String accessSecret,
         @Value("${jwt.refreshKey}") String refreshSecret) {
@@ -29,7 +30,7 @@ public class JwtTokenizer {
     }
 
     public String createAccessToken(Long id, String username, List<String> roles) {
-        return createToken(id, username, roles, ACCESS_TOKEN_EXPIRE_COUNT, accessSecret);
+        return createToken(id, username, roles, Long.valueOf(ACCESS_TOKEN_EXPIRE_COUNT), accessSecret);
     }
 
     public String createNewAccessToken(String refreshToken) {
@@ -41,7 +42,7 @@ public class JwtTokenizer {
     }
 
     public String createRefreshToken(Long id, String username, List<String> roles) {
-        return createToken(id, username, roles, REFRESH_TOKEN_EXPIRE_COUNT, refreshSecret);
+        return createToken(id, username, roles, Long.valueOf(REFRESH_TOKEN_EXPIRE_COUNT), refreshSecret);
     }
 
     private String createToken(Long id, String username, List<String> roles,

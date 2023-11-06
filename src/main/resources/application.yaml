@@ -51,6 +51,8 @@ springdoc:
 jwt:
   secretKey: ${JWT_SECRET_KEY}
   refreshKey: ${JWT_REFRESH_KEY}
+  access-token-expire-count: 1800000
+  refresh-token-expire-count: 604800000
 file:
   upload:
     location: ${user.home}${file.separator}hoonlog
