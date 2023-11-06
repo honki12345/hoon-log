@@ -50,7 +50,8 @@ public class PostService {
             return postRepository.findAllFetchJoin(pageable);
         }
 
-        return postSearchRepository.searchByKeyword(keyword, pageable);
+        return postSearchRepository.findByTitleContainingOrContentContaining(keyword, keyword,
+            pageable);
     }
 
     @Transactional(readOnly = true)
@@ -73,8 +74,9 @@ public class PostService {
         Optional.ofNullable(postImageFiles).ifPresent(
             multipartFiles -> postImageService.savePostImagesWithPost(postImageFiles, post));
         post.addTags(tagNames.isEmpty() ?
-            Collections.emptySet() : tagNames.stream().map(tagService::getTagIfPresentOrCreate).collect(
-            Collectors.toUnmodifiableSet()));
+            Collections.emptySet()
+            : tagNames.stream().map(tagService::getTagIfPresentOrCreate).collect(
+                Collectors.toUnmodifiableSet()));
 
         return post;
     }
