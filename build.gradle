@@ -32,7 +32,7 @@ dependencies {
     // jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // elasticsearch
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.data:spring-data-elasticsearch:4.2.2'
     testImplementation "org.testcontainers:elasticsearch:1.16.3"
     // queryDSL 설정
     // querydsl
