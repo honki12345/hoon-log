@@ -60,7 +60,10 @@ file:
   image:
     location: ${user.home}${file.separator}hoonlog${file.separator}post
 elasticsearch:
-  hostAndPort: localhost:9200
+  host: ${ES_HOST}
+  port: ${ES_PORT}
+  username: ${ES_USERNAME}
+  password: ${ES_PASSWORD}
 
 ---
 spring:
