@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import me.honki12345.hoonlog.repository.elasticsearch.PostSearchRepository;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
+import org.springframework.data.elasticsearch.client.RestClients;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchCustomConversions;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
@@ -19,7 +21,7 @@ import org.testcontainers.utility.DockerImageName;
 @EnableElasticsearchRepositories(basePackageClasses = {PostSearchRepository.class})
 public class ElasticTestContainerConfig extends ElasticSearchConfig {
 
-    private static final String ELASTICSEARCH_VERSION = "7.15.2";
+    private static final String ELASTICSEARCH_VERSION = "7.10.2";
     private static final DockerImageName ELASTICSEARCH_IMAGE =
         DockerImageName
             .parse("docker.elastic.co/elasticsearch/elasticsearch")
@@ -32,10 +34,11 @@ public class ElasticTestContainerConfig extends ElasticSearchConfig {
     }
 
     @Override
-    public ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
+    public RestHighLevelClient elasticsearchClient() {
+        ClientConfiguration clientConfiguration = ClientConfiguration.builder()
             .connectedTo(container.getHttpHostAddress())
             .build();
+        return RestClients.create(clientConfiguration).rest();
     }
 
     @Bean
