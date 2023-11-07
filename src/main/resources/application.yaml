@@ -95,3 +95,8 @@ file:
     url: /images/post/
   image:
     location: ${user.home}${file.separator}test-hoonlog${file.separator}post
+elasticsearch:
+  host: localhost
+  port: 8080
+  username: username
+  password: password
