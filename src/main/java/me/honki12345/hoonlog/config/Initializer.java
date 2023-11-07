@@ -34,6 +34,11 @@ public class Initializer {
 
     public static final String DEFAULT_ROLE_NAME = "ROLE_USER";
 
+    // total data count = COUNT * BULK_SIZE
+    public static final int COUNT = 50;
+    public static final int BULK_SIZE = 1_000;
+    public static final int THREAD_SIZE = 6;
+
     @Bean
     public CommandLineRunner init(RoleRepository roleRepository) {
 
@@ -88,13 +93,13 @@ public class Initializer {
             UserAccount savedUserAccount = userAccountRepository.save(userAccount);
             LocalDateTime time = LocalDateTime.now();
 
-            ExecutorService executorService = Executors.newFixedThreadPool(6);
-            CountDownLatch countDownLatch = new CountDownLatch(100);
-            for (int i = 1; i <= 100; i++) {
+            ExecutorService executorService = Executors.newFixedThreadPool(THREAD_SIZE);
+            CountDownLatch countDownLatch = new CountDownLatch(COUNT);
+            for (int i = 1; i <= COUNT; i++) {
                 int count = i;
                 executorService.execute(() -> {
                     List<Post> posts = new LinkedList<>();
-                    for (int j = 1 + (count - 1) * 10_000; j <= count * 10_000; j++) {
+                    for (int j = 1 + (count - 1) * BULK_SIZE; j <= count * BULK_SIZE; j++) {
                         Post post = Post.of((long) j, savedUserAccount, lorem.getTitle(3, 5),
                             lorem.getWords(5, 10));
                         post.updateTimeAndWriter(userAccount.getUsername(), time);
