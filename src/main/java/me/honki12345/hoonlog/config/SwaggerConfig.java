@@ -2,10 +2,14 @@ package me.honki12345.hoonlog.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @OpenAPIDefinition(
     info = @Info(title = "hoonlog API 명세서",
@@ -23,6 +27,9 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
             .group("hoonlog API v1")
             .pathsToMatch(paths)
+            .addOpenApiCustomizer(openApi -> openApi.setServers(
+                List.of(new Server().description("prod").url("http://hoon-log.p-e.kr"),
+                    new Server().description("dev").url("http://localhost:8080"))))
             .build();
     }
 
