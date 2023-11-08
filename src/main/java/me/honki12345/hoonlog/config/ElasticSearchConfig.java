@@ -39,15 +39,15 @@ public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
         String profile = System.getProperty("spring.profiles.active");
 
         ClientConfiguration clientConfiguration;
-        if ("dev".equals(profile) || "test".equals(profile)) {
-            clientConfiguration = ClientConfiguration.builder()
-                .connectedTo(new InetSocketAddress(host, Integer.valueOf(port)))
-                .build();
-        } else {
+        if ("prod".equals(profile)) {
             clientConfiguration = ClientConfiguration.builder()
                 .connectedTo(new InetSocketAddress(host, Integer.valueOf(port)))
                 .usingSsl()
                 .withBasicAuth(username, password)
+                .build();
+        } else {
+            clientConfiguration = ClientConfiguration.builder()
+                .connectedTo(new InetSocketAddress(host, Integer.valueOf(port)))
                 .build();
         }
         return RestClients.create(clientConfiguration).rest();
