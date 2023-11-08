@@ -122,3 +122,6 @@ gradle-app.setting
 
 # Q클래스
 /src/main/generated/
+
+# prod 설정파일
+/src/main/resources/application-prod.yaml
