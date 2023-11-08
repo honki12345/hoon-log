@@ -8,10 +8,6 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     org.hibernate.orm.jdbc.bind: trace
 spring:
-  datasource:
-    url: ${LOCAL_DB_URL}
-    username: ${LOCAL_DB_USERNAME}
-    password: ${LOCAL_DB_PASSWORD}
   jpa:
     defer-datasource-initialization: true
     hibernate:
@@ -47,21 +43,51 @@ springdoc:
   default-produces-media-type: application/json
   paths-to-match:
     - /api/v1/**
-
-jwt:
-  secretKey: ${JWT_SECRET_KEY}
-  refreshKey: ${JWT_REFRESH_KEY}
-  access-token-expire-count: 1800000
-  refresh-token-expire-count: 604800000
 file:
   upload:
     location: ${user.home}${file.separator}hoonlog
     url: /images/post/
   image:
     location: ${user.home}${file.separator}hoonlog${file.separator}post
-elasticsearch:
-  hostAndPort: localhost:9200
 
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${LOCAL_DB_URL}
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+  refreshKey: ${JWT_REFRESH_KEY}
+  access-token-expire-count: 1800000
+  refresh-token-expire-count: 604800000
+elasticsearch:
+  host: ${ES_HOST}
+  port: ${ES_PORT}
+  username: ${ES_USERNAME}
+  password: ${ES_PASSWORD}
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${LOCAL_DB_URL}
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+  refreshKey: ${JWT_REFRESH_KEY}
+  access-token-expire-count: 1800000
+  refresh-token-expire-count: 604800000
+elasticsearch:
+  host: localhost
+  port: 9200
+  username: username
+  password: password
 ---
 spring:
   config:
@@ -80,15 +106,19 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
-  h2:
-    console:
-      enabled: true
 jwt:
   secretKey: 098766543211hoon-log-secretKey-2023-10-0101234567890
   refreshKey: 2098766543211hoon023_10-01-hoon-log-refreshKey01234567890
+  access-token-expire-count: 1800000
+  refresh-token-expire-count: 604800000
 file:
   upload:
     location: ${user.home}${file.separator}test-hoonlog
     url: /images/post/
   image:
     location: ${user.home}${file.separator}test-hoonlog${file.separator}post
+elasticsearch:
+  host: localhost
+  port: 8080
+  username: username
+  password: password

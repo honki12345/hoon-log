@@ -12,12 +12,23 @@ public class ElasticSearchConfigTest {
     void elasticSearchConfigTest() throws Exception {
         // given
         ElasticSearchConfig elasticSearchConfig = new ElasticSearchConfig();
-        Field hostAndPost = ElasticSearchConfig.class.getDeclaredField("hostAndPost");
-        hostAndPost.setAccessible(true);
-        hostAndPost.set(elasticSearchConfig, "localhost:9200");
+        Field host = ElasticSearchConfig.class.getDeclaredField("host");
+        host.setAccessible(true);
+        host.set(elasticSearchConfig, "localhost");
 
+        Field port = ElasticSearchConfig.class.getDeclaredField("port");
+        port.setAccessible(true);
+        port.set(elasticSearchConfig, "8080");
+
+        Field username = ElasticSearchConfig.class.getDeclaredField("username");
+        username.setAccessible(true);
+        username.set(elasticSearchConfig, "username");
+
+        Field password = ElasticSearchConfig.class.getDeclaredField("password");
+        password.setAccessible(true);
+        password.set(elasticSearchConfig, "8080");
         // when // then
-        Assertions.assertDoesNotThrow(elasticSearchConfig::clientConfiguration);
+        Assertions.assertDoesNotThrow(elasticSearchConfig::elasticsearchClient);
     }
 
 }
