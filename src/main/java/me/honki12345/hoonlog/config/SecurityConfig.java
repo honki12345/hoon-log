@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
@@ -17,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -25,6 +27,15 @@ public class SecurityConfig {
 
     private final AuthenticationManagerConfig authenticationManagerConfig;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+/*
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
+            AntPathRequestMatcher.antMatcher("/swagger-resources/**"),
+            AntPathRequestMatcher.antMatcher("/api-docs/**"));
+    }
+*/
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
