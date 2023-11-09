@@ -5,11 +5,10 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @OpenAPIDefinition(
     info = @Info(title = "hoonlog API 명세서",
@@ -28,7 +27,7 @@ public class SwaggerConfig {
             .group("hoonlog API v1")
             .pathsToMatch(paths)
             .addOpenApiCustomizer(openApi -> openApi.setServers(
-                List.of(new Server().description("prod").url("http://hoon-log.p-e.kr"),
+                List.of(new Server().description("prod").url("https://hoon-log.p-e.kr"),
                     new Server().description("dev").url("http://localhost:8080"))))
             .build();
     }
