@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Objects;
 import me.honki12345.hoonlog.repository.elasticsearch.PostSearchRepository;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
         String profile = System.getProperty("spring.profiles.active");
 
         ClientConfiguration clientConfiguration;
-        if ("prod".equals(profile)) {
+        if (!Objects.isNull(profile) && profile.contains("prod")) {
             clientConfiguration = ClientConfiguration.builder()
                 .connectedTo(new InetSocketAddress(host, Integer.valueOf(port)))
                 .usingSsl()
