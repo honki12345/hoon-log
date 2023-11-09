@@ -28,15 +28,6 @@ public class SecurityConfig {
     private final AuthenticationManagerConfig authenticationManagerConfig;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-/*
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
-            AntPathRequestMatcher.antMatcher("/swagger-resources/**"),
-            AntPathRequestMatcher.antMatcher("/api-docs/**"));
-    }
-*/
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(CsrfConfigurer::disable)
