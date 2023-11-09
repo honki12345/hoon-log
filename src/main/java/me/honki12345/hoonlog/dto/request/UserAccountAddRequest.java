@@ -5,8 +5,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import me.honki12345.hoonlog.domain.Role;
-import me.honki12345.hoonlog.domain.UserAccount;
 import me.honki12345.hoonlog.dto.ProfileDTO;
 import me.honki12345.hoonlog.dto.UserAccountDTO;
 
@@ -20,8 +18,8 @@ public record UserAccountAddRequest(
     @Size(min = 8, max = 20, message = "비밀번호 형식이 올바르지 않습니다")
     String userPassword,
 
-    @Schema(description = "이메일", pattern = ".+@.+", nullable = true)
-    @Pattern(regexp = ".+@.+", message = "이메일 형식이 올바르지 않습니다")
+    @Schema(description = "이메일", pattern = "[a-zA-Z0-9+-_.]{1,8}@[a-zA-Z0-9-]{1,8}\\.[a-zA-Z]{2,5}", nullable = true)
+    @Pattern(regexp = "[a-zA-Z0-9+-_.]{1,8}@[a-zA-Z0-9-]{1,8}\\.[a-zA-Z]{2,5}", message = "이메일 형식이 올바르지 않습니다")
     String email,
 
     @Valid
