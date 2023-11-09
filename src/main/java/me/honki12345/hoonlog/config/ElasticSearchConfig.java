@@ -39,7 +39,7 @@ public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
         String profile = System.getProperty("spring.profiles.active");
 
         ClientConfiguration clientConfiguration;
-        if ("prod".equals(profile)) {
+        if (profile.contains("prod")) {
             clientConfiguration = ClientConfiguration.builder()
                 .connectedTo(new InetSocketAddress(host, Integer.valueOf(port)))
                 .usingSsl()
