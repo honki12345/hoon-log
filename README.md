@@ -2,7 +2,7 @@
 벨로그를 모티브로한 블로그 플랫폼입니다
 
 ## 배포주소
-URL: https://hoon-log.p-e.kr
+~~URL: https://hoon-log.p-e.kr~~ (중단상태)
 
 ## 작업기간
 - 2023.09 ~ 
